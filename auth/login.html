@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PartsPro — Login</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+</head>
+<body class="d-flex flex-column">
+<div class="page page-center">
+  <div class="container container-tight py-4">
+
+    <!-- Logo / Title -->
+    <div class="text-center mb-4">
+      <h2 class="fw-bold">PartsPro</h2>
+      <p class="text-muted">Vehicle Parts Management System</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="card card-md">
+      <div class="card-body">
+        <h2 class="h2 text-center mb-4">Sign in to your account</h2>
+
+        <div class="mb-3">
+          <label class="form-label">Email address</label>
+          <input id="email" type="email" class="form-control" placeholder="your@email.com">
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Password</label>
+          <input id="password" type="password" class="form-control" placeholder="your password">
+        </div>
+
+        <!-- Error message (hidden by default) -->
+        <div id="error-msg" class="alert alert-danger d-none mb-3"></div>
+
+        <div class="form-footer">
+          <button id="login-btn" class="btn btn-primary w-100">Sign in</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center text-muted mt-3">
+      Don't have an account?
+      <a href="../auth/register.html">Register here</a>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+  document.getElementById('login-btn').addEventListener('click', async () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('error-msg');
+    const btn = document.getElementById('login-btn');
+
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
+    errorMsg.classList.add('d-none');
+
+    try {
+      const res = await axios.post('http://localhost:5260/api/auth/login', {
+        email, password
+      });
+
+      // Save token
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('role', res.data.role);
+
+      // Redirect based on role
+      const role = res.data.role;
+      if (role === 'Admin')    window.location.href = '../admin/dashboard.html';
+      else if (role === 'Staff')  window.location.href = '../staff/dashboard.html';
+      else if (role === 'Customer') window.location.href = '../customer/dashboard.html';
+
+    } catch (err) {
+      errorMsg.textContent = err.response?.data?.message || 'Invalid email or password';
+      errorMsg.classList.remove('d-none');
+      btn.textContent = 'Sign in';
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
