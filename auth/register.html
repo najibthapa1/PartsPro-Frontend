@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PartsPro — Create Account</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+  <style>
+    :root {
+      --pp-amber: #F59E0B;
+      --pp-amber-hover: #D97706;
+      --pp-navy:  #0F172A;
+      --pp-navy2: #1E293B;
+      --pp-navy3: #162032;
+    }
+
+    body {
+      background: var(--pp-navy);
+      color: #F1F5F9;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    .pp-nav {
+      background: rgba(15,23,42,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 0 2rem; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .pp-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .pp-logo-icon { width: 32px; height: 32px; background: var(--pp-amber); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .pp-logo-text { font-size: 18px; font-weight: 800; color: #fff; }
+    .pp-logo-text span { color: var(--pp-amber); }
+
+    /* PAGE LAYOUT */
+    .pp-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 60px);
+      padding: 3rem 2rem;
+    }
+
+    /* RIGHT FORM PANEL */
+    .pp-right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+    }
+
+    .pp-form-box {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    /* STEP INDICATOR */
+    .pp-steps {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .pp-step {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 500;
+      color: #475569;
+      cursor: default;
+    }
+    .pp-step.active { color: #fff; }
+    .pp-step.done   { color: #10B981; }
+    .pp-step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1.5px solid #334155;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      transition: all 0.25s;
+    }
+    .pp-step.active .pp-step-num { border-color: var(--pp-amber); background: var(--pp-amber); color: #0F172A; }
+    .pp-step.done   .pp-step-num { border-color: #10B981; background: #10B981; color: #fff; }
+    .pp-step-line {
+      flex: 1; height: 1.5px;
+      background: rgba(255,255,255,0.06);
+      margin: 0 10px; max-width: 50px;
+    }
+
+    /* FORM STYLES — override Tabler for dark theme */
+    .form-label { color: #94A3B8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+    .form-control, .form-select {
+      background: rgba(255,255,255,0.04) !important;
+      border-color: rgba(255,255,255,0.1) !important;
+      color: #F1F5F9 !important;
+      border-radius: 10px !important;
+    }
+    .form-control:focus, .form-select:focus {
+      background: rgba(245,158,11,0.04) !important;
+      border-color: rgba(245,158,11,0.4) !important;
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.08) !important;
+      color: #F1F5F9 !important;
+    }
+    .form-control::placeholder { color: #334155 !important; }
+    .form-select option { background: #1E293B; color: #F1F5F9; }
+
+    /* Amber button */
+    .btn-amber { background: var(--pp-amber) !important; border-color: var(--pp-amber) !important; color: #0F172A !important; font-weight: 700 !important; }
+    .btn-amber:hover:not(:disabled) { background: var(--pp-amber-hover) !important; border-color: var(--pp-amber-hover) !important; }
+    .btn-amber:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* SECTION LABEL */
+    .pp-form-section-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--pp-amber);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 16px;
+    }
+
+    /* PASSWORD STRENGTH */
+    .pw-bars { display: flex; gap: 4px; margin-top: 6px; }
+    .pw-bar  { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.07); transition: background 0.3s; }
+
+    /* FORM STEPS */
+    .pp-form-step { display: none; }
+    .pp-form-step.active { display: block; animation: ppFadeIn 0.25s ease; }
+    @keyframes ppFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* CARD WRAPPER */
+    .pp-card {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 1.75rem;
+    }
+
+    /* SUCCESS */
+    .pp-success { display: none; flex-direction: column; align-items: center; text-align: center; padding: 2.5rem 1rem; gap: 1rem; }
+    .pp-success.show { display: flex; }
+    .pp-success-icon { width: 68px; height: 68px; border-radius: 50%; background: rgba(16,185,129,0.12); border: 2px solid rgba(16,185,129,0.3); display: flex; align-items: center; justify-content: center; font-size: 28px; animation: ppPopIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+    @keyframes ppPopIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    @media (max-width: 768px) {
+      .pp-right { padding: 2rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="pp-nav">
+    <a href="../index.html" class="pp-logo">
+      <div class="pp-logo-icon">⚙</div>
+      <div class="pp-logo-text">Parts<span>Pro</span></div>
+    </a>
+    <div class="d-flex align-items-center gap-2">
+      <span style="font-size:0.85rem;color:#64748B">Already have an account?</span>
+      <a href="login.html" class="btn btn-outline-secondary btn-sm">Sign In</a>
+    </div>
+  </nav>
+
+  <div class="pp-page">
+    <!-- FORM -->
+    <div class="pp-right">
+      <div class="pp-form-box">
+        <h2 style="font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:4px">Create Account</h2>
+        <p style="font-size:0.875rem;color:#64748B;margin-bottom:1.75rem">Register as a customer — takes about 2 minutes.</p>
+
+        <!-- Steps -->
+        <div class="pp-steps" id="steps-bar">
+          <div class="pp-step active" id="si1"><div class="pp-step-num">1</div><span>Account</span></div>
+          <div class="pp-step-line"></div>
+          <div class="pp-step" id="si2"><div class="pp-step-num">2</div><span>Personal</span></div>
+          <div class="pp-step-line"></div>
+          <div class="pp-step" id="si3"><div class="pp-step-num">3</div><span>Vehicle</span></div>
+        </div>
+
+        <!-- Global error -->
+        <div class="alert alert-danger d-none mb-3" id="global-err" role="alert"></div>
+
+        <div class="pp-card">
+
+          <!-- STEP 1 -->
+          <div class="pp-form-step active" id="fs1">
+            <div class="pp-form-section-label">Account Information</div>
+            <div class="mb-3">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-control" id="email" placeholder="you@email.com" autocomplete="email">
+              <div class="invalid-feedback" id="email-err">Please enter a valid email address.</div>
+            </div>
+            <div class="row g-3">
+              <div class="col-12 col-sm-6">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" placeholder="Min. 6 characters" autocomplete="new-password">
+                <div class="pw-bars mt-1">
+                  <div class="pw-bar" id="bar1"></div>
+                  <div class="pw-bar" id="bar2"></div>
+                  <div class="pw-bar" id="bar3"></div>
+                  <div class="pw-bar" id="bar4"></div>
+                </div>
+                <div style="font-size:11px;color:#475569;margin-top:4px" id="pw-label"></div>
+                <div class="invalid-feedback" id="pw-err">Password must be at least 6 characters.</div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirm-pw" placeholder="Repeat password" autocomplete="new-password">
+                <div class="invalid-feedback" id="cpw-err">Passwords do not match.</div>
+              </div>
+            </div>
+            <div class="mt-4">
+              <button class="btn btn-amber w-100" onclick="goStep(2)">Continue →</button>
+            </div>
+          </div>
+
+          <!-- STEP 2 -->
+          <div class="pp-form-step" id="fs2">
+            <div class="pp-form-section-label">Personal Information</div>
+            <div class="row g-3">
+              <div class="col-12 col-sm-6">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="fullName" placeholder="John Doe" autocomplete="name">
+                <div class="invalid-feedback" id="name-err">Full name is required.</div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="phone" placeholder="+977 98XXXXXXXX">
+                <div class="invalid-feedback" id="phone-err">Phone number is required.</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Address</label>
+                <input type="text" class="form-control" id="address" placeholder="Street, City, District">
+                <div class="invalid-feedback" id="addr-err">Address is required.</div>
+              </div>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+              <button class="btn btn-outline-secondary" onclick="goStep(1)">← Back</button>
+              <button class="btn btn-amber flex-fill" onclick="goStep(3)">Continue →</button>
+            </div>
+          </div>
+
+          <!-- STEP 3 -->
+          <div class="pp-form-step" id="fs3">
+            <div class="pp-form-section-label">Vehicle Details</div>
+            <p style="font-size:0.8rem;color:#64748B;margin-bottom:1rem;line-height:1.6">Add your primary vehicle. You can add more from your dashboard later.</p>
+            <div class="row g-3">
+              <div class="col-12 col-sm-6">
+                <label class="form-label">Plate Number</label>
+                <input type="text" class="form-control" id="plateNumber" placeholder="BA 1 PA 1234" style="text-transform:uppercase">
+                <div class="invalid-feedback" id="plate-err">Plate number is required.</div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label">Year</label>
+                <input type="number" class="form-control" id="year" placeholder="2020" min="1990" max="2026">
+                <div class="invalid-feedback" id="year-err">Enter a valid year (1990–2026).</div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label">Brand / Make</label>
+                <select class="form-select" id="brand">
+                  <option value="">Select brand...</option>
+                  <option>Toyota</option><option>Honda</option><option>Hyundai</option>
+                  <option>Suzuki</option><option>Kia</option><option>Nissan</option>
+                  <option>Ford</option><option>Tata</option><option>Mahindra</option>
+                  <option>Bajaj</option><option>Hero</option><option>Other</option>
+                </select>
+                <div class="invalid-feedback" id="brand-err">Please select a brand.</div>
+              </div>
+              <div class="col-12 col-sm-6">
+                <label class="form-label">Model</label>
+                <input type="text" class="form-control" id="model" placeholder="e.g. Corolla, Civic">
+                <div class="invalid-feedback" id="model-err">Vehicle model is required.</div>
+              </div>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+              <button class="btn btn-outline-secondary" onclick="goStep(2)">← Back</button>
+              <button class="btn btn-amber flex-fill" id="submit-btn" onclick="submitForm()">
+                <span id="submit-label">Create Account</span>
+                <span id="submit-spin" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SUCCESS -->
+          <div class="pp-success" id="success-screen">
+            <div class="pp-success-icon">✓</div>
+            <h3 style="font-weight:800;color:#10B981;font-size:1.4rem">Account Created!</h3>
+            <p style="font-size:0.9rem;color:#64748B;max-width:320px;line-height:1.7">Welcome to PartsPro. Your account and vehicle have been registered. Sign in to access your customer portal.</p>
+            <a href="login.html" class="btn btn-amber btn-lg mt-2">Sign In Now →</a>
+          </div>
+
+        </div><!-- /.pp-card -->
+
+        <p class="text-center mt-3" style="font-size:0.85rem;color:#475569">
+          Already have an account? <a href="login.html" style="color:#F59E0B;font-weight:600;text-decoration:none">Sign in →</a>
+        </p>
+      </div>
+    </div>
+
+  </div><!-- /.pp-page -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const API_BASE = 'http://localhost:5260';
+    let step = 1;
+
+    // ── PASSWORD STRENGTH ──────────────────────────────────────────
+    document.getElementById('password').addEventListener('input', function () {
+      const v = this.value;
+      const bars = [1,2,3,4].map(i => document.getElementById('bar' + i));
+      const label = document.getElementById('pw-label');
+      if (!v) { bars.forEach(b => b.style.background = ''); label.textContent = ''; return; }
+      let score = 0;
+      if (v.length >= 6)  score++;
+      if (v.length >= 10) score++;
+      if (/[A-Z0-9]/.test(v)) score++;
+      if (/[^A-Za-z0-9]/.test(v)) score++;
+      const colors = ['','#EF4444','#EF4444','#F59E0B','#10B981'];
+      const labels = ['','Weak','Weak','Fair','Strong'];
+      bars.forEach((b, i) => b.style.background = i < score ? colors[score] : '');
+      label.textContent = labels[score];
+      label.style.color = colors[score];
+    });
+
+    // Plate uppercase
+    document.getElementById('plateNumber').addEventListener('input', function () {
+      this.value = this.value.toUpperCase();
+    });
+
+    // ── STEP NAVIGATION ────────────────────────────────────────────
+    function goStep(to) {
+      if (to > step && !validate(step)) return;
+      document.getElementById('fs' + step).classList.remove('active');
+      document.getElementById('fs' + to).classList.add('active');
+      for (let i = 1; i <= 3; i++) {
+        const el = document.getElementById('si' + i);
+        el.className = 'pp-step' + (i === to ? ' active' : i < to ? ' done' : '');
+        el.querySelector('.pp-step-num').textContent = i < to ? '✓' : i;
+      }
+      step = to;
+    }
+
+    // ── VALIDATION ──────────────────────────────────────────────────
+    function setValid(inputId, errId, ok) {
+      const inp = document.getElementById(inputId);
+      const err = document.getElementById(errId);
+      if (inp) { inp.classList.toggle('is-invalid', !ok); inp.classList.toggle('is-valid', ok); }
+      return ok;
+    }
+
+    function validate(s) {
+      let ok = true;
+      if (s === 1) {
+        const email = document.getElementById('email').value;
+        const pw    = document.getElementById('password').value;
+        const cpw   = document.getElementById('confirm-pw').value;
+        if (!setValid('email', 'email-err', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) ok = false;
+        if (!setValid('password', 'pw-err', pw.length >= 6)) ok = false;
+        if (!setValid('confirm-pw', 'cpw-err', pw === cpw && cpw.length > 0)) ok = false;
+      }
+      if (s === 2) {
+        if (!setValid('fullName', 'name-err',  !!document.getElementById('fullName').value.trim())) ok = false;
+        if (!setValid('phone',    'phone-err', !!document.getElementById('phone').value.trim()))    ok = false;
+        if (!setValid('address',  'addr-err',  !!document.getElementById('address').value.trim()))  ok = false;
+      }
+      if (s === 3) {
+        const yr = parseInt(document.getElementById('year').value);
+        if (!setValid('plateNumber', 'plate-err', !!document.getElementById('plateNumber').value.trim())) ok = false;
+        if (!setValid('year',  'year-err',  yr >= 1990 && yr <= 2026)) ok = false;
+        if (!setValid('brand', 'brand-err', !!document.getElementById('brand').value))  ok = false;
+        if (!setValid('model', 'model-err', !!document.getElementById('model').value.trim()))  ok = false;
+      }
+      return ok;
+    }
+
+    // ── SUBMIT ─────────────────────────────────────────────────────
+    async function submitForm() {
+      if (!validate(3)) return;
+
+      const btn   = document.getElementById('submit-btn');
+      const label = document.getElementById('submit-label');
+      const spin  = document.getElementById('submit-spin');
+      const errBox = document.getElementById('global-err');
+
+      btn.disabled = true;
+      label.textContent = 'Creating account...';
+      spin.classList.remove('d-none');
+      errBox.classList.add('d-none');
+
+      const payload = {
+        email:    document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value,
+        fullName: document.getElementById('fullName').value.trim(),
+        phone:    document.getElementById('phone').value.trim(),
+        address:  document.getElementById('address').value.trim(),
+        vehicle: {
+          plateNumber: document.getElementById('plateNumber').value.trim().toUpperCase(),
+          year:        parseInt(document.getElementById('year').value),
+          model:       document.getElementById('brand').value + ' ' + document.getElementById('model').value.trim()
+        }
+      };
+
+      try {
+        await axios.post(`${API_BASE}/api/auth/register`, payload);
+
+        // Hide form, show success
+        document.getElementById('fs3').classList.remove('active');
+        document.getElementById('steps-bar').style.display = 'none';
+        document.getElementById('success-screen').classList.add('show');
+
+      } catch (err) {
+        const msg = err.response?.data?.message
+          || err.response?.data?.title
+          || 'Registration failed. Please try again.';
+        errBox.textContent = msg;
+        errBox.classList.remove('d-none');
+        btn.disabled = false;
+        label.textContent = 'Create Account';
+        spin.classList.add('d-none');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -5,81 +5,224 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PartsPro — Login</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+  <style>
+    :root {
+      --pp-amber: #F59E0B;
+      --pp-amber-hover: #D97706;
+      --pp-navy:  #0F172A;
+      --pp-navy2: #1E293B;
+      --pp-navy3: #162032;
+    }
+
+    body {
+      background: var(--pp-navy);
+      color: #F1F5F9;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    .pp-nav {
+      background: rgba(15,23,42,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 0 2rem; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .pp-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .pp-logo-icon { width: 32px; height: 32px; background: var(--pp-amber); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .pp-logo-text { font-size: 18px; font-weight: 800; color: #fff; }
+    .pp-logo-text span { color: var(--pp-amber); }
+
+    /* PAGE LAYOUT */
+    .pp-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 60px);
+      padding: 3rem 2rem;
+    }
+
+    /* RIGHT FORM PANEL */
+    .pp-right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+    }
+
+    .pp-form-box {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* FORM STYLES — override Tabler for dark theme */
+    .form-label { color: #94A3B8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+    .form-control, .form-select {
+      background: rgba(255,255,255,0.04) !important;
+      border-color: rgba(255,255,255,0.1) !important;
+      color: #F1F5F9 !important;
+      border-radius: 10px !important;
+    }
+    .form-control:focus, .form-select:focus {
+      background: rgba(245,158,11,0.04) !important;
+      border-color: rgba(245,158,11,0.4) !important;
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.08) !important;
+      color: #F1F5F9 !important;
+    }
+    .form-control::placeholder { color: #334155 !important; }
+    .form-select option { background: #1E293B; color: #F1F5F9; }
+
+    /* Amber button */
+    .btn-amber { background: var(--pp-amber) !important; border-color: var(--pp-amber) !important; color: #0F172A !important; font-weight: 700 !important; }
+    .btn-amber:hover:not(:disabled) { background: var(--pp-amber-hover) !important; border-color: var(--pp-amber-hover) !important; }
+    .btn-amber:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* CARD WRAPPER */
+    .pp-card {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 1.75rem;
+    }
+
+    .text-link { color: var(--pp-amber); text-decoration: none; font-weight: 600; }
+    .text-link:hover { text-decoration: underline; }
+
+    /* Password toggle */
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-wrapper .form-control {
+      padding-right: 40px !important;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      color: #94A3B8;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.3s;
+    }
+
+    .password-toggle:hover {
+      color: var(--pp-amber);
+    }
+
+    @media (max-width: 768px) {
+      .pp-left { display: none; }
+      .pp-right { padding: 2rem 1rem; }
+    }
+  </style>
 </head>
-<body class="d-flex flex-column">
-<div class="page page-center">
-  <div class="container container-tight py-4">
+<body>
 
-    <!-- Logo / Title -->
-    <div class="text-center mb-4">
-      <h2 class="fw-bold">PartsPro</h2>
-      <p class="text-muted">Vehicle Parts Management System</p>
+  <!-- NAV -->
+  <nav class="pp-nav">
+    <a href="../index.html" class="pp-logo">
+      <div class="pp-logo-icon">⚙</div>
+      <div class="pp-logo-text">Parts<span>Pro</span></div>
+    </a>
+    <div class="d-flex align-items-center gap-2">
+      <span style="font-size:0.85rem;color:#64748B">Don't have an account?</span>
+      <a href="register.html" class="btn btn-sm" style="background:#F59E0B !important;border-color:#F59E0B !important;color:#0F172A !important;font-weight:600 !important;">Create Account</a>
     </div>
+  </nav>
 
-    <!-- Login Card -->
-    <div class="card card-md">
-      <div class="card-body">
-        <h2 class="h2 text-center mb-4">Sign in to your account</h2>
+  <div class="pp-page">
+    <!-- FORM -->
+    <div class="pp-right">
+      <div class="pp-form-box">
+        <h2 style="font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:4px">Sign In</h2>
+        <p style="font-size:0.875rem;color:#64748B;margin-bottom:1.75rem">Access your PartsPro account.</p>
 
-        <div class="mb-3">
-          <label class="form-label">Email address</label>
-          <input id="email" type="email" class="form-control" placeholder="your@email.com">
-        </div>
+        <!-- Global error -->
+        <div class="alert alert-danger d-none mb-3" id="error-msg" role="alert"></div>
 
-        <div class="mb-2">
-          <label class="form-label">Password</label>
-          <input id="password" type="password" class="form-control" placeholder="your password">
-        </div>
+        <div class="pp-card">
+          <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-control" id="email" placeholder="you@email.com" autocomplete="email">
+          </div>
 
-        <!-- Error message (hidden by default) -->
-        <div id="error-msg" class="alert alert-danger d-none mb-3"></div>
+          <div class="mb-4">
+            <label class="form-label">Password</label>
+            <div class="password-wrapper">
+              <input type="password" class="form-control" id="password" placeholder="Enter your password" autocomplete="current-password">
+              <button type="button" class="password-toggle" id="password-toggle" title="Show/Hide password">○</button>
+            </div>
+          </div>
 
-        <div class="form-footer">
-          <button id="login-btn" class="btn btn-primary w-100">Sign in</button>
+          <button id="login-btn" class="btn btn-amber w-100 mb-3">Sign In</button>
+
+          <div style="text-align:center;font-size:0.875rem;color:#64748B">
+            Don't have an account? <a href="register.html" class="text-link">Create one</a>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="text-center text-muted mt-3">
-      Don't have an account?
-      <a href="../auth/register.html">Register here</a>
-    </div>
-
   </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="../shared/axios-config.js"></script>
+<script src="../shared/auth-handler.js"></script>
 <script>
+  // Password toggle functionality
+  const passwordInput = document.getElementById('password');
+  const passwordToggle = document.getElementById('password-toggle');
+
+  passwordToggle.addEventListener('click', (e) => {
+    e.preventDefault();
+    const type = passwordInput.type === 'password' ? 'text' : 'password';
+    passwordInput.type = type;
+    passwordToggle.textContent = type === 'password' ? '○' : '●';
+  });
+
   document.getElementById('login-btn').addEventListener('click', async () => {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const errorMsg = document.getElementById('error-msg');
     const btn = document.getElementById('login-btn');
 
+    // Validate inputs
+    if (!email || !password) {
+      AuthHandler.showError('Please enter email and password', 'error-msg');
+      return;
+    }
+
+    if (!AuthHandler.validateEmail(email)) {
+      AuthHandler.showError('Please enter a valid email address', 'error-msg');
+      return;
+    }
+
+    const passwordCheck = AuthHandler.validatePassword(password);
+    if (!passwordCheck.valid) {
+      AuthHandler.showError(passwordCheck.message, 'error-msg');
+      return;
+    }
+
+    // Clear previous errors
+    AuthHandler.clearError('error-msg');
     btn.textContent = 'Signing in...';
     btn.disabled = true;
-    errorMsg.classList.add('d-none');
 
     try {
-      const res = await axios.post('http://localhost:5260/api/auth/login', {
-        email, password
-      });
-
-      // Save token
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('role', res.data.role);
-
-      // Redirect based on role
-      const role = res.data.role;
-      if (role === 'Admin')    window.location.href = '../admin/dashboard.html';
-      else if (role === 'Staff')  window.location.href = '../staff/dashboard.html';
-      else if (role === 'Customer') window.location.href = '../customer/dashboard.html';
-
+      await AuthHandler.login(email, password);
     } catch (err) {
-      errorMsg.textContent = err.response?.data?.message || 'Invalid email or password';
-      errorMsg.classList.remove('d-none');
-      btn.textContent = 'Sign in';
+      const message = err.response?.data?.message || 'Invalid email or password';
+      AuthHandler.showError(message, 'error-msg');
+      btn.textContent = 'Sign In';
       btn.disabled = false;
     }
   });

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PartsPro — Staff Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+  <style>
+    :root {
+      --pp-amber: #F59E0B;
+      --pp-charcoal: #1F2937;
+      --pp-charcoal2: #374151;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      background: var(--pp-charcoal);
+      color: #F3F4F6;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* NAVIGATION BAR */
+    .staff-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: rgba(31, 41, 55, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #4B5563;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      z-index: 1000;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      margin-right: auto;
+    }
+
+    .nav-brand-dot {
+      width: 8px; height: 8px;
+      background: var(--pp-amber);
+      border-radius: 1px;
+    }
+
+    .nav-brand-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #F3F4F6;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .nav-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: #6B7280;
+      text-decoration: none;
+      padding-bottom: 2px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .nav-link:hover { color: #F3F4F6; }
+
+    .nav-link.active {
+      color: #F3F4F6;
+      border-bottom-color: var(--pp-amber);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 0 0 auto;
+      margin-left: auto;
+    }
+
+    .nav-avatar {
+      width: 32px; height: 32px;
+      background: #374151;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pp-amber);
+    }
+
+    .nav-user-info {
+      display: flex;
+      flex-direction: column;
+      font-size: 11px;
+    }
+
+    .nav-user-name { color: #F3F4F6; font-weight: 600; }
+    .nav-user-role { color: #6B7280; }
+
+    .nav-logout {
+      background: none; border: none;
+      color: #6B7280; cursor: pointer;
+      font-size: 16px; padding: 4px;
+      transition: color 0.3s;
+    }
+    .nav-logout:hover { color: #FF6B6B; }
+
+    /* PAGE */
+    .staff-page {
+      margin-top: 64px;
+      padding: 32px;
+      min-height: calc(100vh - 64px);
+    }
+
+    .staff-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* HEADER */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+    }
+
+    .header-left h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #F3F4F6;
+      letter-spacing: -1px;
+      margin: 0 0 4px 0;
+    }
+
+    .header-left p {
+      font-size: 14px;
+      color: #6B7280;
+      margin: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-action {
+      background: #374151;
+      border: 1px solid #4B5563;
+      color: #F3F4F6;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.3s, background 0.3s;
+      text-decoration: none;
+    }
+
+    .btn-action:hover {
+      border-color: var(--pp-amber);
+      background: rgba(245, 158, 11, 0.1);
+      color: #F3F4F6;
+    }
+
+    .btn-action.primary {
+      background: var(--pp-amber);
+      border-color: var(--pp-amber);
+      color: #1F2937;
+    }
+
+    .btn-action.primary:hover {
+      background: #D97706;
+      border-color: #D97706;
+    }
+
+    /* KPI GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .kpi-card {
+      background: #374151;
+      border: 1px solid #4B5563;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6B7280;
+    }
+
+    .kpi-icon { font-size: 18px; }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #F3F4F6;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+
+    .kpi-helper {
+      font-size: 11px;
+      color: #6B7280;
+    }
+
+    /* QUICK ACTIONS */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .qa-card {
+      background: #374151;
+      border: 1px solid #4B5563;
+      border-radius: 8px;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.25s, background 0.25s, transform 0.2s;
+      text-align: center;
+    }
+
+    .qa-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(245, 158, 11, 0.4);
+      background: #4B5563;
+      color: inherit;
+    }
+
+    .qa-card.blue:hover   { border-color: rgba(59,130,246,0.4); }
+    .qa-card.green:hover  { border-color: rgba(16,185,129,0.4); }
+    .qa-card.amber:hover  { border-color: rgba(245,158,11,0.4); }
+    .qa-card.purple:hover { border-color: rgba(167,139,250,0.4); }
+
+    .qa-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+
+    .qa-card.blue   .qa-icon { background: rgba(59,130,246,0.1); }
+    .qa-card.green  .qa-icon { background: rgba(16,185,129,0.1); }
+    .qa-card.amber  .qa-icon { background: rgba(245,158,11,0.1); }
+    .qa-card.purple .qa-icon { background: rgba(167,139,250,0.1); }
+
+    .qa-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #F3F4F6;
+    }
+
+    .qa-desc {
+      font-size: 11px;
+      color: #6B7280;
+      line-height: 1.4;
+    }
+
+    /* MODULE CARDS */
+    .module-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .module-card {
+      background: #374151;
+      border: 1px solid #4B5563;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .module-header {
+      border-bottom: 1px solid #4B5563;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .module-title-block h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #F3F4F6;
+      margin: 0 0 4px 0;
+    }
+
+    .module-title-block p {
+      font-size: 12px;
+      color: #6B7280;
+      margin: 0;
+    }
+
+    .module-link {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--pp-amber);
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.3s;
+    }
+
+    .module-link:hover { opacity: 0.8; }
+
+    .module-row-item {
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #4B5563;
+      gap: 12px;
+    }
+
+    .module-row-item:last-child { border-bottom: none; }
+
+    .module-row-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #F3F4F6;
+      margin: 0;
+    }
+
+    .module-row-meta {
+      font-size: 11px;
+      color: #6B7280;
+      font-family: 'Monaco', monospace;
+      margin: 3px 0 0 0;
+    }
+
+    /* Badges */
+    .badge-paid {
+      background: rgba(16,185,129,0.1);
+      color: #10B981;
+      border: 1px solid rgba(16,185,129,0.2);
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .badge-pending {
+      background: rgba(245,158,11,0.1);
+      color: #F59E0B;
+      border: 1px solid rgba(245,158,11,0.2);
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      border-radius: 3px;
+    }
+
+    .badge-discount {
+      background: rgba(167,139,250,0.1);
+      color: #A78BFA;
+      border: 1px solid rgba(167,139,250,0.2);
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      border-radius: 3px;
+    }
+
+    .invoice-amount {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Monaco', monospace;
+    }
+
+    .sale-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    /* Search bar */
+    .search-wrap {
+      padding: 16px 20px;
+      border-bottom: 1px solid #4B5563;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid #4B5563;
+      border-radius: 6px;
+      color: #F3F4F6;
+      font-size: 13px;
+      padding: 8px 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input::placeholder { color: #6B7280; }
+    .search-input:focus { border-color: #3B82F6; }
+
+    /* Customer row */
+    .customer-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #4B5563;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #3B82F6;
+      flex-shrink: 0;
+    }
+
+    .customer-info { flex: 1; }
+
+    .customer-row-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    @media (max-width: 1024px) {
+      .module-row    { grid-template-columns: 1fr; }
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
+      .nav-center    { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .staff-page   { padding: 16px; }
+      .staff-nav    { padding: 0 16px; }
+      .kpi-grid     { grid-template-columns: repeat(2, 1fr); }
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
+      .dashboard-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="staff-nav">
+    <div class="nav-left">
+      <div class="nav-brand-dot"></div>
+      <a href="../index.html" class="nav-brand-text">Parts Pro</a>
+    </div>
+
+    <div class="nav-center">
+      <a href="dashboard.html" class="nav-link active">Dashboard</a>
+      <a href="new-sale.html" class="nav-link">New Sale</a>
+      <a href="customers.html" class="nav-link">Customers</a>
+      <a href="search.html" class="nav-link">Search</a>
+      <a href="invoices.html" class="nav-link">Invoices</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="nav-avatar" id="nav-avatar">ST</div>
+      <div class="nav-user-info">
+        <div class="nav-user-name" id="nav-user-name">Staff</div>
+        <div class="nav-user-role">Staff Member</div>
+      </div>
+      <button class="nav-logout" id="logout-btn" title="Logout">⤴</button>
+    </div>
+  </nav>
+
+  <!-- PAGE -->
+  <div class="staff-page">
+    <div class="staff-container">
+
+      <!-- HEADER -->
+      <div class="dashboard-header">
+        <div class="header-left">
+          <h1 id="greeting">Good morning</h1>
+          <p id="header-sub">Here's what needs your attention today.</p>
+        </div>
+        <div class="header-actions">
+          <a href="customers.html" class="btn-action">👤 Register Customer</a>
+          <a href="new-sale.html" class="btn-action primary">+ New Sale</a>
+        </div>
+      </div>
+
+      <!-- KPI GRID -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">My Sales Today</span>
+            <span class="kpi-icon" style="color:#10B981">💰</span>
+          </div>
+          <div class="kpi-value" id="kpi-sales-today">Rs.0</div>
+          <div class="kpi-helper" id="kpi-sales-count">0 transactions</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Invoices Sent</span>
+            <span class="kpi-icon" style="color:#3B82F6">📧</span>
+          </div>
+          <div class="kpi-value" id="kpi-invoices">0</div>
+          <div class="kpi-helper">Emailed today</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Customers Served</span>
+            <span class="kpi-icon" style="color:#A78BFA">👥</span>
+          </div>
+          <div class="kpi-value" id="kpi-customers">0</div>
+          <div class="kpi-helper">Today</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Loyalty Discounts</span>
+            <span class="kpi-icon" style="color:#F59E0B">🏷️</span>
+          </div>
+          <div class="kpi-value" id="kpi-discounts">0</div>
+          <div class="kpi-helper">Applied today</div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin-bottom:12px">Quick Actions</div>
+        <div class="quick-actions">
+          <a href="new-sale.html" class="qa-card blue">
+            <div class="qa-icon">🧾</div>
+            <div class="qa-title">New Sale</div>
+            <div class="qa-desc">Create sales invoice & deduct stock</div>
+          </a>
+          <a href="customers.html" class="qa-card green">
+            <div class="qa-icon">👤</div>
+            <div class="qa-title">Register Customer</div>
+            <div class="qa-desc">Add new customer with vehicle details</div>
+          </a>
+          <a href="search.html" class="qa-card amber">
+            <div class="qa-icon">🔍</div>
+            <div class="qa-title">Search Customer</div>
+            <div class="qa-desc">Find by name, phone, ID or plate</div>
+          </a>
+          <a href="invoices.html" class="qa-card purple">
+            <div class="qa-icon">📧</div>
+            <div class="qa-title">Send Invoice</div>
+            <div class="qa-desc">Email invoice to customer</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- TWO COLUMN ROW -->
+      <div class="module-row">
+
+        <!-- Recent Sales -->
+        <div class="module-card">
+          <div class="module-header">
+            <div class="module-title-block">
+              <h3>Recent Sales</h3>
+              <p>Your latest transactions</p>
+            </div>
+            <a href="invoices.html" class="module-link">All Invoices →</a>
+          </div>
+          <div id="recent-sales-body">
+            <!-- Populated by JS -->
+            <div class="module-row-item">
+              <div>
+                <p class="module-row-name">Rajesh Kumar</p>
+                <p class="module-row-meta">INV-001 · Brake Pads × 2, Oil Filter × 1</p>
+              </div>
+              <div class="sale-right">
+                <span class="invoice-amount">Rs.3,200</span>
+                <span class="badge-paid">PAID</span>
+              </div>
+            </div>
+            <div class="module-row-item">
+              <div>
+                <p class="module-row-name">Sita Sharma</p>
+                <p class="module-row-meta">INV-002 · Air Filter × 1, Spark Plug × 4</p>
+              </div>
+              <div class="sale-right">
+                <span class="invoice-amount">Rs.5,400</span>
+                <span class="badge-discount">10% OFF</span>
+              </div>
+            </div>
+            <div class="module-row-item">
+              <div>
+                <p class="module-row-name">Anil Thapa</p>
+                <p class="module-row-meta">INV-003 · Clutch Plate × 1</p>
+              </div>
+              <div class="sale-right">
+                <span class="invoice-amount">Rs.1,800</span>
+                <span class="badge-pending">PENDING</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Search -->
+        <div class="module-card">
+          <div class="module-header">
+            <div class="module-title-block">
+              <h3>Customer Lookup</h3>
+              <p>Search by name, phone or vehicle plate</p>
+            </div>
+          </div>
+          <div class="search-wrap">
+            <input type="text" class="search-input" id="customer-search"
+                   placeholder="Search name, phone, plate number..."
+                   oninput="searchCustomers(this.value)">
+          </div>
+          <div id="search-results">
+            <div class="module-row-item">
+              <div class="customer-row-wrap">
+                <div class="customer-avatar">RK</div>
+                <div class="customer-info">
+                  <p class="module-row-name">Rajesh Kumar</p>
+                  <p class="module-row-meta">+977 9841000000 · BA 1 KA 1234</p>
+                </div>
+              </div>
+              <a href="customer-detail.html?id=1" class="module-link">View →</a>
+            </div>
+            <div class="module-row-item">
+              <div class="customer-row-wrap">
+                <div class="customer-avatar">ST</div>
+                <div class="customer-info">
+                  <p class="module-row-name">Sita Sharma</p>
+                  <p class="module-row-meta">+977 9862000000 · BA 2 JA 5678</p>
+                </div>
+              </div>
+              <a href="customer-detail.html?id=2" class="module-link">View →</a>
+            </div>
+            <div class="module-row-item">
+              <div class="customer-row-wrap">
+                <div class="customer-avatar">AT</div>
+                <div class="customer-info">
+                  <p class="module-row-name">Anil Thapa</p>
+                  <p class="module-row-meta">+977 9803000000 · BA 3 PA 9012</p>
+                </div>
+              </div>
+              <a href="customer-detail.html?id=3" class="module-link">View →</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="../shared/axios-config.js"></script>
+  <script src="../shared/auth-guard.js"></script>
+  <script src="../shared/role-guard.js"></script>
+  <script src="../shared/auth-handler.js"></script>
+
+  <script>
+    // Protect page - Staff or Admin only
+    RoleGuard.requireRole('Staff');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set user info in nav
+      const name = localStorage.getItem('userFullName') || 'Staff';
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('nav-avatar').textContent = initials;
+      document.getElementById('nav-user-name').textContent = name;
+
+      const hour = new Date().getHours();
+      const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+      document.getElementById('greeting').textContent = `${greet}, ${name.split(' ')[0]}`;
+      document.getElementById('header-sub').textContent =
+        new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+      // Logout
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        AuthHandler.logout();
+      });
+
+      // Load today's stats from API
+      loadTodayStats();
+    });
+
+    async function loadTodayStats() {
+      try {
+        const res = await api.get('/reports/daily');
+        const data = res.data;
+        document.getElementById('kpi-sales-today').textContent =
+          'Rs.' + (data.netSalesRevenue || 0).toLocaleString();
+        document.getElementById('kpi-sales-count').textContent =
+          (data.totalSalesCount || 0) + ' transactions';
+        document.getElementById('kpi-customers').textContent =
+          data.totalSalesCount || 0;
+      } catch (e) {
+      }
+    }
+
+    let searchTimeout;
+    async function searchCustomers(query) {
+      clearTimeout(searchTimeout);
+      if (!query || query.length < 2) return;
+
+      searchTimeout = setTimeout(async () => {
+        try {
+          const res = await api.get(`/customers/search?q=${encodeURIComponent(query)}`);
+          const customers = res.data;
+          const container = document.getElementById('search-results');
+
+          if (!customers.length) {
+            container.innerHTML = `
+              <div style="padding:24px;text-align:center;color:#64748B;font-size:13px">
+                No customers found for "${query}"
+              </div>`;
+            return;
+          }
+
+          container.innerHTML = customers.map(c => {
+            const initials = c.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            return `
+              <div class="module-row-item">
+                <div class="customer-row-wrap">
+                  <div class="customer-avatar">${initials}</div>
+                  <div class="customer-info">
+                    <p class="module-row-name">${c.fullName}</p>
+                    <p class="module-row-meta">${c.phone} · ${c.vehicles?.[0]?.plateNumber || '—'}</p>
+                  </div>
+                </div>
+                <a href="customer-detail.html?id=${c.id}" class="module-link">View →</a>
+              </div>`;
+          }).join('');
+        } catch (e) { }
+      }, 400);
+    }
+  </script>
+</body>
+</html>

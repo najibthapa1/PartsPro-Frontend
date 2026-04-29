@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PartsPro — My Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+  <style>
+    :root {
+      --pp-amber: #F59E0B;
+      --pp-green: #10B981;
+      --pp-cream: #FAF8F5;
+      --pp-cream2: #F3EFE8;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      background: var(--pp-cream);
+      color: #3F3F3F;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0; padding: 0;
+    }
+
+    /* NAVIGATION */
+    .cust-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: rgba(250, 248, 245, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #E5DFD3;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      z-index: 1000;
+    }
+
+    .nav-left {
+      display: flex; align-items: center;
+      gap: 8px; flex: 0 0 auto; margin-right: auto;
+    }
+
+    .nav-brand-dot {
+      width: 8px; height: 8px;
+      background: var(--pp-green);
+      border-radius: 1px;
+    }
+
+    .nav-brand-text {
+      font-size: 14px; font-weight: 600;
+      color: #2C2416; letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+
+    .nav-center {
+      display: flex; align-items: center;
+      gap: 32px; flex: 1; justify-content: center;
+    }
+
+    .nav-link {
+      font-size: 13px; font-weight: 500;
+      color: #8B7D6B; text-decoration: none;
+      padding-bottom: 2px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .nav-link:hover { color: #2C2416; }
+
+    .nav-link.active {
+      color: #2C2416;
+      border-bottom-color: var(--pp-green);
+    }
+
+    .nav-right {
+      display: flex; align-items: center;
+      gap: 16px; flex: 0 0 auto; margin-left: auto;
+    }
+
+    .nav-avatar {
+      width: 32px; height: 32px;
+      background: #E5DFD3; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      color: var(--pp-green);
+    }
+
+    .nav-user-info { display: flex; flex-direction: column; font-size: 11px; }
+    .nav-user-name { color: #2C2416; font-weight: 600; }
+    .nav-user-role { color: #8B7D6B; }
+
+    .nav-logout {
+      background: none; border: none;
+      color: #8B7D6B; cursor: pointer;
+      font-size: 16px; padding: 4px;
+      transition: color 0.3s;
+    }
+    .nav-logout:hover { color: #FF6B6B; }
+
+    /* PAGE */
+    .cust-page {
+      margin-top: 64px; padding: 32px;
+      min-height: calc(100vh - 64px);
+    }
+
+    .cust-container {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; flex-direction: column; gap: 32px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* HEADER */
+    .dashboard-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-end; gap: 24px;
+    }
+
+    .header-left h1 {
+      font-size: 32px; font-weight: 700;
+      color: #2C2416; letter-spacing: -1px; margin: 0 0 4px 0;
+    }
+
+    .header-left p { font-size: 14px; color: #8B7D6B; margin: 0; }
+
+    .btn-action {
+      background: #fff; border: 1px solid #D4CABE;
+      color: #2C2416; padding: 8px 16px;
+      font-size: 13px; font-weight: 600; border-radius: 6px;
+      cursor: pointer; display: flex; align-items: center;
+      gap: 8px; transition: border-color 0.3s, background 0.3s;
+      text-decoration: none;
+    }
+
+    .btn-action:hover {
+      border-color: var(--pp-green);
+      background: rgba(16,185,129,0.08); color: #2C2416;
+    }
+
+    .btn-action.primary {
+      background: var(--pp-green); border-color: var(--pp-green); color: #fff;
+    }
+
+    .btn-action.primary:hover { background: #059669; border-color: #059669; }
+
+    /* LOYALTY BANNER */
+    .loyalty-banner {
+      background: rgba(16,185,129,0.08);
+      border: 1px solid rgba(16,185,129,0.2);
+      border-radius: 8px; padding: 20px 24px;
+      display: flex; align-items: center; gap: 20px;
+      position: relative; overflow: hidden;
+    }
+
+    .loyalty-banner::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 4px; background: var(--pp-amber);
+      border-radius: 8px 0 0 8px;
+    }
+
+    .loyalty-icon {
+      font-size: 32px; flex-shrink: 0;
+    }
+
+    .loyalty-content { flex: 1; }
+
+    .loyalty-title {
+      font-size: 14px; font-weight: 700;
+      color: #047857; margin: 0 0 4px 0;
+    }
+
+    .loyalty-desc {
+      font-size: 13px; color: #6B5D4B; margin: 0;
+    }
+
+    .loyalty-amount {
+      text-align: right;
+    }
+
+    .loyalty-amount-val {
+      font-size: 28px; font-weight: 700;
+      color: #10B981; letter-spacing: -1px;
+      font-family: 'Monaco', monospace;
+    }
+
+    .loyalty-amount-label {
+      font-size: 11px; color: #8B7D6B; margin-top: 2px;
+    }
+
+    /* KPI GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .kpi-card {
+      background: #fff; border: 1px solid #E5DFD3;
+      border-radius: 8px; padding: 18px;
+    }
+
+    .kpi-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 10px;
+    }
+
+    .kpi-label {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em; color: #8B7D6B;
+    }
+
+    .kpi-icon { font-size: 18px; }
+
+    .kpi-value {
+      font-size: 26px; font-weight: 700;
+      color: #2C2416; letter-spacing: -1px; margin-bottom: 4px;
+    }
+
+    .kpi-helper { font-size: 11px; color: #8B7D6B; }
+
+    /* QUICK ACTIONS */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .qa-card {
+      background: #fff; border: 1px solid #E5DFD3;
+      border-radius: 8px; padding: 20px 16px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 10px;
+      cursor: pointer; text-decoration: none;
+      color: inherit; transition: border-color 0.25s, background 0.25s, transform 0.2s;
+      text-align: center;
+    }
+
+    .qa-card:hover { transform: translateY(-2px); background: #F9F7F3; color: inherit; }
+    .qa-card.green:hover  { border-color: rgba(16,185,129,0.4); }
+    .qa-card.blue:hover   { border-color: rgba(59,130,246,0.4); }
+    .qa-card.amber:hover  { border-color: rgba(245,158,11,0.4); }
+    .qa-card.purple:hover { border-color: rgba(167,139,250,0.4); }
+
+    .qa-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+
+    .qa-card.green  .qa-icon { background: rgba(16,185,129,0.1); }
+    .qa-card.blue   .qa-icon { background: rgba(59,130,246,0.1); }
+    .qa-card.amber  .qa-icon { background: rgba(245,158,11,0.1); }
+    .qa-card.purple .qa-icon { background: rgba(167,139,250,0.1); }
+
+    .qa-title { font-size: 13px; font-weight: 600; color: #2C2416; }
+    .qa-desc  { font-size: 11px; color: #8B7D6B; line-height: 1.4; }
+
+    /* MODULES */
+    .module-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    .module-card {
+      background: #fff; border: 1px solid #E5DFD3;
+      border-radius: 8px; overflow: hidden;
+    }
+
+    .module-header {
+      border-bottom: 1px solid #E5DFD3; padding: 20px;
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+
+    .module-title-block h3 {
+      font-size: 16px; font-weight: 600; color: #2C2416; margin: 0 0 4px 0;
+    }
+
+    .module-title-block p { font-size: 12px; color: #8B7D6B; margin: 0; }
+
+    .module-link {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--pp-green); text-decoration: none; transition: opacity 0.3s;
+    }
+
+    .module-link:hover { opacity: 0.8; }
+
+    .module-row-item {
+      padding: 14px 20px;
+      display: flex; justify-content: space-between;
+      align-items: center; border-bottom: 1px solid #E5DFD3; gap: 12px;
+    }
+
+    .module-row-item:last-child { border-bottom: none; }
+
+    .module-row-name { font-size: 13px; font-weight: 600; color: #2C2416; margin: 0; }
+    .module-row-meta { font-size: 11px; color: #8B7D6B; font-family: 'Monaco', monospace; margin: 3px 0 0 0; }
+
+    /* Badges */
+    .badge-completed { background: rgba(16,185,129,0.1); color: #10B981; border: 1px solid rgba(16,185,129,0.2); padding: 3px 8px; font-size: 10px; font-weight: 600; border-radius: 3px; }
+    .badge-pending   { background: rgba(245,158,11,0.1); color: #F59E0B; border: 1px solid rgba(245,158,11,0.2); padding: 3px 8px; font-size: 10px; font-weight: 600; border-radius: 3px; }
+    .badge-confirmed { background: rgba(59,130,246,0.1);  color: #3B82F6; border: 1px solid rgba(59,130,246,0.2);  padding: 3px 8px; font-size: 10px; font-weight: 600; border-radius: 3px; }
+    .badge-cancelled { background: rgba(239,68,68,0.1);   color: #EF4444; border: 1px solid rgba(239,68,68,0.2);   padding: 3px 8px; font-size: 10px; font-weight: 600; border-radius: 3px; }
+
+    .purchase-amount {
+      font-size: 13px; font-weight: 700;
+      color: #2C2416; font-family: 'Monaco', monospace;
+    }
+
+    /* Vehicle card */
+    .vehicle-card {
+      background: #fff; border: 1px solid #E5DFD3;
+      border-radius: 8px; overflow: hidden;
+    }
+
+    .vehicle-list { display: flex; flex-direction: column; }
+
+    .vehicle-item {
+      padding: 16px 20px;
+      display: flex; align-items: center; gap: 16px;
+      border-bottom: 1px solid #E5DFD3;
+    }
+
+    .vehicle-item:last-child { border-bottom: none; }
+
+    .vehicle-icon {
+      width: 44px; height: 44px;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.2);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+
+    .vehicle-info { flex: 1; }
+
+    .vehicle-name { font-size: 14px; font-weight: 600; color: #2C2416; margin: 0 0 4px 0; }
+    .vehicle-plate {
+      font-family: 'Monaco', monospace;
+      font-size: 12px; color: var(--pp-green);
+      background: rgba(16,185,129,0.08);
+      border: 1px solid rgba(16,185,129,0.2);
+      padding: 2px 8px; border-radius: 3px;
+      display: inline-block;
+    }
+
+    .vehicle-meta { font-size: 11px; color: #8B7D6B; margin-top: 4px; }
+
+    .btn-add-vehicle {
+      background: none; border: 1px dashed #D4CABE;
+      color: #8B7D6B; padding: 12px 20px;
+      font-size: 13px; cursor: pointer;
+      width: 100%; text-align: center;
+      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; text-decoration: none;
+    }
+
+    .btn-add-vehicle:hover { border-color: var(--pp-green); color: var(--pp-green); }
+
+    @media (max-width: 1024px) {
+      .module-row    { grid-template-columns: 1fr; }
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
+      .nav-center    { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .cust-page     { padding: 16px; }
+      .cust-nav      { padding: 0 16px; }
+      .kpi-grid      { grid-template-columns: repeat(2, 1fr); }
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
+      .dashboard-header { flex-direction: column; align-items: flex-start; }
+      .loyalty-banner   { flex-direction: column; text-align: center; }
+      .loyalty-amount   { text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="cust-nav">
+    <div class="nav-left">
+      <div class="nav-brand-dot"></div>
+      <a href="../index.html" class="nav-brand-text">Parts Pro</a>
+    </div>
+
+    <div class="nav-center">
+      <a href="dashboard.html" class="nav-link active">Dashboard</a>
+      <a href="appointments.html" class="nav-link">Appointments</a>
+      <a href="history.html" class="nav-link">History</a>
+      <a href="part-requests.html" class="nav-link">Part Requests</a>
+      <a href="profile.html" class="nav-link">Profile</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="nav-avatar" id="nav-avatar">ME</div>
+      <div class="nav-user-info">
+        <div class="nav-user-name" id="nav-user-name">Customer</div>
+        <div class="nav-user-role">Customer</div>
+      </div>
+      <button class="nav-logout" id="logout-btn" title="Logout">⤴</button>
+    </div>
+  </nav>
+
+  <!-- PAGE -->
+  <div class="cust-page">
+    <div class="cust-container">
+
+      <!-- HEADER -->
+      <div class="dashboard-header">
+        <div class="header-left">
+          <h1 id="greeting">Welcome back</h1>
+          <p id="header-date">Your personal vehicle management portal</p>
+        </div>
+        <div>
+          <a href="appointments.html" class="btn-action primary">📅 Book Appointment</a>
+        </div>
+      </div>
+
+      <!-- LOYALTY BANNER -->
+      <div class="loyalty-banner" id="loyalty-banner">
+        <div class="loyalty-icon">🏷️</div>
+        <div class="loyalty-content">
+          <p class="loyalty-title">Loyalty Program Active</p>
+          <p class="loyalty-desc">
+            You automatically receive <strong style="color:#FCD34D">10% off</strong>
+            on any single purchase over Rs.5,000. Keep buying to stay rewarded!
+          </p>
+        </div>
+        <div class="loyalty-amount">
+          <div class="loyalty-amount-val" id="loyalty-saved">Rs.0</div>
+          <div class="loyalty-amount-label">Total saved</div>
+        </div>
+      </div>
+
+      <!-- KPI GRID -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Total Purchases</span>
+            <span class="kpi-icon" style="color:#10B981">🧾</span>
+          </div>
+          <div class="kpi-value" id="kpi-purchases">0</div>
+          <div class="kpi-helper">All time</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Appointments</span>
+            <span class="kpi-icon" style="color:#3B82F6">📅</span>
+          </div>
+          <div class="kpi-value" id="kpi-appointments">0</div>
+          <div class="kpi-helper" id="kpi-appt-sub">Upcoming</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">My Vehicles</span>
+            <span class="kpi-icon" style="color:#F59E0B">🚗</span>
+          </div>
+          <div class="kpi-value" id="kpi-vehicles">0</div>
+          <div class="kpi-helper">Registered</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Part Requests</span>
+            <span class="kpi-icon" style="color:#A78BFA">🔩</span>
+          </div>
+          <div class="kpi-value" id="kpi-requests">0</div>
+          <div class="kpi-helper">Open requests</div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin-bottom:12px">Quick Actions</div>
+        <div class="quick-actions">
+          <a href="appointments.html" class="qa-card green">
+            <div class="qa-icon">📅</div>
+            <div class="qa-title">Book Appointment</div>
+            <div class="qa-desc">Schedule a service visit</div>
+          </a>
+          <a href="part-requests.html" class="qa-card blue">
+            <div class="qa-icon">🔩</div>
+            <div class="qa-title">Request a Part</div>
+            <div class="qa-desc">Can't find what you need?</div>
+          </a>
+          <a href="history.html" class="qa-card amber">
+            <div class="qa-icon">📋</div>
+            <div class="qa-title">Purchase History</div>
+            <div class="qa-desc">View all past orders</div>
+          </a>
+          <a href="reviews.html" class="qa-card purple">
+            <div class="qa-icon">⭐</div>
+            <div class="qa-title">Leave a Review</div>
+            <div class="qa-desc">Share your experience</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- TWO COLUMN -->
+      <div class="module-row">
+
+        <!-- Purchase History -->
+        <div class="module-card">
+          <div class="module-header">
+            <div class="module-title-block">
+              <h3>Recent Purchases</h3>
+              <p>Your latest orders</p>
+            </div>
+            <a href="history.html" class="module-link">Full History →</a>
+          </div>
+          <div id="purchase-history">
+            <div class="module-row-item">
+              <div>
+                <p class="module-row-name">Brake Pads × 2, Oil Filter × 1</p>
+                <p class="module-row-meta">INV-001 · 15 Apr 2026</p>
+              </div>
+              <div style="text-align:right">
+                <div class="purchase-amount">Rs.3,200</div>
+                <span class="badge-completed">PAID</span>
+              </div>
+            </div>
+            <div class="module-row-item">
+              <div>
+                <p class="module-row-name">Air Filter × 1, Spark Plug × 4</p>
+                <p class="module-row-meta">INV-002 · 10 Apr 2026 · 10% discount applied</p>
+              </div>
+              <div style="text-align:right">
+                <div class="purchase-amount">Rs.4,860</div>
+                <span class="badge-completed">PAID</span>
+              </div>
+            </div>
+            <div class="module-row-item">
+              <div>
+                <p class="module-row-name">Clutch Plate × 1</p>
+                <p class="module-row-meta">INV-003 · 2 Apr 2026</p>
+              </div>
+              <div style="text-align:right">
+                <div class="purchase-amount">Rs.1,800</div>
+                <span class="badge-pending">PENDING</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appointments -->
+        <div class="module-card">
+          <div class="module-header">
+            <div class="module-title-block">
+              <h3>My Appointments</h3>
+              <p>Upcoming & recent</p>
+            </div>
+            <a href="appointments.html" class="module-link">Book New →</a>
+          </div>
+          <div id="appointments-list">
+            <div class="module-row-item">
+              <div>
+                <p class="module-row-name">General Service</p>
+                <p class="module-row-meta">BA 1 KA 1234 · Mon 28 Apr 2026, 10:00 AM</p>
+              </div>
+              <span class="badge-confirmed">CONFIRMED</span>
+            </div>
+            <div class="module-row-item">
+              <div>
+                <p class="module-row-name">Brake Inspection</p>
+                <p class="module-row-meta">BA 1 KA 1234 · Fri 18 Apr 2026</p>
+              </div>
+              <span class="badge-completed">DONE</span>
+            </div>
+            <div class="module-row-item">
+              <div>
+                <p class="module-row-name">Oil Change</p>
+                <p class="module-row-meta">BA 1 KA 1234 · Wed 2 Apr 2026</p>
+              </div>
+              <span class="badge-completed">DONE</span>
+            </div>
+          </div>
+          <a href="appointments.html" class="btn-add-vehicle">
+            + Book New Appointment
+          </a>
+        </div>
+
+      </div>
+
+      <!-- MY VEHICLES -->
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin-bottom:12px">My Vehicles</div>
+        <div class="vehicle-card">
+          <div class="vehicle-list" id="vehicle-list">
+            <div class="vehicle-item">
+              <div class="vehicle-icon">🚗</div>
+              <div class="vehicle-info">
+                <p class="vehicle-name">Toyota Corolla 2020</p>
+                <span class="vehicle-plate">BA 1 KA 1234</span>
+                <p class="vehicle-meta">Registered · Last service: 18 Apr 2026</p>
+              </div>
+            </div>
+          </div>
+          <a href="profile.html#vehicles" class="btn-add-vehicle">
+            <span>+</span> Add Another Vehicle
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="../shared/axios-config.js"></script>
+  <script src="../shared/auth-guard.js"></script>
+  <script src="../shared/role-guard.js"></script>
+  <script src="../shared/auth-handler.js"></script>
+
+  <script>
+    // Protect page — Customer only
+    RoleGuard.requireRole('Customer');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const name = localStorage.getItem('userFullName') || 'Customer';
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('nav-avatar').textContent = initials;
+      document.getElementById('nav-user-name').textContent = name;
+
+      const hour = new Date().getHours();
+      const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+      document.getElementById('greeting').textContent = `${greet}, ${name.split(' ')[0]}`;
+      document.getElementById('header-date').textContent =
+        new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        AuthHandler.logout();
+      });
+
+      loadCustomerData();
+    });
+
+    async function loadCustomerData() {
+      try {
+        const purchasesRes = await api.get('/customers/me/purchases');
+        const purchases = purchasesRes.data;
+        document.getElementById('kpi-purchases').textContent = purchases.length;
+
+        const saved = purchases.reduce((sum, p) => sum + (p.discountAmount || 0), 0);
+        if (saved > 0) {
+          document.getElementById('loyalty-saved').textContent =
+            'Rs.' + saved.toLocaleString();
+        }
+
+        if (purchases.length) {
+          document.getElementById('purchase-history').innerHTML =
+            purchases.slice(0, 4).map(p => `
+              <div class="module-row-item">
+                <div>
+                  <p class="module-row-name">${p.items?.map(i => i.partName + ' × ' + i.quantity).join(', ') || 'Items'}</p>
+                  <p class="module-row-meta">INV-${p.id} · ${new Date(p.createdAt).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}${p.loyaltyDiscountApplied ? ' · 10% discount applied' : ''}</p>
+                </div>
+                <div style="text-align:right">
+                  <div class="purchase-amount">Rs.${p.finalAmount?.toLocaleString()}</div>
+                  <span class="badge-completed">PAID</span>
+                </div>
+              </div>`).join('');
+        }
+      } catch (e) { }
+
+      try {
+        const apptRes = await api.get('/customers/me/services');
+        const appts   = apptRes.data;
+        const upcoming = appts.filter(a => new Date(a.appointmentDate) >= new Date());
+        document.getElementById('kpi-appointments').textContent = upcoming.length;
+        document.getElementById('kpi-appt-sub').textContent =
+          upcoming.length === 1 ? '1 upcoming' : `${upcoming.length} upcoming`;
+      } catch (e) { /* silent */ }
+    }
+  </script>
+</body>
+</html>
