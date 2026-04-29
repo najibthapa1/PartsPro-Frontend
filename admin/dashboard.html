@@ -19,15 +19,11 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       margin: 0;
       padding: 0;
-      box-shadow: none !important;
     }
 
-    /* NAVIGATION BAR — FIXED */
     .admin-nav {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       height: 64px;
       background: rgba(11, 17, 33, 0.8);
       backdrop-filter: blur(12px);
@@ -36,7 +32,6 @@
       align-items: center;
       padding: 0 32px;
       z-index: 1000;
-      gap: 0;
     }
 
     .nav-left {
@@ -48,8 +43,7 @@
     }
 
     .nav-brand-dot {
-      width: 8px;
-      height: 8px;
+      width: 8px; height: 8px;
       background: var(--pp-amber);
       border-radius: 1px;
     }
@@ -57,7 +51,7 @@
     .nav-brand-text {
       font-size: 14px;
       font-weight: 600;
-      color: #fff;
+      color: #E2E8F0;
       letter-spacing: -0.5px;
       text-decoration: none;
     }
@@ -73,19 +67,16 @@
     .nav-link {
       font-size: 13px;
       font-weight: 500;
-      color: #94A3B8;
+      color: #64748B;
       text-decoration: none;
       padding-bottom: 2px;
       border-bottom: 2px solid transparent;
       transition: all 0.3s;
     }
 
-    .nav-link:hover {
-      color: #fff;
-    }
-
+    .nav-link:hover { color: #E2E8F0; }
     .nav-link.active {
-      color: #fff;
+      color: #E2E8F0;
       border-bottom-color: var(--pp-amber);
     }
 
@@ -98,9 +89,8 @@
     }
 
     .nav-avatar {
-      width: 32px;
-      height: 32px;
-      background: #1E293B;
+      width: 32px; height: 32px;
+      background: #0F172A;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -110,36 +100,18 @@
       color: var(--pp-amber);
     }
 
-    .nav-user-info {
-      display: flex;
-      flex-direction: column;
-      font-size: 11px;
-    }
-
-    .nav-user-name {
-      color: #F1F5F9;
-      font-weight: 600;
-    }
-
-    .nav-user-role {
-      color: #64748B;
-    }
+    .nav-user-info { display: flex; flex-direction: column; font-size: 11px; }
+    .nav-user-name { color: #E2E8F0; font-weight: 600; }
+    .nav-user-role { color: #64748B; }
 
     .nav-logout {
-      background: none;
-      border: none;
-      color: #64748B;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 4px;
+      background: none; border: none;
+      color: #64748B; cursor: pointer;
+      font-size: 16px; padding: 4px;
       transition: color 0.3s;
     }
+    .nav-logout:hover { color: #FF6B6B; }
 
-    .nav-logout:hover {
-      color: #FF6B6B;
-    }
-
-    /* PAGE CONTENT */
     .admin-page {
       margin-top: 64px;
       padding: 32px;
@@ -147,7 +119,7 @@
     }
 
     .admin-container {
-      max-width: 1400px;
+      max-width: 1200px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
@@ -160,123 +132,61 @@
       to { opacity: 1; }
     }
 
-    /* HEADER ROW */
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 24px;
-    }
-
-    .header-left h1 {
+    .page-header h1 {
       font-size: 32px;
       font-weight: 700;
-      color: #fff;
+      color: #E2E8F0;
       letter-spacing: -1px;
       margin: 0 0 4px 0;
     }
 
-    .header-left p {
+    .page-header p {
       font-size: 14px;
       color: #64748B;
       margin: 0;
     }
 
-    .header-right button {
-      background: #0F172A;
-      border: 1px solid #334155;
-      color: #F1F5F9;
-      padding: 8px 16px;
-      font-size: 13px;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: border-color 0.3s, background 0.3s;
-    }
-
-    .header-right button:hover {
-      border-color: var(--pp-amber);
-      background: rgba(245, 158, 11, 0.1);
-    }
-
-    /* ALERT BANNER */
     .alert-banner {
-      background: rgba(127, 29, 29, 0.2);
-      border: 1px solid rgba(153, 27, 27, 0.4);
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-left: 4px solid #EF4444;
       border-radius: 8px;
       padding: 16px;
-      position: relative;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .alert-banner::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: #DC2626;
-      border-radius: 8px 0 0 8px;
-    }
-
-    .alert-icon {
-      width: 40px;
-      height: 40px;
-      background: rgba(220, 38, 38, 0.2);
-      border-radius: 50%;
-      display: flex;
+      display: none;
       align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      flex-shrink: 0;
+      gap: 12px;
+      margin-bottom: 24px;
     }
 
-    .alert-content {
-      flex: 1;
-    }
+    .alert-banner.show { display: flex; }
+
+    .alert-icon { font-size: 20px; flex-shrink: 0; }
+
+    .alert-content { flex: 1; }
 
     .alert-title {
-      color: #F87171;
-      font-weight: 600;
       font-size: 13px;
+      font-weight: 600;
+      color: #FCA5A5;
       margin: 0 0 2px 0;
     }
 
-    .alert-message {
-      color: rgba(248, 113, 113, 0.7);
+    .alert-desc {
       font-size: 12px;
+      color: #FECACA;
       margin: 0;
     }
 
-    .alert-cta {
-      background: rgba(220, 38, 38, 0.2);
-      border: 1px solid rgba(220, 38, 38, 0.4);
-      color: #F87171;
-      padding: 6px 12px;
-      font-size: 11px;
-      font-weight: 600;
-      border-radius: 4px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.3s, border-color 0.3s;
+    .alert-count {
+      font-size: 18px;
+      font-weight: 700;
+      color: #EF4444;
     }
 
-    .alert-cta:hover {
-      background: rgba(220, 38, 38, 0.3);
-      border-color: rgba(220, 38, 38, 0.6);
-    }
-
-    /* KPI GRID */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 24px;
+      gap: 16px;
     }
 
     .kpi-card {
@@ -284,35 +194,29 @@
       border: 1px solid #1E293B;
       border-radius: 8px;
       padding: 20px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: none;
     }
 
     .kpi-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
+      margin-bottom: 16px;
     }
 
     .kpi-label {
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #64748B;
+      letter-spacing: 0.05em;
+      color: #94A3B8;
     }
 
-    .kpi-icon {
-      font-size: 18px;
-    }
+    .kpi-icon { font-size: 18px; }
 
     .kpi-value {
       font-size: 28px;
       font-weight: 700;
-      color: #fff;
+      color: #E2E8F0;
       letter-spacing: -1px;
       margin-bottom: 4px;
     }
@@ -322,243 +226,69 @@
       color: #64748B;
     }
 
-    .kpi-delta {
-      font-weight: 600;
-    }
-
-    /* TWO COLUMN MODULE */
-    .module-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-
     .module-card {
       background: #0F172A;
       border: 1px solid #1E293B;
       border-radius: 8px;
-      overflow: hidden;
-      box-shadow: none;
+      padding: 24px;
     }
 
-    .module-header {
-      border-bottom: 1px solid #1E293B;
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-
-    .module-title-block h3 {
+    .module-title {
       font-size: 16px;
       font-weight: 600;
-      color: #fff;
-      margin: 0 0 4px 0;
+      color: #E2E8F0;
+      margin: 0 0 20px 0;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1E293B;
     }
 
-    .module-title-block p {
-      font-size: 12px;
-      color: #64748B;
-      margin: 0;
-    }
-
-    .module-icon-header {
-      font-size: 18px;
-      color: #64748B;
-    }
-
-    .module-body {
-      display: flex;
-      flex-direction: column;
-      divide-y: 1px solid #1E293B;
-    }
-
-    .module-row-item {
-      padding: 16px 20px;
+    .module-row {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
+      padding: 12px 0;
       border-bottom: 1px solid #1E293B;
-      gap: 12px;
     }
 
-    .module-row-item:last-child {
-      border-bottom: none;
-    }
+    .module-row:last-child { border-bottom: none; }
 
-    .module-row-left {
-      flex: 1;
-    }
+    .module-row-item { flex: 1; }
 
     .module-row-name {
       font-size: 13px;
       font-weight: 600;
       color: #E2E8F0;
-      margin: 0;
+      margin: 0 0 4px 0;
     }
 
     .module-row-meta {
       font-size: 11px;
       color: #64748B;
-      font-family: 'Monaco', monospace;
-      margin: 4px 0 0 0;
-    }
-
-    .module-row-right {
-      flex: 0 0 auto;
-    }
-
-    /* Stock Badge */
-    .stock-badge {
-      background: rgba(239, 68, 68, 0.1);
-      color: #EF4444;
-      border: 1px solid rgba(239, 68, 68, 0.2);
-      padding: 4px 8px;
-      font-size: 10px;
-      font-weight: 600;
-      font-family: 'Monaco', monospace;
-      letter-spacing: 0.05em;
-      border-radius: 3px;
-      white-space: nowrap;
-    }
-
-    /* Status Dot */
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      margin-right: 8px;
-    }
-
-    .status-dot.emerald {
-      background: #10B981;
-      box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
-    }
-
-    .status-dot.blue {
-      background: #3B82F6;
-      box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
-    }
-
-    .status-dot.amber {
-      background: var(--pp-amber);
-      box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-    }
-
-    .log-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-    }
-
-    .log-content {
-      flex: 1;
-    }
-
-    .log-title {
-      font-size: 13px;
-      font-weight: 500;
-      color: #E2E8F0;
       margin: 0;
     }
 
-    .log-detail {
-      font-size: 11px;
-      color: #94A3B8;
-      margin: 2px 0 0 0;
-      font-family: 'Monaco', monospace;
-    }
-
-    .log-time {
-      font-size: 10px;
-      color: #64748B;
-      margin: 4px 0 0 0;
-      font-family: 'Monaco', monospace;
-    }
-
-    /* Empty State */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-      gap: 12px;
-    }
-
-    .empty-state-icon {
-      font-size: 40px;
-      color: #334155;
-    }
-
-    .empty-state-text {
+    .module-value {
       font-size: 13px;
-      color: #64748B;
-      margin: 0;
-    }
-
-    .module-link {
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      font-weight: 700;
       color: var(--pp-amber);
-      text-decoration: none;
-      cursor: pointer;
-      transition: opacity 0.3s;
-    }
-
-    .module-link:hover {
-      opacity: 0.8;
+      font-family: 'Monaco', monospace;
     }
 
     @media (max-width: 1024px) {
-      .module-row {
-        grid-template-columns: 1fr;
-      }
-
-      .kpi-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .nav-center {
-        display: none;
-      }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .nav-center { display: none; }
     }
 
     @media (max-width: 768px) {
-      .admin-page {
-        padding: 16px;
-      }
-
-      .admin-nav {
-        padding: 0 16px;
-      }
-
-      .kpi-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .dashboard-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .header-right {
-        width: 100%;
-      }
-
-      .header-right button {
-        width: 100%;
-        justify-content: center;
-      }
+      .admin-page { padding: 16px; }
+      .admin-nav { padding: 0 16px; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .module-row { flex-direction: column; align-items: flex-start; gap: 8px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- NAVIGATION -->
   <nav class="admin-nav">
     <div class="nav-left">
       <div class="nav-brand-dot"></div>
@@ -566,184 +296,125 @@
     </div>
 
     <div class="nav-center">
-      <a href="#dashboard" class="nav-link active">Dashboard</a>
+      <a href="dashboard.html" class="nav-link active">Dashboard</a>
       <a href="inventory.html" class="nav-link">Inventory</a>
       <a href="vendors.html" class="nav-link">Vendors</a>
       <a href="staff.html" class="nav-link">Staff</a>
+      <a href="purchase.html" class="nav-link">Purchases</a>
       <a href="reports.html" class="nav-link">Reports</a>
     </div>
 
     <div class="nav-right">
-      <div class="nav-avatar">AD</div>
+      <div class="nav-avatar" id="nav-avatar">AD</div>
       <div class="nav-user-info">
-        <div class="nav-user-name">Admin</div>
-        <div class="nav-user-role">System</div>
+        <div class="nav-user-name" id="nav-user-name">Admin</div>
+        <div class="nav-user-role">Administrator</div>
       </div>
       <button class="nav-logout" id="logout-btn" title="Logout">⤴</button>
     </div>
   </nav>
 
-  <!-- PAGE CONTENT -->
   <div class="admin-page">
     <div class="admin-container">
 
-      <!-- HEADER ROW -->
-      <div class="dashboard-header">
-        <div class="header-left">
-          <h1>Admin Overview</h1>
-          <p>System-wide metrics, inventory health, and staff performance.</p>
-        </div>
-        <div class="header-right">
-          <button>⚡ Generate Report</button>
-        </div>
+      <div class="page-header">
+        <h1>📊 Admin Dashboard</h1>
+        <p>System operational overview and key metrics</p>
       </div>
 
-      <!-- CRITICAL ALERT BANNER (conditional) -->
-      <div class="alert-banner" id="alert-banner" style="display: none;">
-        <div class="alert-icon">⚠</div>
+      <div class="alert-banner" id="alert-banner">
+        <div class="alert-icon">⚠️</div>
         <div class="alert-content">
-          <p class="alert-title">Critical Stock Alert</p>
-          <p class="alert-message" id="alert-message">Brake Pads (BP-001), Oil Filter (OF-002) below minimum threshold</p>
+          <p class="alert-title">Low Stock Alert</p>
+          <p class="alert-desc"><span id="alert-count">0</span> parts are running low and need replenishment</p>
         </div>
-        <button class="alert-cta">Review Inventory</button>
       </div>
 
-      <!-- KPI GRID -->
       <div class="kpi-grid">
-        <!-- Gross Revenue -->
         <div class="kpi-card">
           <div class="kpi-header">
-            <span class="kpi-label">Gross Revenue</span>
-            <span class="kpi-icon" style="color: #10B981;">💰</span>
+            <span class="kpi-label">Total Sales</span>
+            <span class="kpi-icon">💰</span>
           </div>
-          <div class="kpi-value">Rs.1,98,000</div>
-          <div class="kpi-helper"><span class="kpi-delta" style="color: #10B981;">↑ 15.2%</span> vs last month</div>
-        </div>
-
-        <!-- Units Moved -->
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <span class="kpi-label">Units Moved</span>
-            <span class="kpi-icon" style="color: #3B82F6;">📦</span>
-          </div>
-          <div class="kpi-value">1,247</div>
+          <div class="kpi-value" id="kpi-sales">Rs.0</div>
           <div class="kpi-helper">This month</div>
         </div>
 
-        <!-- Alerts -->
         <div class="kpi-card">
           <div class="kpi-header">
-            <span class="kpi-label">Alerts</span>
-            <span class="kpi-icon" style="color: #EF4444;">⚠</span>
+            <span class="kpi-label">Orders Pending</span>
+            <span class="kpi-icon">📦</span>
           </div>
-          <div class="kpi-value" id="alert-count">2</div>
-          <div class="kpi-helper">Stock warnings</div>
+          <div class="kpi-value" id="kpi-orders">0</div>
+          <div class="kpi-helper">Awaiting fulfillment</div>
         </div>
 
-        <!-- Active Staff -->
         <div class="kpi-card">
           <div class="kpi-header">
-            <span class="kpi-label">Active Staff</span>
-            <span class="kpi-icon" style="color: #A78BFA;">👥</span>
+            <span class="kpi-label">Inventory Items</span>
+            <span class="kpi-icon">📊</span>
           </div>
-          <div class="kpi-value">4</div>
-          <div class="kpi-helper">Online today</div>
+          <div class="kpi-value" id="kpi-inventory">0</div>
+          <div class="kpi-helper">Total SKUs</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Active Users</span>
+            <span class="kpi-icon">👥</span>
+          </div>
+          <div class="kpi-value" id="kpi-users">0</div>
+          <div class="kpi-helper">Registered customers</div>
         </div>
       </div>
 
-      <!-- TWO-COLUMN MODULE ROW -->
-      <div class="module-row">
-        <!-- LEFT: ACTION REQUIRED -->
-        <div class="module-card">
-          <div class="module-header">
-            <div class="module-title-block">
-              <h3>Action Required</h3>
-              <p>Low stock items</p>
+      <div class="module-card">
+        <h2 class="module-title">Action Required</h2>
+        <div id="action-list">
+          <div class="module-row">
+            <div class="module-row-item">
+              <p class="module-row-name">⚙️ Review pending vendor approvals</p>
+              <p class="module-row-meta">5 vendors awaiting verification</p>
             </div>
-            <a href="inventory.html" class="module-link">Full List →</a>
           </div>
-          <div class="module-body" id="action-required-body">
-            <!-- Populated by JS or can be static -->
+          <div class="module-row">
             <div class="module-row-item">
-              <div class="module-row-left">
-                <p class="module-row-name">Brake Pads (Premium)</p>
-                <p class="module-row-meta">Brakes · BP-001</p>
-              </div>
-              <div class="module-row-right">
-                <span class="stock-badge">3 / 10</span>
-              </div>
+              <p class="module-row-name">📋 Process outstanding orders</p>
+              <p class="module-row-meta">12 orders ready for dispatch</p>
             </div>
+          </div>
+          <div class="module-row">
             <div class="module-row-item">
-              <div class="module-row-left">
-                <p class="module-row-name">Oil Filter (Standard)</p>
-                <p class="module-row-meta">Fluids · OF-002</p>
-              </div>
-              <div class="module-row-right">
-                <span class="stock-badge">5 / 15</span>
-              </div>
-            </div>
-            <div class="module-row-item">
-              <div class="module-row-left">
-                <p class="module-row-name">Air Filters</p>
-                <p class="module-row-meta">Filters · AF-003</p>
-              </div>
-              <div class="module-row-right">
-                <span class="stock-badge">8 / 20</span>
-              </div>
+              <p class="module-row-name">👤 New staff member registration</p>
+              <p class="module-row-meta">1 pending staff account setup</p>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- RIGHT: SYSTEM LOGS -->
-        <div class="module-card">
-          <div class="module-header">
-            <div class="module-title-block">
-              <h3>System Logs</h3>
-              <p>Recent activity</p>
+      <div class="module-card">
+        <h2 class="module-title">System Logs</h2>
+        <div id="system-logs">
+          <div class="module-row">
+            <div class="module-row-item">
+              <p class="module-row-name">Database backup completed</p>
+              <p class="module-row-meta">Today at 02:00 AM</p>
             </div>
-            <span class="module-icon-header">📋</span>
+            <div style="color:#10B981">✓</div>
           </div>
-          <div class="module-body">
+          <div class="module-row">
             <div class="module-row-item">
-              <div class="log-row">
-                <div class="status-dot emerald"></div>
-                <div class="log-content">
-                  <p class="log-title">Transaction processed</p>
-                  <p class="log-detail">Invoice INV-2024-003 · Rs.5,085 · Counter 1</p>
-                  <p class="log-time">2 hours ago</p>
-                </div>
-              </div>
+              <p class="module-row-name">API response times nominal</p>
+              <p class="module-row-meta">Avg: 145ms</p>
             </div>
+            <div style="color:#10B981">✓</div>
+          </div>
+          <div class="module-row">
             <div class="module-row-item">
-              <div class="log-row">
-                <div class="status-dot blue"></div>
-                <div class="log-content">
-                  <p class="log-title">New customer added</p>
-                  <p class="log-detail">Rajesh Kumar · rajesh.kumar@email.com · +977 9841000000</p>
-                  <p class="log-time">Yesterday, 14:32</p>
-                </div>
-              </div>
+              <p class="module-row-name">System uptime</p>
+              <p class="module-row-meta">99.8% (Last 30 days)</p>
             </div>
-            <div class="module-row-item">
-              <div class="log-row">
-                <div class="status-dot amber"></div>
-                <div class="log-content">
-                  <p class="log-title">Inventory sync completed</p>
-                  <p class="log-detail">245 parts updated · Database sync OK</p>
-                  <p class="log-time">Yesterday, 06:15</p>
-                </div>
-              </div>
-            </div>
-            <div class="module-row-item">
-              <div class="log-row">
-                <div class="status-dot emerald"></div>
-                <div class="log-content">
-                  <p class="log-title">Staff member login</p>
-                  <p class="log-detail">Sharma, Priya · Kathmandu Branch</p>
-                  <p class="log-time">3 days ago</p>
-                </div>
-              </div>
-            </div>
+            <div style="color:#10B981">✓</div>
           </div>
         </div>
       </div>
@@ -759,29 +430,37 @@
   <script src="../shared/auth-handler.js"></script>
 
   <script>
-    // Protect page - Admin only
     RoleGuard.requireRole('Admin');
 
-    // Update nav with user info
     document.addEventListener('DOMContentLoaded', () => {
-      const userName = localStorage.getItem('userFullName') || 'Admin';
-      const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
-      document.querySelector('.nav-avatar').textContent = userInitials;
-      document.querySelector('.nav-user-name').textContent = userName;
+      const name = localStorage.getItem('userFullName') || 'Admin';
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('nav-avatar').textContent = initials;
+      document.getElementById('nav-user-name').textContent = name;
 
-      // Logout handler
       document.getElementById('logout-btn').addEventListener('click', () => {
         AuthHandler.logout();
       });
 
-      // Show alert banner if there are critical stock alerts
-      const lowStockCount = 2; // Dummy data
-      if (lowStockCount > 0) {
-        document.getElementById('alert-banner').style.display = 'flex';
-        document.getElementById('alert-count').textContent = lowStockCount;
-      }
+      loadDashboardMetrics();
     });
-  </script>
 
+    async function loadDashboardMetrics() {
+      try {
+        const lowStockCount = 2;
+        if (lowStockCount > 0) {
+          document.getElementById('alert-banner').classList.add('show');
+          document.getElementById('alert-count').textContent = lowStockCount;
+        }
+
+        document.getElementById('kpi-sales').textContent = 'Rs.0';
+        document.getElementById('kpi-orders').textContent = '0';
+        document.getElementById('kpi-inventory').textContent = '0';
+        document.getElementById('kpi-users').textContent = '0';
+      } catch (e) {
+        console.error('Error loading metrics:', e);
+      }
+    }
+  </script>
 </body>
 </html>

@@ -55,8 +55,12 @@ const api = {
   getStaff: () => axiosInstance.get('/staff'),
   createStaff: (staffData) => axiosInstance.post('/staff', staffData),
 
+  getVendors: () => axiosInstance.get('/vendors'),
+  createVendor: (vendorData) => axiosInstance.post('/vendors', vendorData),
+
   getCustomers: () => axiosInstance.get('/customers'),
   getCustomer: (id) => axiosInstance.get(`/customers/${id}`),
+  createCustomer: (customerData) => axiosInstance.post('/customers', customerData),
 };
 
 // Helper functions

@@ -5,18 +5,18 @@ class RoleGuard {
   static ROLE_ROUTES = {
     Admin: [
       '/admin/dashboard.html',
-      '/admin/parts.html',
+      '/admin/inventory.html',
       '/admin/vendors.html',
       '/admin/staff.html',
-      '/admin/purchases.html',
+      '/admin/purchase.html',
       '/admin/reports.html',
     ],
     Staff: [
       '/staff/dashboard.html',
       '/staff/sales.html',
-      '/staff/customers.html',
+      '/staff/customer.html',
       '/staff/search.html',
-      '/staff/alerts.html',
+      '/staff/invoices.html',
     ],
     Customer: [
       '/customer/dashboard.html',
@@ -24,6 +24,7 @@ class RoleGuard {
       '/customer/appointments.html',
       '/customer/history.html',
       '/customer/reviews.html',
+      '/customer/part-requests.html',
     ],
   };
 
