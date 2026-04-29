@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PartsPro — Purchases</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+  <style>
+    :root {
+      --pp-amber: #F59E0B;
+      --pp-navy: #0B1121;
+      --pp-navy2: #0F172A;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      background: var(--pp-navy);
+      color: #E2E8F0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .admin-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: rgba(11, 17, 33, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1E293B;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      z-index: 1000;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      margin-right: auto;
+    }
+
+    .nav-brand-dot {
+      width: 8px; height: 8px;
+      background: var(--pp-amber);
+      border-radius: 1px;
+    }
+
+    .nav-brand-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #E2E8F0;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .nav-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748B;
+      text-decoration: none;
+      padding-bottom: 2px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .nav-link:hover { color: #E2E8F0; }
+    .nav-link.active {
+      color: #E2E8F0;
+      border-bottom-color: var(--pp-amber);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 0 0 auto;
+      margin-left: auto;
+    }
+
+    .nav-avatar {
+      width: 32px; height: 32px;
+      background: #0F172A;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pp-amber);
+    }
+
+    .nav-user-info { display: flex; flex-direction: column; font-size: 11px; }
+    .nav-user-name { color: #E2E8F0; font-weight: 600; }
+    .nav-user-role { color: #64748B; }
+
+    .nav-logout {
+      background: none; border: none;
+      color: #64748B; cursor: pointer;
+      font-size: 16px; padding: 4px;
+      transition: color 0.3s;
+    }
+    .nav-logout:hover { color: #FF6B6B; }
+
+    .admin-page {
+      margin-top: 64px;
+      padding: 32px;
+      min-height: calc(100vh - 64px);
+    }
+
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+    }
+
+    .header-left h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #E2E8F0;
+      letter-spacing: -1px;
+      margin: 0 0 4px 0;
+    }
+
+    .header-left p {
+      font-size: 14px;
+      color: #64748B;
+      margin: 0;
+    }
+
+    .card {
+      background: #0F172A;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #E2E8F0;
+      margin: 0 0 20px 0;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1E293B;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94A3B8;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input, select, textarea {
+      background: var(--pp-navy2);
+      border: 1px solid #1E293B;
+      color: #E2E8F0;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      width: 100%;
+      outline: none;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--pp-amber);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    }
+
+    input::placeholder {
+      color: #64748B;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--pp-amber);
+      border-color: var(--pp-amber);
+      color: #0B1121;
+    }
+
+    .btn-primary:hover {
+      background: #D97706;
+      border-color: #D97706;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border-color: #1E293B;
+      color: #E2E8F0;
+    }
+
+    .btn-secondary:hover {
+      border-color: #475569;
+      background: rgba(71, 85, 105, 0.1);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #0F172A;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    thead {
+      background: #1A2332;
+      border-bottom: 1px solid #1E293B;
+    }
+
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1E293B;
+      font-size: 13px;
+    }
+
+    tbody tr:hover {
+      background: #1A2332;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    @media (max-width: 1024px) {
+      .form-grid { grid-template-columns: repeat(2, 1fr); }
+      .nav-center { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .admin-page { padding: 16px; }
+      .admin-nav { padding: 0 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="admin-nav">
+    <div class="nav-left">
+      <div class="nav-brand-dot"></div>
+      <a href="../index.html" class="nav-brand-text">Parts Pro</a>
+    </div>
+
+    <div class="nav-center">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="inventory.html" class="nav-link">Inventory</a>
+      <a href="vendors.html" class="nav-link">Vendors</a>
+      <a href="staff.html" class="nav-link">Staff</a>
+      <a href="purchase.html" class="nav-link active">Purchases</a>
+      <a href="reports.html" class="nav-link">Reports</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="nav-avatar" id="nav-avatar">AD</div>
+      <div class="nav-user-info">
+        <div class="nav-user-name" id="nav-user-name">Admin</div>
+        <div class="nav-user-role">Administrator</div>
+      </div>
+      <button class="nav-logout" id="logout-btn" title="Logout">⤴</button>
+    </div>
+  </nav>
+
+  <div class="admin-page">
+    <div class="admin-container">
+
+      <div class="page-header">
+        <div class="header-left">
+          <h1>📦 Purchase Management</h1>
+          <p>Manage vendor purchases and inventory stock</p>
+        </div>
+        <div>
+          <a href="#" onclick="openNewPurchaseForm()" class="btn btn-primary">+ New Purchase</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Create Purchase Order</h2>
+        <form id="purchase-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="vendor-select">Vendor *</label>
+              <select id="vendor-select" required>
+                <option value="">Select a vendor...</option>
+                <option value="1">ABC Parts Supplier</option>
+                <option value="2">XYZ Automotive</option>
+                <option value="3">National Parts Co.</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="order-date">Order Date *</label>
+              <input type="date" id="order-date" required>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #1E293B;">
+            <h3 style="font-size:14px;font-weight:600;color:#E2E8F0;margin:0 0 16px 0">Items</h3>
+            
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="part-search">Part Name / Code</label>
+                <input type="text" id="part-search" placeholder="Search parts...">
+              </div>
+              <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" min="1" value="1">
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="addItem()">+ Add Item</button>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Part Code</th>
+                  <th>Quantity</th>
+                  <th>Unit Cost</th>
+                  <th>Total</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="items-table">
+                <tr>
+                  <td colspan="5" style="text-align:center;padding:24px;color:#64748B;">No items added yet</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #1E293B; text-align: right;">
+            <div style="display:grid;grid-template-columns:repeat(2,fit-content(120px));gap:12px;justify-content:flex-end;margin-bottom:20px;">
+              <div style="text-align:right;font-size:13px;color:#94A3B8;">Subtotal:</div>
+              <div style="font-size:13px;font-weight:600;color:#E2E8F0;font-family:'Monaco',monospace;">Rs.0</div>
+              <div style="text-align:right;font-size:13px;color:#94A3B8;">Tax (%):</div>
+              <input type="number" min="0" max="100" value="0" style="width:100px;padding:6px 8px;font-size:12px;">
+              <div style="text-align:right;font-size:14px;font-weight:600;color:#E2E8F0;">Total:</div>
+              <div style="font-size:18px;font-weight:700;color:var(--pp-amber);font-family:'Monaco',monospace;">Rs.0</div>
+            </div>
+
+            <div style="display:flex;gap:12px;justify-content:flex-end;">
+              <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
+              <button type="submit" class="btn btn-primary">📝 Create Purchase Order</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="../shared/axios-config.js"></script>
+  <script src="../shared/auth-guard.js"></script>
+  <script src="../shared/role-guard.js"></script>
+  <script src="../shared/auth-handler.js"></script>
+
+  <script>
+    RoleGuard.requireRole('Admin');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const name = localStorage.getItem('userFullName') || 'Admin';
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('nav-avatar').textContent = initials;
+      document.getElementById('nav-user-name').textContent = name;
+
+      document.getElementById('order-date').valueAsDate = new Date();
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        AuthHandler.logout();
+      });
+
+      document.getElementById('purchase-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitPurchase();
+      });
+    });
+
+    function openNewPurchaseForm() {
+      document.getElementById('purchase-form').reset();
+      document.getElementById('order-date').valueAsDate = new Date();
+    }
+
+    function addItem() {
+      alert('Item search integration pending - connect to /api/parts/search');
+    }
+
+    function resetForm() {
+      document.getElementById('purchase-form').reset();
+      document.getElementById('order-date').valueAsDate = new Date();
+    }
+
+    async function submitPurchase() {
+      try {
+        alert('Purchase order submission pending - connect to /api/purchases/create');
+      } catch (e) {
+        console.error('Error:', e);
+      }
+    }
+  </script>
+</body>
+</html>

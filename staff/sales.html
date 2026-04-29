@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PartsPro — New Sale</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+  <style>
+    :root {
+      --pp-amber: #F59E0B;
+      --pp-charcoal: #1F2937;
+      --pp-charcoal2: #374151;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      background: var(--pp-charcoal);
+      color: #F3F4F6;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .staff-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: rgba(31, 41, 55, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #4B5563;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      z-index: 1000;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      margin-right: auto;
+    }
+
+    .nav-brand-dot {
+      width: 8px; height: 8px;
+      background: var(--pp-amber);
+      border-radius: 1px;
+    }
+
+    .nav-brand-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #F3F4F6;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .nav-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: #6B7280;
+      text-decoration: none;
+      padding-bottom: 2px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .nav-link:hover { color: #F3F4F6; }
+    .nav-link.active {
+      color: #F3F4F6;
+      border-bottom-color: var(--pp-amber);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 0 0 auto;
+      margin-left: auto;
+    }
+
+    .nav-avatar {
+      width: 32px; height: 32px;
+      background: #374151;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pp-amber);
+    }
+
+    .nav-user-info { display: flex; flex-direction: column; font-size: 11px; }
+    .nav-user-name { color: #F3F4F6; font-weight: 600; }
+    .nav-user-role { color: #6B7280; }
+
+    .nav-logout {
+      background: none; border: none;
+      color: #6B7280; cursor: pointer;
+      font-size: 16px; padding: 4px;
+      transition: color 0.3s;
+    }
+    .nav-logout:hover { color: #FF6B6B; }
+
+    .staff-page {
+      margin-top: 64px;
+      padding: 32px;
+      min-height: calc(100vh - 64px);
+    }
+
+    .staff-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+    }
+
+    .header-left h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #F3F4F6;
+      letter-spacing: -1px;
+      margin: 0 0 4px 0;
+    }
+
+    .header-left p {
+      font-size: 14px;
+      color: #6B7280;
+      margin: 0;
+    }
+
+    .card {
+      background: #374151;
+      border: 1px solid #4B5563;
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #F3F4F6;
+      margin: 0 0 20px 0;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #4B5563;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6B7280;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input, select, textarea {
+      background: #1F2937;
+      border: 1px solid #4B5563;
+      color: #F3F4F6;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      width: 100%;
+      outline: none;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--pp-amber);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    }
+
+    input::placeholder {
+      color: #6B7280;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--pp-amber);
+      border-color: var(--pp-amber);
+      color: #1F2937;
+    }
+
+    .btn-primary:hover {
+      background: #D97706;
+      border-color: #D97706;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border-color: #4B5563;
+      color: #F3F4F6;
+    }
+
+    .btn-secondary:hover {
+      border-color: #F3F4F6;
+      background: rgba(243, 244, 246, 0.05);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #374151;
+      border: 1px solid #4B5563;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    thead {
+      background: #4B5563;
+      border-bottom: 1px solid #4B5563;
+    }
+
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: #9CA3AF;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #4B5563;
+      font-size: 13px;
+    }
+
+    tbody tr:hover {
+      background: #4B5563;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    @media (max-width: 1024px) {
+      .form-grid { grid-template-columns: repeat(2, 1fr); }
+      .nav-center { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .staff-page { padding: 16px; }
+      .staff-nav { padding: 0 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="staff-nav">
+    <div class="nav-left">
+      <div class="nav-brand-dot"></div>
+      <a href="../index.html" class="nav-brand-text">Parts Pro</a>
+    </div>
+
+    <div class="nav-center">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="sales.html" class="nav-link active">New Sale</a>
+      <a href="customer.html" class="nav-link">Customers</a>
+      <a href="search.html" class="nav-link">Search</a>
+      <a href="invoices.html" class="nav-link">Invoices</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="nav-avatar" id="nav-avatar">ST</div>
+      <div class="nav-user-info">
+        <div class="nav-user-name" id="nav-user-name">Staff</div>
+        <div class="nav-user-role">Staff Member</div>
+      </div>
+      <button class="nav-logout" id="logout-btn" title="Logout">⤴</button>
+    </div>
+  </nav>
+
+  <div class="staff-page">
+    <div class="staff-container">
+
+      <div class="page-header">
+        <div class="header-left">
+          <h1>🧾 New Sale</h1>
+          <p>Create a new sales invoice and process payment</p>
+        </div>
+        <div>
+          <a href="invoices.html" class="btn btn-secondary">View Recent Invoices</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Customer & Items</h2>
+        <form id="sale-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="customer-select">Select Customer</label>
+              <select id="customer-select" required>
+                <option value="">Choose a customer...</option>
+                <option value="1">Rajesh Kumar (BA 1 KA 1234)</option>
+                <option value="2">Sita Sharma (BA 2 JA 5678)</option>
+                <option value="3">Anil Thapa (BA 3 PA 9012)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="invoice-date">Invoice Date</label>
+              <input type="date" id="invoice-date" required>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #4B5563;">
+            <h3 style="font-size:14px;font-weight:600;color:#F3F4F6;margin:0 0 16px 0">Sale Items</h3>
+            
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="part-search">Search Part Number / Name</label>
+                <input type="text" id="part-search" placeholder="e.g., BP-001 or Brake Pads">
+              </div>
+              <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" min="1" value="1">
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="addItem()">+ Add Item</button>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Part Name</th>
+                  <th>Unit Price</th>
+                  <th>Qty</th>
+                  <th>Total</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="items-table">
+                <tr>
+                  <td colspan="5" style="text-align:center;padding:24px;color:#6B7280;">No items added yet</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #4B5563; text-align: right;">
+            <div style="display:grid;grid-template-columns:repeat(2,fit-content(100px));gap:12px;justify-content:flex-end;margin-bottom:20px;">
+              <div style="text-align:right;font-size:13px;color:#6B7280;">Subtotal:</div>
+              <div style="font-size:13px;font-weight:600;color:#F3F4F6;font-family:'Monaco',monospace;">Rs.0</div>
+              <div style="text-align:right;font-size:13px;color:#6B7280;">Discount (%):</div>
+              <input type="number" min="0" max="100" value="0" style="width:100px;padding:6px 8px;font-size:12px;">
+              <div style="text-align:right;font-size:14px;font-weight:600;color:#F3F4F6;">Net Total:</div>
+              <div style="font-size:18px;font-weight:700;color:var(--pp-amber);font-family:'Monaco',monospace;">Rs.0</div>
+            </div>
+
+            <div style="display:flex;gap:12px;justify-content:flex-end;">
+              <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
+              <button type="submit" class="btn btn-primary">💾 Create Invoice</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="../shared/axios-config.js"></script>
+  <script src="../shared/auth-guard.js"></script>
+  <script src="../shared/role-guard.js"></script>
+  <script src="../shared/auth-handler.js"></script>
+
+  <script>
+    RoleGuard.requireRole('Staff');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const name = localStorage.getItem('userFullName') || 'Staff';
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('nav-avatar').textContent = initials;
+      document.getElementById('nav-user-name').textContent = name;
+
+      document.getElementById('invoice-date').valueAsDate = new Date();
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        AuthHandler.logout();
+      });
+
+      document.getElementById('sale-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitSale();
+      });
+    });
+
+    function addItem() {
+      alert('Item search integration pending - connect to /api/parts/search');
+    }
+
+    function resetForm() {
+      document.getElementById('sale-form').reset();
+      document.getElementById('invoice-date').valueAsDate = new Date();
+    }
+
+    async function submitSale() {
+      try {
+        alert('Sale submission pending - connect to /api/sales/create');
+      } catch (e) {
+        console.error('Error:', e);
+      }
+    }
+  </script>
+</body>
+</html>
