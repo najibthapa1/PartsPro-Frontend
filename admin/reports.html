@@ -435,7 +435,7 @@
 
     <div class="nav-center">
       <a href="dashboard.html" class="nav-link">Dashboard</a>
-      <a href="inventory.html" class="nav-link">Inventory</a>
+      <a href="parts.html" class="nav-link">Parts</a>
       <a href="vendors.html" class="nav-link">Vendors</a>
       <a href="staff.html" class="nav-link">Staff</a>
       <a href="purchase.html" class="nav-link">Purchases</a>
@@ -593,13 +593,13 @@
 
       try {
         const response = await api.get('/report/financial', { params: { startDate, endDate } });
-        displayFinancialReport(response.data);
+        displayFinancialReport(response.data, 'financial-content', startDate, endDate);
       } catch (e) {
         showError('financial-content', 'Failed to generate report');
       }
     }
 
-    function displayFinancialReport(data) {
+    function displayFinancialReport(data, containerId = 'financial-content', startDate = '', endDate = '') {
       const html = `
         <div class="kpi-grid">
           <div class="kpi-card">
@@ -647,43 +647,101 @@
           </div>
         </div>
       `;
-      document.getElementById('financial-content').innerHTML = html;
+      document.getElementById(containerId).innerHTML = html;
     }
 
-    function generateProfitLoss() {
-      const html = `
-        <div class="empty-state">
-          📊 Profit & Loss statement will be generated from API
-        </div>
-      `;
-      document.getElementById('profitloss-content').innerHTML = html;
+    async function generateProfitLoss() {
+      const token     = localStorage.getItem('authToken');
+      const startDate = document.getElementById('pl-start').value;
+      const endDate   = document.getElementById('pl-end').value;
+      if (!startDate || !endDate) { showError('profitloss-content', 'Please select both dates'); return; }
+      try {
+        const res = await axios.get('http://localhost:5260/api/report/profit-loss',
+          { params: { startDate, endDate }, headers: { Authorization: `Bearer ${token}` } }
+        );
+        displayFinancialReport(res.data, 'profitloss-content', startDate, endDate);
+      } catch (e) {
+        showError('profitloss-content', e.response?.data?.title || e.message);
+      }
     }
 
-    function generateMonthlySales() {
-      const html = `
-        <div class="empty-state">
-          📅 Monthly sales report will be generated from API
-        </div>
-      `;
-      document.getElementById('monthlysales-content').innerHTML = html;
+    async function generateMonthlySales() {
+      const token = localStorage.getItem('authToken');
+      const year  = document.getElementById('ms-year').value;
+      try {
+        const res = await axios.get('http://localhost:5260/api/report/sales/monthly',
+          { params: { year }, headers: { Authorization: `Bearer ${token}` } }
+        );
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const rows = (res.data || []).map(m => `
+          <tr>
+            <td>${months[m.month - 1]} ${m.year}</td>
+            <td>${m.salesCount}</td>
+            <td>Rs.${m.totalRevenue.toLocaleString()}</td>
+            <td>Rs.${m.averageOrderValue.toFixed(2)}</td>
+          </tr>`).join('');
+        document.getElementById('monthlysales-content').innerHTML = `
+          <table style="margin-top:16px">
+            <thead><tr><th>Month</th><th>Orders</th><th>Revenue</th><th>Avg Order</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>`;
+      } catch (e) {
+        showError('monthlysales-content', e.response?.data?.title || e.message);
+      }
     }
 
-    function generateTopSelling() {
-      const html = `
-        <div class="empty-state">
-          🏆 Top selling parts report will be generated from API
-        </div>
-      `;
-      document.getElementById('topselling-content').innerHTML = html;
+    async function generateTopSelling() {
+      const token = localStorage.getItem('authToken');
+      const limit = document.getElementById('ts-limit').value || 10;
+      try {
+        const res = await axios.get('http://localhost:5260/api/report/products/top-selling',
+          { params: { limit }, headers: { Authorization: `Bearer ${token}` } }
+        );
+        const rows = (res.data || []).map((p, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${p.partName}</td>
+            <td>${p.partNumber}</td>
+            <td>${p.totalQuantitySold}</td>
+            <td>Rs.${p.totalRevenue.toLocaleString()}</td>
+          </tr>`).join('');
+        document.getElementById('topselling-content').innerHTML = `
+          <table style="margin-top:16px">
+            <thead><tr><th>#</th><th>Part Name</th><th>Part No.</th><th>Qty Sold</th><th>Revenue</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>`;
+      } catch (e) {
+        showError('topselling-content', e.response?.data?.title || e.message);
+      }
     }
 
-    function generateInventorySummary() {
-      const html = `
-        <div class="empty-state">
-          📦 Inventory summary will be generated from API
-        </div>
-      `;
-      document.getElementById('inventory-content').innerHTML = html;
+    async function generateInventorySummary() {
+      const token = localStorage.getItem('authToken');
+      try {
+        const res = await axios.get('http://localhost:5260/api/report/inventory/summary',
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const d = res.data;
+        const lowRows = (d.lowStockParts || []).map(p => `
+          <tr>
+            <td>${p.partName}</td>
+            <td style="color:${p.currentStock === 0 ? '#EF4444' : '#F59E0B'}">${p.currentStock}</td>
+            <td>${p.reorderLevel}</td>
+          </tr>`).join('');
+        document.getElementById('inventory-content').innerHTML = `
+          <div class="kpi-grid" style="margin-top:16px">
+            <div class="kpi-card"><div class="kpi-label">Total Parts</div><div class="kpi-value">${d.totalPartsInStock}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Inventory Value</div><div class="kpi-value">Rs.${d.totalInventoryValue.toLocaleString()}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Low Stock</div><div class="kpi-value" style="color:#F59E0B">${d.lowStockCount}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Out of Stock</div><div class="kpi-value" style="color:#EF4444">${d.outOfStockCount}</div></div>
+          </div>
+          ${lowRows ? `<table style="margin-top:16px">
+            <thead><tr><th>Part Name</th><th>Current Stock</th><th>Reorder At</th></tr></thead>
+            <tbody>${lowRows}</tbody>
+          </table>` : ''}`;
+      } catch (e) {
+        showError('inventory-content', e.response?.data?.title || e.message);
+      }
     }
 
     function showError(containerId, message) {

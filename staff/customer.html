@@ -312,12 +312,19 @@
 
           <div class="form-grid">
             <div class="form-group">
-              <label for="phone">Phone Number *</label>
-              <input type="tel" id="phone" placeholder="+977 98..." required>
+              <label for="phone">Password *</label>
+              <input type="tel" id="password" placeholder="......" required>
             </div>
             <div class="form-group">
               <label for="address">Address *</label>
               <input type="text" id="address" required>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="phone">Phone Number *</label>
+              <input type="tel" id="phone" placeholder="+977 98..." required>
             </div>
           </div>
 
@@ -349,7 +356,7 @@
 
           <div style="display:flex;gap:12px;margin-top:28px;justify-content:flex-end;">
             <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
-            <button type="submit" class="btn btn-primary">💾 Register Customer</button>
+            <button type="submit" class="btn btn-primary" onclick="registerCustomer()"> Register Customer</button>
           </div>
         </form>
       </div>
@@ -388,10 +395,38 @@
     }
 
     async function registerCustomer() {
+      const token = localStorage.getItem('authToken');
+
+      const rawPhone  = document.getElementById('phone').value.trim();
+      const cleanPhone = rawPhone.replace(/\D/g, '').slice(-10);
+
+      const payload = {
+        fullName:     document.getElementById('full-name').value.trim(),
+        email:        document.getElementById('email').value.trim(),
+        password:     document.getElementById('password').value.trim(),
+        phone:        cleanPhone,
+        address:      document.getElementById('address').value.trim(),
+        plateNumber:  document.getElementById('plate-number').value.trim().toUpperCase(),
+        vehicleYear:  parseInt(document.getElementById('vehicle-year').value),
+        vehicleModel: document.getElementById('vehicle-brand').value.trim()
+                      + ' ' + document.getElementById('vehicle-model').value.trim()
+      };
+
+      if (!payload.fullName || !payload.email || !payload.address) {
+        alert('Please fill in all required fields'); return;
+      }
+      if (cleanPhone.length !== 10) {
+        alert('Phone number must be 10 digits'); return;
+      }
+
       try {
-        alert('Customer registration pending - connect to /api/customers/register');
+        await axios.post('http://localhost:5260/api/auth/register-customer-by-staff', payload, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        alert(`Customer "${payload.fullName}" registered successfully!\nTemporary password: PartsPro@123`);
+        resetForm();
       } catch (e) {
-        console.error('Error:', e);
+        alert('Error: ' + (e.response?.data?.title || e.message));
       }
     }
   </script>

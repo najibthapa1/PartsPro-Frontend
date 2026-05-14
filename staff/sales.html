@@ -420,6 +420,7 @@
   <script src="../shared/auth-handler.js"></script>
 
   <script>
+    let saleItems = [];
     RoleGuard.requireRole('Staff');
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -438,22 +439,111 @@
         e.preventDefault();
         submitSale();
       });
+      loadCustomers();
     });
 
-    function addItem() {
-      alert('Item search integration pending - connect to /api/parts/search');
+    async function loadCustomers() {
+      const token = localStorage.getItem('authToken');
+      try {
+        const res = await axios.get('http://localhost:5260/api/customer', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const select = document.getElementById('customer-select');
+        select.innerHTML = '<option value="">Choose a customer...</option>';
+        (res.data || []).forEach(c => {
+          select.innerHTML += `<option value="${c.id}">${c.fullName} (ID: ${c.id})</option>`;
+        });
+      } catch (e) {
+        console.warn('Could not load customers — CustomerController not built yet');
+      }
+    }
+
+    async function addItem() {
+      const token = localStorage.getItem('authToken');
+      const query = document.getElementById('part-search').value.trim();
+      const qty   = parseInt(document.getElementById('quantity').value);
+
+      if (!query) { alert('Enter a part name or number'); return; }
+      if (!qty || qty < 1) { alert('Enter a valid quantity'); return; }
+
+      try {
+        const res = await axios.get(`http://localhost:5260/api/part/search?q=${encodeURIComponent(query)}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const parts = res.data || [];
+        if (parts.length === 0) { alert('No parts found matching: ' + query); return; }
+        const part = parts[0];
+
+        const existing = saleItems.find(i => i.partId === part.id);
+        if (existing) { existing.quantity += qty; }
+        else { saleItems.push({ partId: part.id, partName: part.name, unitPrice: part.price, quantity: qty }); }
+
+        renderSaleTable();
+        document.getElementById('part-search').value = '';
+        document.getElementById('quantity').value = '1';
+      } catch (e) {
+        alert('Error searching parts: ' + (e.response?.data?.title || e.message));
+      }
+    }
+
+    function renderSaleTable() {
+      const tbody = document.getElementById('items-table');
+      if (saleItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:#6B7280;">No items added yet</td></tr>';
+        return;
+      }
+      let total = 0;
+      tbody.innerHTML = saleItems.map((item, i) => {
+        const lineTotal = item.unitPrice * item.quantity;
+        total += lineTotal;
+        return `<tr>
+          <td>${item.partName}</td>
+          <td>Rs.${item.unitPrice.toFixed(2)}</td>
+          <td>${item.quantity}</td>
+          <td>Rs.${lineTotal.toFixed(2)}</td>
+          <td><button onclick="removeSaleItem(${i})" style="background:none;border:none;color:#EF4444;cursor:pointer">✕</button></td>
+        </tr>`;
+      }).join('');
+      const discount = total > 5000 ? total * 0.10 : 0;
+      const final = total - discount;
+      // update totals display — find the subtotal / net total divs in the HTML
+    }
+
+    function removeSaleItem(index) {
+      saleItems.splice(index, 1);
+      renderSaleTable();
     }
 
     function resetForm() {
       document.getElementById('sale-form').reset();
       document.getElementById('invoice-date').valueAsDate = new Date();
+      saleItems = [];
+      renderSaleTable();
     }
 
     async function submitSale() {
+      const token      = localStorage.getItem('authToken');
+      const customerId = parseInt(document.getElementById('customer-select').value);
+      if (!customerId)         { alert('Please select a customer'); return; }
+      if (saleItems.length === 0) { alert('Add at least one item'); return; }
+
+      const payload = {
+        customerId,
+        items: saleItems.map(i => ({ partId: i.partId, quantity: i.quantity }))
+      };
+
       try {
-        alert('Sale submission pending - connect to /api/sales/create');
+        const res = await axios.post('http://localhost:5260/api/sale/create', payload, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        const d = res.data;
+        const msg = `Invoice #${d.id} created!\nTotal: Rs.${d.totalAmount}\n`
+          + (d.loyaltyDiscountApplied ? `10% Loyalty Discount Applied! You saved Rs.${d.discountAmount}\n` : '')
+          + `Final: Rs.${d.finalAmount}`;
+        alert(msg);
+        resetForm();
       } catch (e) {
-        console.error('Error:', e);
+        alert('Error: ' + (e.response?.data?.title || e.message));
       }
     }
   </script>

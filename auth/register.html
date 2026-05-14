@@ -224,7 +224,7 @@
               </div>
               <div class="col-12 col-sm-6">
                 <label class="form-label">Phone Number</label>
-                <input type="tel" class="form-control" id="phone" placeholder="+977 98XXXXXXXX">
+                <input type="tel" class="form-control" id="phone" placeholder="98XXXXXXXX">
                 <div class="invalid-feedback" id="phone-err">Phone number is required.</div>
               </div>
               <div class="col-12">
@@ -374,7 +374,7 @@
     }
 
     // ── SUBMIT ─────────────────────────────────────────────────────
-    async function submitForm() {
+    async function  submitForm() {
       if (!validate(3)) return;
 
       const btn   = document.getElementById('submit-btn');
@@ -393,11 +393,9 @@
         fullName: document.getElementById('fullName').value.trim(),
         phone:    document.getElementById('phone').value.trim(),
         address:  document.getElementById('address').value.trim(),
-        vehicle: {
-          plateNumber: document.getElementById('plateNumber').value.trim().toUpperCase(),
-          year:        parseInt(document.getElementById('year').value),
-          model:       document.getElementById('brand').value + ' ' + document.getElementById('model').value.trim()
-        }
+        plateNumber: document.getElementById('plateNumber').value.trim().toUpperCase(),
+        vehicleModel: document.getElementById('brand').value + ' ' + document.getElementById('model').value.trim(),
+        vehicleYear: parseInt(document.getElementById('year').value)
       };
 
       try {

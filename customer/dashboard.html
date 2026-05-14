@@ -637,41 +637,48 @@
     });
 
     async function loadCustomerData() {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
       try {
-        const purchasesRes = await api.get('/customers/me/purchases');
-        const purchases = purchasesRes.data;
+        const purchasesRes = await axiosInstance.get('/customers/me/purchases');
+        const purchases = purchasesRes.data || [];
         document.getElementById('kpi-purchases').textContent = purchases.length;
 
         const saved = purchases.reduce((sum, p) => sum + (p.discountAmount || 0), 0);
         if (saved > 0) {
-          document.getElementById('loyalty-saved').textContent =
-            'Rs.' + saved.toLocaleString();
+          document.getElementById('loyalty-saved').textContent = 'Rs.' + saved.toLocaleString();
         }
 
-        if (purchases.length) {
-          document.getElementById('purchase-history').innerHTML =
-            purchases.slice(0, 4).map(p => `
-              <div class="module-row-item">
-                <div>
-                  <p class="module-row-name">${p.items?.map(i => i.partName + ' × ' + i.quantity).join(', ') || 'Items'}</p>
-                  <p class="module-row-meta">INV-${p.id} · ${new Date(p.createdAt).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}${p.loyaltyDiscountApplied ? ' · 10% discount applied' : ''}</p>
-                </div>
-                <div style="text-align:right">
-                  <div class="purchase-amount">Rs.${p.finalAmount?.toLocaleString()}</div>
-                  <span class="badge-completed">PAID</span>
-                </div>
-              </div>`).join('');
+        if (purchases.length > 0) {
+          document.getElementById('purchase-history').innerHTML = purchases.slice(0, 4).map(p => `
+            <div class="module-row-item">
+              <div>
+                <p class="module-row-name">${p.items?.map(i => i.partName + ' × ' + i.quantity).join(', ') || 'Items'}</p>
+                <p class="module-row-meta">INV-${p.id} · ${new Date(p.createdAt).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}
+                ${p.loyaltyDiscountApplied ? ' · 10% discount applied' : ''}</p>
+              </div>
+              <div style="text-align:right">
+                <div class="purchase-amount">Rs.${p.finalAmount?.toLocaleString()}</div>
+                <span class="badge-completed">PAID</span>
+              </div>
+            </div>`).join('');
         }
-      } catch (e) { }
+      } catch (e) {
+        // Endpoint not built yet — silently skip, keep placeholder data
+        console.info('Purchase history endpoint pending (F14)');
+      }
 
       try {
-        const apptRes = await api.get('/customers/me/services');
-        const appts   = apptRes.data;
+        const apptRes = await axiosInstance.get('/customers/me/services');
+        const appts   = apptRes.data || [];
         const upcoming = appts.filter(a => new Date(a.appointmentDate) >= new Date());
         document.getElementById('kpi-appointments').textContent = upcoming.length;
         document.getElementById('kpi-appt-sub').textContent =
           upcoming.length === 1 ? '1 upcoming' : `${upcoming.length} upcoming`;
-      } catch (e) { /* silent */ }
+      } catch (e) {
+        console.info('Appointments endpoint pending (F14)');
+      }
     }
   </script>
 </body>

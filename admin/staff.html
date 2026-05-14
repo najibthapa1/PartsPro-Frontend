@@ -310,7 +310,7 @@
 
     <div class="nav-center">
       <a href="dashboard.html" class="nav-link">Dashboard</a>
-      <a href="inventory.html" class="nav-link">Inventory</a>
+      <a href="parts.html" class="nav-link">Parts</a>
       <a href="vendors.html" class="nav-link">Vendors</a>
       <a href="staff.html" class="nav-link active">Staff</a>
       <a href="purchase.html" class="nav-link">Purchases</a>
@@ -362,10 +362,11 @@
             <div class="form-group">
               <label for="role">Role *</label>
               <select id="role" required>
-                <option value="">Select a role...</option>
-                <option value="staff">Staff Member</option>
-                <option value="supervisor">Supervisor</option>
-                <option value="manager">Manager</option>
+                <option value="">Select a department...</option>
+                <option value="Sales">Sales</option>
+                <option value="Inventory">Inventory</option>
+                <option value="Customer Service">Customer Service</option>
+                <option value="Management">Management</option>
               </select>
             </div>
           </div>
@@ -383,7 +384,7 @@
 
           <div style="display:flex;gap:12px;margin-top:28px;justify-content:flex-end;">
             <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
-            <button type="submit" class="btn btn-primary">💾 Register Staff</button>
+            <button type="submit" class="btn btn-primary"> Register Staff</button>
           </div>
         </form>
       </div>
@@ -450,10 +451,34 @@
     }
 
     async function registerStaff() {
+      const token    = localStorage.getItem('authToken');
+      const password = document.getElementById('password').value;
+      const confirm  = document.getElementById('confirm-password').value;
+
+      if (password !== confirm) { alert('Passwords do not match'); return; }
+
+      const payload = {
+        fullName:   document.getElementById('full-name').value.trim(),
+        email:      document.getElementById('email').value.trim(),
+        password:   password,
+        phone:      document.getElementById('phone').value.trim().replace(/\D/g,'').slice(-10),
+        address:    '',
+        department: document.getElementById('role').value
+      };
+
+      if (!payload.fullName || !payload.email || !payload.department) {
+        alert('Please fill in all required fields'); return;
+      }
+
       try {
-        alert('Staff registration pending - connect to /api/staff/register');
+        await axios.post('http://localhost:5260/api/auth/register-staff', payload, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        alert('Staff member registered successfully!');
+        resetForm();
+        loadStaffList();
       } catch (e) {
-        console.error('Error:', e);
+        alert('Error: ' + (e.response?.data?.title || e.message));
       }
     }
 
@@ -497,7 +522,11 @@
       } catch (error) {
         console.error('Error loading staff:', error);
         const tbody = document.getElementById('staff-table');
-        const errorMsg = error.response?.status === 401 ? 'Unauthorized - Please login again' : 'Error loading staff members';
+        const errorMsg = error.response?.status === 401
+          ? 'Unauthorized — please log in again'
+          : error.response?.status === 404
+          ? 'Staff list endpoint not ready yet'
+          : 'Error loading staff members';
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:#FCA5A5;">⚠️ ${errorMsg}</td></tr>`;
       }
     }

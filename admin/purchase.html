@@ -309,7 +309,7 @@
 
     <div class="nav-center">
       <a href="dashboard.html" class="nav-link">Dashboard</a>
-      <a href="inventory.html" class="nav-link">Inventory</a>
+      <a href="parts.html" class="nav-link">Parts</a>
       <a href="vendors.html" class="nav-link">Vendors</a>
       <a href="staff.html" class="nav-link">Staff</a>
       <a href="purchase.html" class="nav-link active">Purchases</a>
@@ -370,6 +370,10 @@
                 <label for="quantity">Quantity</label>
                 <input type="number" id="quantity" min="1" value="1">
               </div>
+              <div class="form-group">
+                <label for="unit-cost">Unit Cost (Rs.)</label>
+                <input type="number" id="unit-cost" min="0.01" step="0.01" placeholder="0.00">
+              </div>
             </div>
 
             <button type="button" class="btn btn-primary" onclick="addItem()">+ Add Item</button>
@@ -404,7 +408,7 @@
 
             <div style="display:flex;gap:12px;justify-content:flex-end;">
               <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
-              <button type="submit" class="btn btn-primary">📝 Create Purchase Order</button>
+              <button type="submit" class="btn btn-primary"> Create Purchase Order</button>
             </div>
           </div>
         </form>
@@ -439,6 +443,7 @@
         e.preventDefault();
         submitPurchase();
       });
+      loadVendors();
     });
 
     function openNewPurchaseForm() {
@@ -446,22 +451,86 @@
       document.getElementById('order-date').valueAsDate = new Date();
     }
 
-    function addItem() {
-      alert('Item search integration pending - connect to /api/parts/search');
-    }
 
-    function resetForm() {
-      document.getElementById('purchase-form').reset();
-      document.getElementById('order-date').valueAsDate = new Date();
-    }
+  async function loadVendors() {
+    const token = localStorage.getItem('authToken');
+    const res = await axios.get('http://localhost:5260/api/vendor', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const select = document.getElementById('vendor-select');
+    select.innerHTML = '<option value="">Select a vendor...</option>';
+    (res.data || []).forEach(v => {
+      select.innerHTML += `<option value="${v.id}">${v.name}</option>`;
+    });
+  }
 
-    async function submitPurchase() {
-      try {
-        alert('Purchase order submission pending - connect to /api/purchases/create');
-      } catch (e) {
-        console.error('Error:', e);
+  async function addItem() {
+        const token = localStorage.getItem('authToken');
+        const query = document.getElementById('part-search').value.trim();
+        const qty   = parseInt(document.getElementById('quantity').value);
+        const unitCost = parseFloat(document.getElementById('unit-cost').value);
+        if (!unitCost || unitCost <= 0) { alert('Enter a valid unit cost'); return; }
+        if (!query) { alert('Enter a part name or number to search'); return; }
+        if (!qty || qty < 1) { alert('Enter a valid quantity'); return; }
+
+        const res = await axios.get(`http://localhost:5260/api/part/search?q=${encodeURIComponent(query)}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const parts = res.data || [];
+        if (parts.length === 0) { alert('No parts found'); return; }
+        const part = parts[0];
+
+        purchaseItems.push({ partId: part.id, quantity: qty, unitCost: part.price });
+        renderItemsTable();
       }
-    }
+
+      function renderItemsTable() {
+        const tbody = document.getElementById('items-table');
+        if (purchaseItems.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:#64748B;">No items added yet</td></tr>';
+          return;
+        }
+        tbody.innerHTML = purchaseItems.map((item, i) => `
+          <tr>
+            <td>Part ID: ${item.partId}</td>
+            <td>${item.quantity}</td>
+            <td>Rs.${item.unitCost}</td>
+            <td>Rs.${(item.quantity * item.unitCost).toFixed(2)}</td>
+            <td><button onclick="removeItem(${i})" style="background:none;border:none;color:#EF4444;cursor:pointer">Remove</button></td>
+          </tr>
+        `).join('');
+      }
+
+      function removeItem(index) {
+        purchaseItems.splice(index, 1);
+        renderItemsTable();
+      }
+      }
+
+      function resetForm() {
+        document.getElementById('purchase-form').reset();
+        document.getElementById('order-date').valueAsDate = new Date();
+        purchaseItems = [];
+        renderItemsTable();
+      }
+
+      async function submitPurchase() {
+        const token    = localStorage.getItem('authToken');
+        const vendorId = parseInt(document.getElementById('vendor-select').value);
+        if (!vendorId)              { alert('Please select a vendor'); return; }
+        if (purchaseItems.length === 0) { alert('Add at least one item'); return; }
+
+        try {
+          const res = await axios.post('http://localhost:5260/api/purchaseinvoice/create',
+            { vendorId, status: 'Paid', items: purchaseItems },
+            { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+          );
+          alert(`Purchase invoice #${res.data.id} created successfully!`);
+          resetForm();
+        } catch (e) {
+          alert('Error: ' + (e.response?.data?.title || e.message));
+        }
+      }
   </script>
 </body>
 </html>

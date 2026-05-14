@@ -310,7 +310,7 @@
 
     <div class="nav-center">
       <a href="dashboard.html" class="nav-link">Dashboard</a>
-      <a href="inventory.html" class="nav-link">Inventory</a>
+      <a href="parts.html" class="nav-link">Parts</a>
       <a href="vendors.html" class="nav-link active">Vendors</a>
       <a href="staff.html" class="nav-link">Staff</a>
       <a href="purchase.html" class="nav-link">Purchases</a>
@@ -383,7 +383,7 @@
 
           <div style="display:flex;gap:12px;margin-top:28px;justify-content:flex-end;">
             <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
-            <button type="submit" class="btn btn-primary">💾 Register Vendor</button>
+            <button type="submit" class="btn btn-primary">Register Vendor</button>
           </div>
         </form>
       </div>
@@ -451,7 +451,7 @@
 
     async function registerVendor() {
       try {
-        alert('Vendor registration pending - connect to /api/vendor/register');
+        await axiosInstance.post('/vendor/create', { name, contactPerson, phone, email, address });
       } catch (e) {
         console.error('Error:', e);
       }

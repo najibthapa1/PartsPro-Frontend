@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PartsPro — Parts Management</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+  <style>
+    :root {
+      --pp-amber: #F59E0B;
+      --pp-navy: #0B1121;
+      --pp-navy2: #0F172A;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      background: var(--pp-navy);
+      color: #E2E8F0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .admin-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: rgba(11, 17, 33, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1E293B;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      z-index: 1000;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      margin-right: auto;
+    }
+
+    .nav-brand-dot {
+      width: 8px; height: 8px;
+      background: var(--pp-amber);
+      border-radius: 1px;
+    }
+
+    .nav-brand-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #E2E8F0;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .nav-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748B;
+      text-decoration: none;
+      padding-bottom: 2px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .nav-link:hover { color: #E2E8F0; }
+    .nav-link.active {
+      color: #E2E8F0;
+      border-bottom-color: var(--pp-amber);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 0 0 auto;
+      margin-left: auto;
+    }
+
+    .nav-avatar {
+      width: 32px; height: 32px;
+      background: #0F172A;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pp-amber);
+    }
+
+    .nav-user-info { display: flex; flex-direction: column; font-size: 11px; }
+    .nav-user-name { color: #E2E8F0; font-weight: 600; }
+    .nav-user-role { color: #64748B; }
+
+    .nav-logout {
+      background: none; border: none;
+      color: #64748B; cursor: pointer;
+      font-size: 16px; padding: 4px;
+      transition: color 0.3s;
+    }
+    .nav-logout:hover { color: #FF6B6B; }
+
+    .admin-page {
+      margin-top: 64px;
+      padding: 32px;
+      min-height: calc(100vh - 64px);
+    }
+
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+    }
+
+    .header-left h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #E2E8F0;
+      letter-spacing: -1px;
+      margin: 0 0 4px 0;
+    }
+
+    .header-left p {
+      font-size: 14px;
+      color: #64748B;
+      margin: 0;
+    }
+
+    .card {
+      background: #0F172A;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #E2E8F0;
+      margin: 0 0 20px 0;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1E293B;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94A3B8;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input, select, textarea {
+      background: var(--pp-navy2);
+      border: 1px solid #1E293B;
+      color: #E2E8F0;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      width: 100%;
+      outline: none;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--pp-amber);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #64748B;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--pp-amber);
+      border-color: var(--pp-amber);
+      color: #0B1121;
+    }
+
+    .btn-primary:hover {
+      background: #D97706;
+      border-color: #D97706;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border-color: #1E293B;
+      color: #E2E8F0;
+    }
+
+    .btn-secondary:hover {
+      border-color: #475569;
+      background: rgba(71, 85, 105, 0.1);
+    }
+
+    .btn-danger {
+      background: #EF4444;
+      border-color: #EF4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #DC2626;
+    }
+
+    .btn-edit {
+      background: #3B82F6;
+      border-color: #3B82F6;
+      color: white;
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-edit:hover {
+      background: #2563EB;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #0F172A;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    thead {
+      background: #1A2332;
+      border-bottom: 1px solid #1E293B;
+    }
+
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1E293B;
+      font-size: 13px;
+    }
+
+    tbody tr:hover {
+      background: #1A2332;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-active {
+      background: #10B98130;
+      color: #10B981;
+    }
+
+    .badge-inactive {
+      background: #EF444430;
+      color: #EF4444;
+    }
+
+    .badge-low {
+      background: #F5970B30;
+      color: #F59E0B;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .alert-success {
+      background: #10B98130;
+      color: #10B981;
+      border: 1px solid #10B98160;
+    }
+
+    .alert-error {
+      background: #EF444430;
+      color: #EF4444;
+      border: 1px solid #EF444460;
+    }
+
+    .alert-warning {
+      background: #F5970B30;
+      color: #F59E0B;
+      border: 1px solid #F5970B60;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .search-bar input {
+      flex: 1;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #0F172A;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1E293B;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      color: #E2E8F0;
+      font-size: 18px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #64748B;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .modal-close:hover {
+      color: #E2E8F0;
+    }
+
+    @media (max-width: 1024px) {
+      .form-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-grid-3 { grid-template-columns: repeat(2, 1fr); }
+      .nav-center { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .admin-page { padding: 16px; }
+      .admin-nav { padding: 0 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-grid-3 { grid-template-columns: 1fr; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="admin-nav">
+    <div class="nav-left">
+      <div class="nav-brand-dot"></div>
+      <a href="../index.html" class="nav-brand-text">Parts Pro</a>
+    </div>
+
+    <div class="nav-center">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="parts.html" class="nav-link active">Parts</a>
+      <a href="vendors.html" class="nav-link">Vendors</a>
+      <a href="staff.html" class="nav-link">Staff</a>
+      <a href="purchase.html" class="nav-link">Purchases</a>
+      <a href="reports.html" class="nav-link">Reports</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="nav-avatar" id="nav-avatar">AD</div>
+      <div class="nav-user-info">
+        <div class="nav-user-name" id="nav-user-name">Admin</div>
+        <div class="nav-user-role">Administrator</div>
+      </div>
+      <button class="nav-logout" id="logout-btn" title="Logout">⤴</button>
+    </div>
+  </nav>
+
+  <div class="admin-page">
+    <div class="admin-container">
+
+      <div class="page-header">
+        <div class="header-left">
+          <h1>🔧 Parts Management</h1>
+          <p>Manage inventory parts and components</p>
+        </div>
+        <div>
+          <button onclick="openAddPartModal()" class="btn btn-primary">+ Add Part</button>
+        </div>
+      </div>
+
+      <div id="alertContainer"></div>
+
+      <div class="card">
+        <h2 class="card-title">Parts Inventory</h2>
+        
+        <div class="search-bar">
+          <input type="text" id="search-input" placeholder="Search by part name or number...">
+          <button class="btn btn-secondary" onclick="searchParts()"> Search</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Part Number</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Cost</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="parts-table">
+            <tr>
+              <td colspan="8" style="text-align:center;padding:24px;color:#64748B;">Loading parts...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div id="part-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Add New Part</h2>
+        <button class="modal-close" onclick="closePartModal()">✕</button>
+      </div>
+
+      <form id="part-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="part-number">Part Number *</label>
+            <input type="text" id="part-number" required>
+          </div>
+          <div class="form-group">
+            <label for="part-name">Part Name *</label>
+            <input type="text" id="part-name" required>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="category">Category *</label>
+            <input type="text" id="category" placeholder="e.g., Engine, Brake, Suspension" required>
+          </div>
+          <div class="form-group">
+            <label for="vendor-id">Vendor *</label>
+            <select id="vendor-id" required>
+              <option value="">Select Vendor</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" rows="3" placeholder="Part description..."></textarea>
+        </div>
+
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label for="price">Selling Price *</label>
+            <input type="number" id="price" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="cost">Cost Price *</label>
+            <input type="number" id="cost" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="stock">Initial Stock *</label>
+            <input type="number" id="stock" value="0" required>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="reorder-level">Reorder Level</label>
+            <input type="number" id="reorder-level" value="10">
+          </div>
+          <div class="form-group">
+            <label for="reorder-qty">Reorder Quantity</label>
+            <input type="number" id="reorder-qty" value="50">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:28px;justify-content:flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closePartModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">💾 Save Part</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="../shared/auth-handler.js"></script>
+
+  <script>
+    const API_BASE = 'http://localhost:5000/api';
+    let editingPartId = null;
+    let allParts = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const name = localStorage.getItem('userFullName') || 'Admin';
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('nav-avatar').textContent = initials;
+      document.getElementById('nav-user-name').textContent = name;
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        AuthHandler.logout();
+      });
+
+      document.getElementById('part-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        savePart();
+      });
+
+      loadVendors();
+      loadParts();
+    });
+
+    async function loadVendors() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${API_BASE}/vendor`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const vendorSelect = document.getElementById('vendor-id');
+        response.data.forEach(vendor => {
+          const option = document.createElement('option');
+          option.value = vendor.id;
+          option.textContent = vendor.name;
+          vendorSelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error loading vendors:', error);
+      }
+    }
+
+    async function loadParts() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${API_BASE}/part`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        allParts = response.data || [];
+        renderPartsTable(allParts);
+      } catch (error) {
+        console.error('Error loading parts:', error);
+        showAlert('Error loading parts', 'error');
+      }
+    }
+
+    function renderPartsTable(parts) {
+      const tbody = document.getElementById('parts-table');
+
+      if (parts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:#64748B;">No parts found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = parts.map(part => `
+        <tr>
+          <td><strong>${part.partNumber}</strong></td>
+          <td>${part.name}</td>
+          <td>${part.category || 'N/A'}</td>
+          <td>$${part.price.toFixed(2)}</td>
+          <td>$${part.cost.toFixed(2)}</td>
+          <td>${part.stock}</td>
+          <td>
+            <span class="badge ${part.isActive ? 'badge-active' : 'badge-inactive'}">
+              ${part.isActive ? '✓ Active' : '✕ Inactive'}
+            </span>
+            ${part.stock <= part.reorderLevel ? '<span class="badge badge-low">⚠ Low Stock</span>' : ''}
+          </td>
+          <td>
+            <button class="btn btn-edit" onclick="editPart(${part.id})">Edit</button>
+            <button class="btn btn-danger" onclick="deletePart(${part.id})" style="padding:6px 12px;font-size:12px;">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function searchParts() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const filtered = allParts.filter(part =>
+        part.name.toLowerCase().includes(query) ||
+        part.partNumber.toLowerCase().includes(query)
+      );
+      renderPartsTable(filtered);
+    }
+
+    function openAddPartModal() {
+      editingPartId = null;
+      document.getElementById('modal-title').textContent = 'Add New Part';
+      document.getElementById('part-form').reset();
+      document.getElementById('part-modal').classList.add('active');
+    }
+
+    async function editPart(id) {
+      const part = allParts.find(p => p.id === id);
+      if (!part) return;
+
+      editingPartId = id;
+      document.getElementById('modal-title').textContent = 'Edit Part';
+      document.getElementById('part-number').value = part.partNumber;
+      document.getElementById('part-name').value = part.name;
+      document.getElementById('category').value = part.category || '';
+      document.getElementById('vendor-id').value = part.vendorId;
+      document.getElementById('description').value = part.description || '';
+      document.getElementById('price').value = part.price;
+      document.getElementById('cost').value = part.cost;
+      document.getElementById('stock').value = part.stock;
+      document.getElementById('reorder-level').value = part.reorderLevel;
+      document.getElementById('reorder-qty').value = part.reorderQuantity;
+
+      document.getElementById('part-modal').classList.add('active');
+    }
+
+    function closePartModal() {
+      document.getElementById('part-modal').classList.remove('active');
+      editingPartId = null;
+    }
+
+    async function savePart() {
+      try {
+        const token = localStorage.getItem('token');
+        const partData = {
+          partNumber: document.getElementById('part-number').value,
+          name: document.getElementById('part-name').value,
+          category: document.getElementById('category').value,
+          vendorId: parseInt(document.getElementById('vendor-id').value),
+          description: document.getElementById('description').value,
+          price: parseFloat(document.getElementById('price').value),
+          cost: parseFloat(document.getElementById('cost').value),
+          stock: parseInt(document.getElementById('stock').value),
+          reorderLevel: parseInt(document.getElementById('reorder-level').value),
+          reorderQuantity: parseInt(document.getElementById('reorder-qty').value)
+        };
+
+        if (editingPartId) {
+          // Update existing part
+          await axios.put(`${API_BASE}/part/update/${editingPartId}`, partData, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          showAlert('Part updated successfully!', 'success');
+        } else {
+          // Create new part
+          await axios.post(`${API_BASE}/part/create`, partData, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          showAlert('Part created successfully!', 'success');
+        }
+
+        closePartModal();
+        loadParts();
+      } catch (error) {
+        const msg = error.response?.data?.message || 'Error saving part';
+        showAlert(msg, 'error');
+      }
+    }
+
+    async function deletePart(id) {
+      if (!confirm('Are you sure you want to delete this part?')) return;
+
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`${API_BASE}/part/delete/${id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        showAlert('Part deleted successfully!', 'success');
+        loadParts();
+      } catch (error) {
+        const msg = error.response?.data?.message || 'Error deleting part';
+        showAlert(msg, 'error');
+      }
+    }
+
+    function showAlert(message, type) {
+      const alertContainer = document.getElementById('alertContainer');
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type}`;
+      alert.textContent = message;
+      alertContainer.appendChild(alert);
+
+      setTimeout(() => alert.remove(), 4000);
+    }
+  </script>
+</body>
+</html>
