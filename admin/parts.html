@@ -295,7 +295,7 @@
       text-align: left;
       font-size: 11px;
       font-weight: 600;
-      color: #94A3B8;
+      color: #FFFFFF;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
@@ -304,6 +304,7 @@
       padding: 12px 16px;
       border-bottom: 1px solid #1E293B;
       font-size: 13px;
+      color: #FFFFFF;
     }
 
     tbody tr:hover {
@@ -576,6 +577,12 @@
             <label for="reorder-qty">Reorder Quantity</label>
             <input type="number" id="reorder-qty" value="50">
           </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="is-active" checked>
+              <span style="margin-left:6px;">Active</span>
+            </label>
+          </div>
         </div>
 
         <div style="display:flex;gap:12px;margin-top:28px;justify-content:flex-end;">
@@ -587,10 +594,11 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="../shared/axios-config.js"></script>
+  <script src="../shared/auth-guard.js"></script>
   <script src="../shared/auth-handler.js"></script>
 
   <script>
-    const API_BASE = 'http://localhost:5260/api';
     let editingPartId = null;
     let allParts = [];
 
@@ -615,11 +623,7 @@
 
     async function loadVendors() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_BASE}/vendor`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
+        const response = await api.getVendors(1, 1000);
         const vendorSelect = document.getElementById('vendor-id');
         response.data.forEach(vendor => {
           const option = document.createElement('option');
@@ -634,12 +638,9 @@
 
     async function loadParts() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_BASE}/part`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
+        const response = await api.getParts(1, 1000);
         allParts = response.data || [];
+        console.log('Loaded parts:', allParts); // DEBUG - check isActive values
         renderPartsTable(allParts);
       } catch (error) {
         console.error('Error loading parts:', error);
@@ -660,12 +661,12 @@
           <td><strong>${part.partNumber}</strong></td>
           <td>${part.name}</td>
           <td>${part.category || 'N/A'}</td>
-          <td>$${part.price.toFixed(2)}</td>
-          <td>$${part.cost.toFixed(2)}</td>
+          <td>Rs.${(part.price || 0).toFixed(2)}</td>
+          <td>Rs.${(part.cost || 0).toFixed(2)}</td>
           <td>${part.stock}</td>
           <td>
-            <span class="badge ${part.isActive ? 'badge-active' : 'badge-inactive'}">
-              ${part.isActive ? '✓ Active' : '✕ Inactive'}
+            <span class="badge ${part.isActive !== false ? 'badge-active' : 'badge-inactive'}">
+              ${part.isActive !== false ? '✓ Active' : '✕ Inactive'}
             </span>
             ${part.stock <= part.reorderLevel ? '<span class="badge badge-low">⚠ Low Stock</span>' : ''}
           </td>
@@ -690,6 +691,7 @@
       editingPartId = null;
       document.getElementById('modal-title').textContent = 'Add New Part';
       document.getElementById('part-form').reset();
+      document.getElementById('is-active').checked = true;
       document.getElementById('part-modal').classList.add('active');
     }
 
@@ -709,6 +711,7 @@
       document.getElementById('stock').value = part.stock;
       document.getElementById('reorder-level').value = part.reorderLevel;
       document.getElementById('reorder-qty').value = part.reorderQuantity;
+      document.getElementById('is-active').checked = part.isActive;
 
       document.getElementById('part-modal').classList.add('active');
     }
@@ -720,7 +723,6 @@
 
     async function savePart() {
       try {
-        const token = localStorage.getItem('token');
         const partData = {
           partNumber: document.getElementById('part-number').value,
           name: document.getElementById('part-name').value,
@@ -730,21 +732,20 @@
           price: parseFloat(document.getElementById('price').value),
           cost: parseFloat(document.getElementById('cost').value),
           stock: parseInt(document.getElementById('stock').value),
-          reorderLevel: parseInt(document.getElementById('reorder-level').value),
-          reorderQuantity: parseInt(document.getElementById('reorder-qty').value)
+          reorderLevel: parseInt(document.getElementById('reorder-level').value) || 10,
+          reorderQuantity: parseInt(document.getElementById('reorder-qty').value) || 50,
+          isActive: document.getElementById('is-active').checked
         };
+
+        console.log('Sending part data:', partData); // DEBUG
 
         if (editingPartId) {
           // Update existing part
-          await axios.put(`${API_BASE}/part/update/${editingPartId}`, partData, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+          await api.updatePart(editingPartId, partData);
           showAlert('Part updated successfully!', 'success');
         } else {
           // Create new part
-          await axios.post(`${API_BASE}/part/create`, partData, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+          await api.createPart(partData);
           showAlert('Part created successfully!', 'success');
         }
 
@@ -760,11 +761,7 @@
       if (!confirm('Are you sure you want to delete this part?')) return;
 
       try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`${API_BASE}/part/delete/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
+        await api.deletePart(id);
         showAlert('Part deleted successfully!', 'success');
         loadParts();
       } catch (error) {

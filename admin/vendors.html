@@ -413,13 +413,12 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="../shared/axios-config.js"></script>
   <script src="../shared/auth-guard.js"></script>
   <script src="../shared/role-guard.js"></script>
   <script src="../shared/auth-handler.js"></script>
 
   <script>
-    const API_BASE = 'http://localhost:5260';
-    
     RoleGuard.requireRole('Admin');
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -450,36 +449,34 @@
 
     async function registerVendor() {
       try {
-        await axiosInstance.post('/vendor/create', { name, contactPerson, phone, email, address });
+        const name = document.getElementById('name').value.trim();
+        const contactPerson = document.getElementById('contact-person').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const address = document.getElementById('address').value.trim();
+
+        if (!name || !contactPerson || !phone || !email || !address) {
+          alert('Please fill in all fields');
+          return;
+        }
+
+        await api.createVendor({ name, contactPerson, phone, email, address });
+        alert('Vendor created successfully!');
+        resetForm();
+        loadVendorList();
       } catch (e) {
-        console.error('Error:', e);
+        alert('Error: ' + (e.response?.data?.title || e.message));
       }
     }
 
     async function loadVendorList() {
       try {
-        const token = localStorage.getItem('authToken');
-        
-        if (!token) {
-          console.log('No token found - user not authenticated');
-          return;
-        }
-
-        const response = await axios.get(
-          `${API_BASE}/api/vendor`,
-          {
-            headers: { 
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-
+        const response = await api.getVendors(1, 1000);
         const vendors = response.data || [];
         const tbody = document.getElementById('vendor-table');
         
         if (vendors.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#64748B;">No vendors registered yet</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#64748B;">No vendors found</td></tr>';
           return;
         }
         
@@ -490,13 +487,17 @@
             <td>${vendor.email || 'N/A'}</td>
             <td>${vendor.phone || 'N/A'}</td>
             <td>${vendor.address || 'N/A'}</td>
-            <td><span style="color:#10B981">✓ Active</span></td>
+            <td style="text-align:center">⋮</td>
           </tr>
         `).join('');
       } catch (error) {
         console.error('Error loading vendors:', error);
         const tbody = document.getElementById('vendor-table');
-        const errorMsg = error.response?.status === 401 ? 'Unauthorized - Please login again' : 'Error loading vendors';
+        const errorMsg = error.response?.status === 401
+          ? 'Unauthorized — please log in again'
+          : error.response?.status === 404
+          ? 'Vendor endpoint not ready yet'
+          : error.message || 'Error loading vendors';
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:#FCA5A5;">⚠️ ${errorMsg}</td></tr>`;
       }
     }

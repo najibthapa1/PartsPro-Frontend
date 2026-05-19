@@ -150,7 +150,11 @@
     .modal-header h2 { font-size: 16px; font-weight: 600; color: #F3F4F6; margin: 0; }
     .modal-close { background: none; border: none; color: #6B7280; font-size: 20px; cursor: pointer; }
     .modal-close:hover { color: #F3F4F6; }
-    .modal-body { padding: 20px 22px; }
+    .modal-body { 
+      padding: 20px 22px; 
+      min-height: 200px;
+      color: #F3F4F6;
+    }
 
     .inv-summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
     .inv-summary-box { background: #374151; border: 1px solid #4B5563; border-radius: 6px; padding: 12px; text-align: center; }
@@ -158,14 +162,21 @@
     .inv-summary-lbl { font-size: 10px; color: #6B7280; margin-top: 2px; }
 
     .items-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .items-table th { padding: 8px 10px; background: #374151; color: #9CA3AF; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; text-align: left; }
-    .items-table td { padding: 10px; border-bottom: 1px solid #374151; }
+    .items-table th { padding: 8px 10px; background: #374151; color: #FFFFFF; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; text-align: left; }
+    .items-table td { padding: 10px; border-bottom: 1px solid #374151; color: #FFFFFF; }
     .items-table tr:last-child td { border-bottom: none; }
 
-    .detail-row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px; border-bottom: 1px solid rgba(75,85,99,0.3); }
+    .detail-row { 
+      display: flex; 
+      justify-content: space-between; 
+      padding: 10px 0; 
+      font-size: 13px; 
+      border-bottom: 1px solid rgba(75,85,99,0.3);
+      align-items: center;
+    }
     .detail-row:last-child { border-bottom: none; }
-    .detail-label { color: #6B7280; }
-    .detail-value { color: #F3F4F6; font-weight: 500; }
+    .detail-label { color: #9CA3AF; font-weight: 500; }
+    .detail-value { color: #FFFFFF; font-weight: 600; text-align: right; }
     .section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #6B7280; margin: 16px 0 8px; padding-bottom: 6px; border-bottom: 1px solid #374151; }
 
     /* ── TOAST ── */
@@ -292,8 +303,8 @@
   <script src="../shared/auth-handler.js"></script>
 
   <script>
-    const API = 'http://localhost:5000/api';
     let allInvoices = [];
+    let currentInvoiceId = null;
 
     RoleGuard.requireRole('Staff');
 
@@ -343,16 +354,16 @@
               <div class="inv-customer">Customer #${inv.customerId}</div>
             </td>
             <td>${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
-            <td class="inv-amount">₹${inv.totalAmount?.toLocaleString()}</td>
+            <td class="inv-amount">Rs. ${inv.totalAmount?.toLocaleString()}</td>
             <td>
               ${hasDiscount
-                ? `<span class="inv-discount">-₹${inv.discountAmount?.toLocaleString()}</span> <span class="badge-loyalty">10% off</span>`
+                ? `<span class="inv-discount">-Rs. ${inv.discountAmount?.toLocaleString()}</span> <span class="badge-loyalty">10% off</span>`
                 : '<span style="color:#4B5563">—</span>'}
             </td>
-            <td class="inv-amount" style="color:var(--pp-amber)">₹${inv.finalAmount?.toLocaleString()}</td>
+            <td class="inv-amount" style="color:var(--pp-amber)">Rs. ${inv.finalAmount?.toLocaleString()}</td>
             <td class="inv-date">${formatDate(inv.createdAt)}</td>
             <td>
-              <span class="badge-email-pending">Email feature</span>
+              <button class="btn-icon btn-email" onclick="sendInvoiceEmail(${inv.id})" title="Send invoice via email" style="background:#10B981;color:white;padding:6px 12px;border:none;border-radius:4px;cursor:pointer;font-size:12px">📧 Email</button>
             </td>
             <td>
               <div class="action-group">
@@ -392,6 +403,7 @@
     }
 
     async function openModal(saleId) {
+      currentInvoiceId = saleId;
       document.getElementById('modal-overlay').classList.add('open');
       document.getElementById('modal-title').textContent = `Invoice #${saleId}`;
       document.getElementById('modal-body').innerHTML = `<div class="spinner" style="margin:24px auto"></div>`;
@@ -399,9 +411,11 @@
       try {
         // GET /api/sale/{id} - Get sale details
         const res = await api.getSale(saleId);
+        console.log('Modal data:', res.data); // DEBUG
         renderModal(res.data);
       } catch(e) {
-        document.getElementById('modal-body').innerHTML = `<p style="color:#FCA5A5">Failed to load invoice details.</p>`;
+        console.error('Modal error:', e); // DEBUG
+        document.getElementById('modal-body').innerHTML = `<p style="color:#FCA5A5">Failed to load invoice details: ${e.message}</p>`;
       }
     }
 
@@ -411,18 +425,19 @@
           <td>${item.partId}</td>
           <td>${item.partName || 'N/A'}</td>
           <td style="text-align:center">${item.quantity}</td>
-          <td>₹${item.unitPrice?.toLocaleString()}</td>
-          <td style="color:var(--pp-amber);font-weight:600">₹${(item.quantity * item.unitPrice)?.toLocaleString()}</td>
+          <td>Rs. ${item.unitPrice?.toLocaleString()}</td>
+          <td style="color:var(--pp-amber);font-weight:600">Rs. ${(item.quantity * item.unitPrice)?.toLocaleString()}</td>
         </tr>`).join('');
 
-      document.getElementById('modal-body').innerHTML = `
+      const modalContent = `
         <div class="detail-row"><span class="detail-label">Customer ID</span><span class="detail-value">${inv.customerId}</span></div>
+        <div class="detail-row"><span class="detail-label">Customer Name</span><span class="detail-value">${inv.customerName || 'N/A'}</span></div>
         <div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">${formatDate(inv.createdAt)}</span></div>
 
         <div class="inv-summary-grid" style="margin-top:16px">
-          <div class="inv-summary-box"><div class="inv-summary-val">₹${inv.totalAmount?.toLocaleString()}</div><div class="inv-summary-lbl">Subtotal</div></div>
-          <div class="inv-summary-box"><div class="inv-summary-val" style="color:${inv.discountAmount > 0 ? '#10B981' : '#6B7280'}">-₹${(inv.discountAmount || 0).toLocaleString()}</div><div class="inv-summary-lbl">Discount ${inv.loyaltyDiscountApplied ? '(Loyalty 10%)' : ''}</div></div>
-          <div class="inv-summary-box"><div class="inv-summary-val">₹${inv.finalAmount?.toLocaleString()}</div><div class="inv-summary-lbl">Final Total</div></div>
+          <div class="inv-summary-box"><div class="inv-summary-val">Rs. ${inv.totalAmount?.toLocaleString()}</div><div class="inv-summary-lbl">Subtotal</div></div>
+          <div class="inv-summary-box"><div class="inv-summary-val" style="color:${inv.discountAmount > 0 ? '#10B981' : '#6B7280'}">-Rs. ${(inv.discountAmount || 0).toLocaleString()}</div><div class="inv-summary-lbl">Discount ${inv.loyaltyDiscountApplied ? '(Loyalty 10%)' : ''}</div></div>
+          <div class="inv-summary-box"><div class="inv-summary-val">Rs. ${inv.finalAmount?.toLocaleString()}</div><div class="inv-summary-lbl">Final Total</div></div>
         </div>
 
         <div class="section-title">Line Items (${(inv.items || []).length})</div>
@@ -432,14 +447,38 @@
         </table>
 
         <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end">
+          <button class="btn-icon btn-email" onclick="sendCurrentInvoiceEmail()" title="Send this invoice via email" style="background:#10B981;color:white;padding:8px 14px;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-weight:500">📧 Send Email</button>
           <button class="btn-icon btn-view" onclick="closeModal()">Close</button>
         </div>`;
+      
+      document.getElementById('modal-body').innerHTML = modalContent;
+      console.log('Modal rendered with', (inv.items || []).length, 'items'); // DEBUG
     }
 
     function closeModal(e) {
       if (!e || e.target === document.getElementById('modal-overlay')) {
         document.getElementById('modal-overlay').classList.remove('open');
+        currentInvoiceId = null;
       }
+    }
+
+    async function sendInvoiceEmail(saleId) {
+      if (!confirm('Send this invoice via email to the customer?')) return;
+      
+      try {
+        await api.sendSaleInvoiceEmail(saleId);
+        showToast('success', `Invoice #${saleId} email sent successfully!`);
+      } catch (e) {
+        showToast('error', `Failed to send email: ${e.response?.data?.message || e.message}`);
+      }
+    }
+
+    async function sendCurrentInvoiceEmail() {
+      if (!currentInvoiceId) {
+        showToast('error', 'No invoice selected');
+        return;
+      }
+      await sendInvoiceEmail(currentInvoiceId);
     }
 
     function showToast(type, msg) {

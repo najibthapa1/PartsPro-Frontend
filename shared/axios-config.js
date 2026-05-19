@@ -176,8 +176,15 @@ const api = {
   getMonthlyPurchaseReport: (year) =>
     axiosInstance.get(`/report/purchases/monthly?year=${year}`),
 
-  getInventoryReport: () =>
-    axiosInstance.get('/report/inventory'),
+  getTopSellingProducts: (limit = 10) =>
+    axiosInstance.get(`/report/products/top-selling?limit=${limit}`),
+
+  getInventorySummary: () =>
+    axiosInstance.get('/report/inventory/summary'),
+
+  // Sales Email
+  sendSaleInvoiceEmail: (saleId) =>
+    axiosInstance.post(`/sale/${saleId}/email`),
 };
 
 // Helper functions

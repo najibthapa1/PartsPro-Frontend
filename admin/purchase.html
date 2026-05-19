@@ -452,35 +452,38 @@
 
 
   async function loadVendors() {
-    const token = localStorage.getItem('authToken');
-    const res = await axios.get('http://localhost:5260/api/vendor', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const select = document.getElementById('vendor-select');
-    select.innerHTML = '<option value="">Select a vendor...</option>';
-    (res.data || []).forEach(v => {
-      select.innerHTML += `<option value="${v.id}">${v.name}</option>`;
-    });
+    try {
+      const res = await api.getVendors(1, 1000);
+      const select = document.getElementById('vendor-select');
+      select.innerHTML = '<option value="">Select a vendor...</option>';
+      (res.data || []).forEach(v => {
+        select.innerHTML += `<option value="${v.id}">${v.name}</option>`;
+      });
+    } catch (error) {
+      console.error('Error loading vendors:', error);
+      alert('Error loading vendors');
+    }
   }
 
   async function addItem() {
-        const token = localStorage.getItem('authToken');
-        const query = document.getElementById('part-search').value.trim();
-        const qty   = parseInt(document.getElementById('quantity').value);
+        const query   = document.getElementById('part-search').value.trim();
+        const qty     = parseInt(document.getElementById('quantity').value);
         const unitCost = parseFloat(document.getElementById('unit-cost').value);
         if (!unitCost || unitCost <= 0) { alert('Enter a valid unit cost'); return; }
         if (!query) { alert('Enter a part name or number to search'); return; }
         if (!qty || qty < 1) { alert('Enter a valid quantity'); return; }
 
-        const res = await axios.get(`http://localhost:5260/api/part/search?q=${encodeURIComponent(query)}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const parts = res.data || [];
-        if (parts.length === 0) { alert('No parts found'); return; }
-        const part = parts[0];
+        try {
+          const res = await api.searchParts(query);
+          const parts = res.data || [];
+          if (parts.length === 0) { alert('No parts found'); return; }
+          const part = parts[0];
 
-        purchaseItems.push({ partId: part.id, quantity: qty, unitCost: part.price });
-        renderItemsTable();
+          purchaseItems.push({ partId: part.id, quantity: qty, unitCost: part.price });
+          renderItemsTable();
+        } catch (error) {
+          alert('Error searching parts: ' + (error.response?.data?.message || error.message));
+        }
       }
 
       function renderItemsTable() {
@@ -514,16 +517,16 @@
       }
 
       async function submitPurchase() {
-        const token    = localStorage.getItem('authToken');
         const vendorId = parseInt(document.getElementById('vendor-select').value);
-        if (!vendorId)              { alert('Please select a vendor'); return; }
+        if (!vendorId)                    { alert('Please select a vendor'); return; }
         if (purchaseItems.length === 0) { alert('Add at least one item'); return; }
 
         try {
-          const res = await axios.post('http://localhost:5260/api/purchaseinvoice/create',
-            { vendorId, status: 'Paid', items: purchaseItems },
-            { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
-          );
+          const res = await api.createPurchaseInvoice({
+            vendorId,
+            status: 'Paid',
+            items: purchaseItems
+          });
           alert(`Purchase invoice #${res.data.id} created successfully!`);
           resetForm();
         } catch (e) {
