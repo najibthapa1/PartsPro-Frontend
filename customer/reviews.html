@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PartsPro — Reviews</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css"
+    />
+    <style>
+      :root {
+        --pp-green: #10b981;
+        --pp-cream: #faf8f5;
+        --pp-border: #e5dfd3;
+        --pp-text: #2c2416;
+        --pp-muted: #8b7d6b;
+        --pp-amber: #f59e0b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--pp-cream);
+        color: var(--pp-text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 0;
+      }
+      .cust-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: rgba(250, 248, 245, 0.95);
+        border-bottom: 1px solid var(--pp-border);
+        display: flex;
+        align-items: center;
+        padding: 0 32px;
+        z-index: 1000;
+      }
+      .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-right: auto;
+      }
+      .nav-brand-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--pp-green);
+        border-radius: 1px;
+      }
+      .nav-brand-text {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--pp-text);
+        text-decoration: none;
+      }
+      .nav-center {
+        display: flex;
+        gap: 32px;
+        flex: 1;
+        justify-content: center;
+      }
+      .nav-link {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--pp-muted);
+        text-decoration: none;
+        padding-bottom: 2px;
+        border-bottom: 2px solid transparent;
+      }
+      .nav-link:hover {
+        color: var(--pp-text);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-left: auto;
+      }
+      .nav-avatar {
+        width: 32px;
+        height: 32px;
+        background: #e5dfd3;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--pp-green);
+      }
+      .nav-user-info {
+        display: flex;
+        flex-direction: column;
+        font-size: 11px;
+      }
+      .nav-user-name {
+        font-weight: 600;
+      }
+      .nav-user-role {
+        color: var(--pp-muted);
+      }
+      .nav-logout {
+        background: none;
+        border: 0;
+        color: var(--pp-muted);
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .page {
+        margin-top: 64px;
+        padding: 32px;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .header h1 {
+        font-size: 32px;
+        margin: 0 0 4px;
+      }
+      .header p {
+        margin: 0;
+        color: var(--pp-muted);
+        font-size: 14px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid var(--pp-border);
+        border-radius: 10px;
+        padding: 22px;
+      }
+      .card-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0 0 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--pp-border);
+      }
+      label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--pp-muted);
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+      .form-group {
+        margin-bottom: 14px;
+      }
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid #d4cabe;
+        border-radius: 6px;
+        background: #fff;
+        color: var(--pp-text);
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+      .btn {
+        border: 1px solid var(--pp-green);
+        background: var(--pp-green);
+        color: #fff;
+        border-radius: 6px;
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .review {
+        border-bottom: 1px solid var(--pp-border);
+        padding: 14px 0;
+      }
+      .review:last-child {
+        border-bottom: 0;
+      }
+      .stars {
+        color: var(--pp-amber);
+        font-size: 16px;
+        font-weight: 800;
+      }
+      .meta {
+        font-size: 12px;
+        color: var(--pp-muted);
+        margin-top: 4px;
+      }
+      .empty {
+        text-align: center;
+        color: var(--pp-muted);
+        padding: 24px;
+      }
+      .alert {
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 13px;
+        margin-bottom: 14px;
+      }
+      .success {
+        background: rgba(16, 185, 129, 0.1);
+        color: #047857;
+        border: 1px solid rgba(16, 185, 129, 0.25);
+      }
+      .error {
+        background: rgba(239, 68, 68, 0.1);
+        color: #b91c1c;
+        border: 1px solid rgba(239, 68, 68, 0.25);
+      }
+      @media (max-width: 900px) {
+        .nav-center {
+          display: none;
+        }
+        .page {
+          padding: 16px;
+        }
+        .cust-nav {
+          padding: 0 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="cust-nav">
+      <div class="nav-left">
+        <div class="nav-brand-dot"></div>
+        <a href="../index.html" class="nav-brand-text">Parts Pro</a>
+      </div>
+      <div class="nav-center">
+        <a href="dashboard.html" class="nav-link">Dashboard</a
+        ><a href="appointments.html" class="nav-link">Appointments</a
+        ><a href="history.html" class="nav-link">History</a
+        ><a href="part-requests.html" class="nav-link">Part Requests</a
+        ><a href="profile.html" class="nav-link">Profile</a>
+      </div>
+      <div class="nav-right">
+        <div class="nav-avatar" id="nav-avatar">ME</div>
+        <div class="nav-user-info">
+          <div class="nav-user-name" id="nav-user-name">Customer</div>
+          <div class="nav-user-role">Customer</div>
+        </div>
+        <button class="nav-logout" id="logout-btn">⤴</button>
+      </div>
+    </nav>
+    <div class="page">
+      <div class="container">
+        <div class="header">
+          <h1>⭐ Service Reviews</h1>
+          <p>Share your experience and view previous feedback</p>
+        </div>
+        <div class="card">
+          <h2 class="card-title">Leave a Review</h2>
+          <div id="alert-box"></div>
+          <form id="review-form">
+            <div class="form-group">
+              <label>Rating</label
+              ><select id="rating">
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Good</option>
+                <option value="3">3 - Average</option>
+                <option value="2">2 - Poor</option>
+                <option value="1">1 - Very Poor</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Comment</label
+              ><textarea
+                id="comment"
+                rows="5"
+                required
+                placeholder="Write your feedback..."
+              ></textarea>
+            </div>
+            <button class="btn" type="submit">Submit Review</button>
+          </form>
+        </div>
+        <div class="card">
+          <h2 class="card-title">My Reviews</h2>
+          <div id="review-list">
+            <div class="empty">Loading reviews...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../shared/axios-config.js"></script>
+    <script src="../shared/auth-guard.js"></script>
+    <script src="../shared/role-guard.js"></script>
+    <script src="../shared/auth-handler.js"></script>
+    <script>
+      RoleGuard.requireRole("Customer");
+      let customerId = null;
+      document.addEventListener("DOMContentLoaded", async () => {
+        setupNav();
+        customerId = localStorage.getItem("customerId");
+        if (!customerId) return;
+        await loadReviews();
+        document
+          .getElementById("review-form")
+          .addEventListener("submit", submitReview);
+      });
+      function setupNav() {
+        const name = localStorage.getItem("userFullName") || "Customer";
+        document.getElementById("nav-user-name").textContent = name;
+        document.getElementById("nav-avatar").textContent = name
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2);
+        document
+          .getElementById("logout-btn")
+          .addEventListener("click", () => AuthHandler.logout());
+      }
+      async function loadReviews() {
+        const box = document.getElementById("review-list");
+        try {
+          const res = await api.getCustomerReviews(customerId);
+          const items = res.data || [];
+          if (items.length === 0) {
+            box.innerHTML =
+              '<div class="empty">No reviews submitted yet.</div>';
+            return;
+          }
+          box.innerHTML = items
+            .map(
+              (r) =>
+                `<div class="review"><div class="stars">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</div><div>${esc(r.comment)}</div><div class="meta">${formatDate(r.createdAt)}</div></div>`,
+            )
+            .join("");
+        } catch (e) {
+          box.innerHTML = '<div class="empty">Failed to load reviews.</div>';
+        }
+      }
+      async function submitReview(e) {
+        e.preventDefault();
+        try {
+          await api.createCustomerReview(customerId, {
+            rating: Number(document.getElementById("rating").value),
+            comment: document.getElementById("comment").value,
+          });
+          showAlert("Review submitted successfully.", "success");
+          e.target.reset();
+          await loadReviews();
+        } catch (err) {
+          showAlert(
+            err.response?.data?.message ||
+              err.response?.data?.title ||
+              "Failed to submit review.",
+            "error",
+          );
+        }
+      }
+      function showAlert(msg, type) {
+        document.getElementById("alert-box").innerHTML =
+          `<div class="alert ${type}">${esc(msg)}</div>`;
+        setTimeout(
+          () => (document.getElementById("alert-box").innerHTML = ""),
+          3500,
+        );
+      }
+      function formatDate(d) {
+        return d
+          ? new Date(d).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })
+          : "N/A";
+      }
+      function esc(v) {
+        return String(v ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+    </script>
+  </body>
+</html>
+

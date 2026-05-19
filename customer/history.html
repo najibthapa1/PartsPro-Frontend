@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PartsPro — History</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css"
+    />
+    <style>
+      :root {
+        --pp-green: #10b981;
+        --pp-amber: #f59e0b;
+        --pp-cream: #faf8f5;
+        --pp-border: #e5dfd3;
+        --pp-text: #2c2416;
+        --pp-muted: #8b7d6b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--pp-cream);
+        color: var(--pp-text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 0;
+      }
+      .cust-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: rgba(250, 248, 245, 0.95);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--pp-border);
+        display: flex;
+        align-items: center;
+        padding: 0 32px;
+        z-index: 1000;
+      }
+      .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-right: auto;
+      }
+      .nav-brand-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--pp-green);
+        border-radius: 1px;
+      }
+      .nav-brand-text {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--pp-text);
+        text-decoration: none;
+      }
+      .nav-center {
+        display: flex;
+        gap: 32px;
+        flex: 1;
+        justify-content: center;
+      }
+      .nav-link {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--pp-muted);
+        text-decoration: none;
+        padding-bottom: 2px;
+        border-bottom: 2px solid transparent;
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        color: var(--pp-text);
+      }
+      .nav-link.active {
+        border-bottom-color: var(--pp-green);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-left: auto;
+      }
+      .nav-avatar {
+        width: 32px;
+        height: 32px;
+        background: #e5dfd3;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--pp-green);
+      }
+      .nav-user-info {
+        display: flex;
+        flex-direction: column;
+        font-size: 11px;
+      }
+      .nav-user-name {
+        font-weight: 600;
+      }
+      .nav-user-role {
+        color: var(--pp-muted);
+      }
+      .nav-logout {
+        background: none;
+        border: 0;
+        color: var(--pp-muted);
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .page {
+        margin-top: 64px;
+        padding: 32px;
+      }
+      .container {
+        max-width: 1150px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .header h1 {
+        font-size: 32px;
+        margin: 0 0 4px;
+      }
+      .header p {
+        margin: 0;
+        color: var(--pp-muted);
+        font-size: 14px;
+      }
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+      }
+      .kpi {
+        background: #fff;
+        border: 1px solid var(--pp-border);
+        border-radius: 10px;
+        padding: 18px;
+      }
+      .kpi-label {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--pp-muted);
+      }
+      .kpi-value {
+        font-size: 26px;
+        font-weight: 800;
+        margin-top: 6px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid var(--pp-border);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .card h2 {
+        font-size: 16px;
+        margin: 0;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--pp-border);
+      }
+      .row {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--pp-border);
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .row:last-child {
+        border-bottom: 0;
+      }
+      .name {
+        font-size: 13px;
+        font-weight: 700;
+        margin: 0;
+      }
+      .meta {
+        font-size: 11px;
+        color: var(--pp-muted);
+        margin: 4px 0 0;
+      }
+      .amount {
+        font-family: Monaco, monospace;
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--pp-text);
+      }
+      .badge {
+        padding: 4px 8px;
+        border-radius: 5px;
+        font-size: 10px;
+        font-weight: 800;
+      }
+      .ok {
+        background: rgba(16, 185, 129, 0.12);
+        color: #047857;
+      }
+      .warn {
+        background: rgba(245, 158, 11, 0.12);
+        color: #b45309;
+      }
+      .empty {
+        padding: 28px;
+        text-align: center;
+        color: var(--pp-muted);
+      }
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .nav-center {
+          display: none;
+        }
+        .page {
+          padding: 16px;
+        }
+        .cust-nav {
+          padding: 0 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="cust-nav">
+      <div class="nav-left">
+        <div class="nav-brand-dot"></div>
+        <a href="../index.html" class="nav-brand-text">Parts Pro</a>
+      </div>
+      <div class="nav-center">
+        <a href="dashboard.html" class="nav-link">Dashboard</a
+        ><a href="appointments.html" class="nav-link">Appointments</a
+        ><a href="history.html" class="nav-link active">History</a
+        ><a href="part-requests.html" class="nav-link">Part Requests</a
+        ><a href="profile.html" class="nav-link">Profile</a>
+      </div>
+      <div class="nav-right">
+        <div class="nav-avatar" id="nav-avatar">ME</div>
+        <div class="nav-user-info">
+          <div class="nav-user-name" id="nav-user-name">Customer</div>
+          <div class="nav-user-role">Customer</div>
+        </div>
+        <button class="nav-logout" id="logout-btn">⤴</button>
+      </div>
+    </nav>
+    <div class="page">
+      <div class="container">
+        <div class="header">
+          <h1>📋 Purchase & Service History</h1>
+          <p>
+            View your purchases, service appointments, part requests and reviews
+          </p>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-label">Total Spent</div>
+            <div class="kpi-value" id="total-spent">Rs.0</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Sales</div>
+            <div class="kpi-value" id="sale-count">0</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Credit Balance</div>
+            <div class="kpi-value" id="credit-balance">Rs.0</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Last Activity</div>
+            <div class="kpi-value" style="font-size: 18px" id="last-activity">
+              N/A
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h2>Recent Purchases</h2>
+            <div id="sales-list"><div class="empty">Loading...</div></div>
+          </div>
+          <div class="card">
+            <h2>Service Appointments</h2>
+            <div id="appointments-list">
+              <div class="empty">Loading...</div>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Part Requests</h2>
+            <div id="requests-list"><div class="empty">Loading...</div></div>
+          </div>
+          <div class="card">
+            <h2>Reviews</h2>
+            <div id="reviews-list"><div class="empty">Loading...</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../shared/axios-config.js"></script>
+    <script src="../shared/auth-guard.js"></script>
+    <script src="../shared/role-guard.js"></script>
+    <script src="../shared/auth-handler.js"></script>
+    <script>
+      RoleGuard.requireRole("Customer");
+      document.addEventListener("DOMContentLoaded", async () => {
+        setupNav();
+        const customerId = localStorage.getItem("customerId");
+        if (!customerId) {
+          return;
+        }
+        try {
+          const res = await api.getCustomerHistory(customerId);
+          renderHistory(res.data || {});
+        } catch (e) {
+          document
+            .querySelector(".container")
+            .insertAdjacentHTML(
+              "beforeend",
+              '<div class="empty">Failed to load history.</div>',
+            );
+        }
+      });
+      function setupNav() {
+        const name = localStorage.getItem("userFullName") || "Customer";
+        document.getElementById("nav-user-name").textContent = name;
+        document.getElementById("nav-avatar").textContent = name
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2);
+        document
+          .getElementById("logout-btn")
+          .addEventListener("click", () => AuthHandler.logout());
+      }
+      function renderHistory(h) {
+        document.getElementById("total-spent").textContent = money(
+          h.totalSpent,
+        );
+        document.getElementById("sale-count").textContent = (
+          h.sales || []
+        ).length;
+        document.getElementById("credit-balance").textContent = money(
+          h.creditBalance,
+        );
+        document.getElementById("last-activity").textContent = formatDate(
+          h.lastActivityDate,
+        );
+        renderSales(h.sales || []);
+        renderAppointments(h.appointments || []);
+        renderRequests(h.partRequests || []);
+        renderReviews(h.reviews || []);
+      }
+      function renderSales(items) {
+        const box = document.getElementById("sales-list");
+        if (items.length === 0) {
+          box.innerHTML = '<div class="empty">No purchases yet.</div>';
+          return;
+        }
+        box.innerHTML = items
+          .map(
+            (s) =>
+              `<div class="row"><div><p class="name">Sale #${s.id}</p><p class="meta">${formatDate(s.createdAt)} · Discount ${money(s.discountAmount)}</p></div><div style="text-align:right"><div class="amount">${money(s.finalAmount)}</div><span class="badge ok">COMPLETED</span></div></div>`,
+          )
+          .join("");
+      }
+      function renderAppointments(items) {
+        const box = document.getElementById("appointments-list");
+        if (items.length === 0) {
+          box.innerHTML = '<div class="empty">No appointments yet.</div>';
+          return;
+        }
+        box.innerHTML = items
+          .map(
+            (a) =>
+              `<div class="row"><div><p class="name">${esc(a.serviceType)}</p><p class="meta">${formatDate(a.appointmentDate)} · ${esc(a.notes || "No notes")}</p></div><span class="badge warn">${esc(a.status)}</span></div>`,
+          )
+          .join("");
+      }
+      function renderRequests(items) {
+        const box = document.getElementById("requests-list");
+        if (items.length === 0) {
+          box.innerHTML = '<div class="empty">No part requests yet.</div>';
+          return;
+        }
+        box.innerHTML = items
+          .map(
+            (r) =>
+              `<div class="row"><div><p class="name">${esc(r.partName)}</p><p class="meta">${formatDate(r.createdAt)} · ${esc(r.urgency)}</p></div><span class="badge ${r.isResolved ? "ok" : "warn"}">${r.isResolved ? "RESOLVED" : "PENDING"}</span></div>`,
+          )
+          .join("");
+      }
+      function renderReviews(items) {
+        const box = document.getElementById("reviews-list");
+        if (items.length === 0) {
+          box.innerHTML = '<div class="empty">No reviews yet.</div>';
+          return;
+        }
+        box.innerHTML = items
+          .map(
+            (r) =>
+              `<div class="row"><div><p class="name">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</p><p class="meta">${formatDate(r.createdAt)} · ${esc(r.comment)}</p></div></div>`,
+          )
+          .join("");
+      }
+      function money(v) {
+        return "Rs." + Number(v || 0).toLocaleString();
+      }
+      function formatDate(d) {
+        return d
+          ? new Date(d).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })
+          : "N/A";
+      }
+      function esc(v) {
+        return String(v ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+    </script>
+  </body>
+</html>

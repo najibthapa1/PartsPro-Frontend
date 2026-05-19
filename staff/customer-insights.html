@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PartsPro — Customer Insights</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css"
+    />
+    <style>
+      :root {
+        --pp-amber: #f59e0b;
+        --pp-charcoal: #1f2937;
+        --pp-charcoal2: #374151;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--pp-charcoal);
+        color: #f3f4f6;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 0;
+      }
+      .staff-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: rgba(31, 41, 55, 0.86);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid #4b5563;
+        display: flex;
+        align-items: center;
+        padding: 0 32px;
+        z-index: 1000;
+      }
+      .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-right: auto;
+      }
+      .nav-brand-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--pp-amber);
+        border-radius: 1px;
+      }
+      .nav-brand-text {
+        font-size: 14px;
+        font-weight: 600;
+        color: #f3f4f6;
+        text-decoration: none;
+      }
+      .nav-center {
+        display: flex;
+        gap: 32px;
+        flex: 1;
+        justify-content: center;
+      }
+      .nav-link {
+        font-size: 13px;
+        font-weight: 500;
+        color: #9ca3af;
+        text-decoration: none;
+        padding-bottom: 2px;
+        border-bottom: 2px solid transparent;
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        color: #f3f4f6;
+      }
+      .nav-link.active {
+        border-bottom-color: var(--pp-amber);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-left: auto;
+      }
+      .nav-avatar {
+        width: 32px;
+        height: 32px;
+        background: #374151;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--pp-amber);
+      }
+      .nav-user-info {
+        display: flex;
+        flex-direction: column;
+        font-size: 11px;
+      }
+      .nav-user-role {
+        color: #9ca3af;
+      }
+      .nav-logout {
+        background: none;
+        border: 0;
+        color: #9ca3af;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .page {
+        margin-top: 64px;
+        padding: 32px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .header h1 {
+        font-size: 32px;
+        margin: 0 0 4px;
+      }
+      .header p {
+        margin: 0;
+        color: #9ca3af;
+        font-size: 14px;
+      }
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+      }
+      .kpi {
+        background: #374151;
+        border: 1px solid #4b5563;
+        border-radius: 8px;
+        padding: 18px;
+      }
+      .kpi-label {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #9ca3af;
+      }
+      .kpi-value {
+        font-size: 26px;
+        font-weight: 800;
+        margin-top: 6px;
+      }
+      .card {
+        background: #374151;
+        border: 1px solid #4b5563;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .card h2 {
+        font-size: 16px;
+        margin: 0;
+        padding: 18px 20px;
+        border-bottom: 1px solid #4b5563;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        background: #1f2937;
+        color: #d1d5db;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        text-align: left;
+        padding: 12px;
+      }
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #4b5563;
+        font-size: 13px;
+      }
+      tbody tr:hover {
+        background: #4b5563;
+      }
+      .empty {
+        text-align: center;
+        color: #9ca3af;
+        padding: 30px;
+      }
+      @media (max-width: 900px) {
+        .nav-center {
+          display: none;
+        }
+        .page {
+          padding: 16px;
+        }
+        .staff-nav {
+          padding: 0 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="staff-nav">
+      <div class="nav-left">
+        <div class="nav-brand-dot"></div>
+        <a href="../index.html" class="nav-brand-text">Parts Pro</a>
+      </div>
+      <div class="nav-center">
+        <a href="dashboard.html" class="nav-link">Dashboard</a
+        ><a href="sales.html" class="nav-link">New Sale</a
+        ><a href="customer.html" class="nav-link">Customers</a
+        ><a href="search.html" class="nav-link">Search</a
+        ><a href="invoices.html" class="nav-link">Invoices</a
+        ><a href="customer-insights.html" class="nav-link active">Insights</a>
+      </div>
+      <div class="nav-right">
+        <div class="nav-avatar" id="nav-avatar">ST</div>
+        <div class="nav-user-info">
+          <div id="nav-user-name">Staff</div>
+          <div class="nav-user-role">Staff Member</div>
+        </div>
+        <button class="nav-logout" id="logout-btn">⤴</button>
+      </div>
+    </nav>
+    <div class="page">
+      <div class="container">
+        <div class="header">
+          <h1>📈 Customer Insights</h1>
+          <p>Regular customers, high spenders and pending credits</p>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-label">Regular Customers</div>
+            <div class="kpi-value" id="kpi-regulars">0</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">High Spenders</div>
+            <div class="kpi-value" id="kpi-spenders">0</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Pending Credits</div>
+            <div class="kpi-value" id="kpi-credits">0</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Credit Amount</div>
+            <div class="kpi-value" id="kpi-credit-amount">Rs.0</div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Regular Customers</h2>
+          <div id="regulars-table"></div>
+        </div>
+        <div class="card">
+          <h2>High Spenders</h2>
+          <div id="spenders-table"></div>
+        </div>
+        <div class="card">
+          <h2>Pending Credits</h2>
+          <div id="credits-table"></div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../shared/axios-config.js"></script>
+    <script src="../shared/auth-guard.js"></script>
+    <script src="../shared/role-guard.js"></script>
+    <script src="../shared/auth-handler.js"></script>
+    <script>
+      RoleGuard.requireRole("Staff");
+      document.addEventListener("DOMContentLoaded", async () => {
+        setupNav();
+        await loadReports();
+      });
+      function setupNav() {
+        const name = localStorage.getItem("userFullName") || "Staff";
+        document.getElementById("nav-user-name").textContent = name;
+        document.getElementById("nav-avatar").textContent = name
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2);
+        document
+          .getElementById("logout-btn")
+          .addEventListener("click", () => AuthHandler.logout());
+      }
+      async function loadReports() {
+        try {
+          const res = await api.getCustomerInsights();
+          const d = res.data || {};
+          document.getElementById("kpi-regulars").textContent =
+            d.regularCustomers || 0;
+          document.getElementById("kpi-spenders").textContent =
+            d.highSpenders || 0;
+          document.getElementById("kpi-credits").textContent =
+            d.customersWithPendingCredits || 0;
+          document.getElementById("kpi-credit-amount").textContent = money(
+            d.totalPendingCredit,
+          );
+          renderCustomerTable("regulars-table", d.regularCustomerList || []);
+          renderCustomerTable("spenders-table", d.highSpenderList || []);
+          renderCreditTable("credits-table", d.pendingCreditList || []);
+        } catch (e) {
+          document
+            .querySelector(".container")
+            .insertAdjacentHTML(
+              "beforeend",
+              '<div class="empty">Failed to load customer reports.</div>',
+            );
+        }
+      }
+      function renderCustomerTable(id, rows) {
+        const box = document.getElementById(id);
+        if (rows.length === 0) {
+          box.innerHTML = '<div class="empty">No data found.</div>';
+          return;
+        }
+        box.innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Sales</th><th>Total Spent</th><th>Last Purchase</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${esc(r.fullName)}</td><td>${esc(r.email)}</td><td>${esc(r.phoneNumber)}</td><td>${r.saleCount}</td><td>${money(r.totalSpent)}</td><td>${formatDate(r.lastPurchaseDate)}</td></tr>`).join("")}</tbody></table>`;
+      }
+      function renderCreditTable(id, rows) {
+        const box = document.getElementById(id);
+        if (rows.length === 0) {
+          box.innerHTML = '<div class="empty">No pending credits.</div>';
+          return;
+        }
+        box.innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Credit Owed</th><th>Oldest Credit</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${esc(r.fullName)}</td><td>${esc(r.email)}</td><td>${esc(r.phoneNumber)}</td><td>${money(r.totalCreditOwed)}</td><td>${formatDate(r.oldestCreditDate)}</td></tr>`).join("")}</tbody></table>`;
+      }
+      function money(v) {
+        return "Rs." + Number(v || 0).toLocaleString();
+      }
+      function formatDate(d) {
+        return d
+          ? new Date(d).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })
+          : "N/A";
+      }
+      function esc(v) {
+        return String(v ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+    </script>
+  </body>
+</html>
+
