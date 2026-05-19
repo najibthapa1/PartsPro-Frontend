@@ -371,48 +371,17 @@
       <div class="module-card">
         <h2 class="module-title">Action Required</h2>
         <div id="action-list">
-          <div class="module-row">
-            <div class="module-row-item">
-              <p class="module-row-name">⚙️ Review pending vendor approvals</p>
-              <p class="module-row-meta">5 vendors awaiting verification</p>
-            </div>
-          </div>
-          <div class="module-row">
-            <div class="module-row-item">
-              <p class="module-row-name">📋 Process outstanding orders</p>
-              <p class="module-row-meta">12 orders ready for dispatch</p>
-            </div>
-          </div>
-          <div class="module-row">
-            <div class="module-row-item">
-              <p class="module-row-name">👤 New staff member registration</p>
-              <p class="module-row-meta">1 pending staff account setup</p>
-            </div>
-          </div>
+          <p style="color:#64748B;text-align:center;padding:20px"> </p>
         </div>
       </div>
 
       <div class="module-card">
-        <h2 class="module-title">System Logs</h2>
+        <h2 class="module-title">System Information</h2>
         <div id="system-logs">
           <div class="module-row">
             <div class="module-row-item">
-              <p class="module-row-name">Database backup completed</p>
-              <p class="module-row-meta">Today at 02:00 AM</p>
-            </div>
-            <div style="color:#10B981">✓</div>
-          </div>
-          <div class="module-row">
-            <div class="module-row-item">
-              <p class="module-row-name">API response times nominal</p>
-              <p class="module-row-meta">Avg: 145ms</p>
-            </div>
-            <div style="color:#10B981">✓</div>
-          </div>
-          <div class="module-row">
-            <div class="module-row-item">
-              <p class="module-row-name">System uptime</p>
-              <p class="module-row-meta">99.8% (Last 30 days)</p>
+              <p class="module-row-name">Dashboard Status</p>
+              <p class="module-row-meta">All systems operational</p>
             </div>
             <div style="color:#10B981">✓</div>
           </div>
@@ -422,7 +391,6 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="../shared/axios-config.js"></script>
   <script src="../shared/auth-guard.js"></script>
@@ -447,18 +415,31 @@
 
     async function loadDashboardMetrics() {
       try {
-        const lowStockCount = 2;
-        if (lowStockCount > 0) {
-          document.getElementById('alert-banner').classList.add('show');
-          document.getElementById('alert-count').textContent = lowStockCount;
-        }
+        // Get all sales
+        const salesRes = await api.getAllSales();
+        const allSales = salesRes.data || [];
+        const totalSales = allSales.reduce((sum, s) => sum + (s.finalAmount || 0), 0);
+        document.getElementById('kpi-sales').textContent = '₹' + Math.round(totalSales).toLocaleString();
 
-        document.getElementById('kpi-sales').textContent = 'Rs.0';
+        // Get all parts for inventory count
+        const partsRes = await api.getParts(1, 100);
+        const partCount = partsRes.data?.length || 0;
+        document.getElementById('kpi-inventory').textContent = partCount;
+
+        // Get all customers
+        const customersRes = await api.getCustomers(1, 100);
+        const customerCount = customersRes.data?.length || 0;
+        document.getElementById('kpi-users').textContent = customerCount;
+
+        // Orders pending (for now using sales count as proxy)
+        document.getElementById('kpi-orders').textContent = allSales.length;
+
+      } catch (e) {
+        console.error('Error loading metrics:', e);
+        document.getElementById('kpi-sales').textContent = '₹0';
         document.getElementById('kpi-orders').textContent = '0';
         document.getElementById('kpi-inventory').textContent = '0';
         document.getElementById('kpi-users').textContent = '0';
-      } catch (e) {
-        console.error('Error loading metrics:', e);
       }
     }
   </script>

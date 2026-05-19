@@ -485,6 +485,7 @@
             <input type="date" id="fin-end">
           </div>
           <button class="btn-action" onclick="generateFinancialReport()">Generate Report</button>
+          <button class="btn-action" style="background: #10B981;" onclick="downloadFinancialReport()" title="Download as CSV">⬇ Download</button>
         </div>
         <div id="financial-content"></div>
       </div>
@@ -501,6 +502,7 @@
             <input type="date" id="pl-end">
           </div>
           <button class="btn-action" onclick="generateProfitLoss()">Generate P&L</button>
+          <button class="btn-action" style="background: #10B981;" onclick="downloadProfitLoss()" title="Download as CSV">⬇ Download</button>
         </div>
         <div id="profitloss-content"></div>
       </div>
@@ -513,6 +515,7 @@
             <input type="number" id="ms-year" min="2000" max="2099">
           </div>
           <button class="btn-action" onclick="generateMonthlySales()">Generate Report</button>
+          <button class="btn-action" style="background: #10B981;" onclick="downloadMonthlySales()" title="Download as CSV">⬇ Download</button>
         </div>
         <div id="monthlysales-content"></div>
       </div>
@@ -525,6 +528,7 @@
             <input type="number" id="ts-limit" value="10" min="1" max="100">
           </div>
           <button class="btn-action" onclick="generateTopSelling()">Generate Report</button>
+          <button class="btn-action" style="background: #10B981;" onclick="downloadTopSelling()" title="Download as CSV">⬇ Download</button>
         </div>
         <div id="topselling-content"></div>
       </div>
@@ -533,6 +537,7 @@
       <div id="inventory" class="tab-content">
         <div class="controls">
           <button class="btn-action" onclick="generateInventorySummary()">📦 Refresh Inventory</button>
+          <button class="btn-action" style="background: #10B981;" onclick="downloadInventory()" title="Download as CSV">⬇ Download</button>
         </div>
         <div id="inventory-content"></div>
       </div>
@@ -540,8 +545,8 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
   <script src="../shared/axios-config.js"></script>
   <script src="../shared/auth-guard.js"></script>
   <script src="../shared/role-guard.js"></script>
@@ -751,6 +756,112 @@
         </div>
       `;
       document.getElementById(containerId).innerHTML = html;
+    }
+
+    // Download Functions
+    function downloadFinancialReport() {
+      const startDate = document.getElementById('fin-start').value;
+      const endDate = document.getElementById('fin-end').value;
+      if (!startDate || !endDate) {
+        alert('Please generate a report first');
+        return;
+      }
+
+      const content = document.getElementById('financial-content').innerText;
+      if (!content || content.includes('Failed') || content.includes('Please select')) {
+        alert('Please generate a valid report first');
+        return;
+      }
+
+      const csv = `Financial Report\nPeriod: ${startDate} to ${endDate}\n\n${content}`;
+      downloadCSV(csv, `FinancialReport_${startDate}_to_${endDate}.csv`);
+    }
+
+    function downloadProfitLoss() {
+      const startDate = document.getElementById('pl-start').value;
+      const endDate = document.getElementById('pl-end').value;
+      if (!startDate || !endDate) {
+        alert('Please generate a report first');
+        return;
+      }
+
+      const content = document.getElementById('profitloss-content').innerText;
+      if (!content || content.includes('Failed') || content.includes('Please select')) {
+        alert('Please generate a valid report first');
+        return;
+      }
+
+      const csv = `Profit & Loss Statement\nPeriod: ${startDate} to ${endDate}\n\n${content}`;
+      downloadCSV(csv, `ProfitLoss_${startDate}_to_${endDate}.csv`);
+    }
+
+    function downloadMonthlySales() {
+      const year = document.getElementById('ms-year').value;
+      if (!year) {
+        alert('Please select a year');
+        return;
+      }
+
+      const table = document.querySelector('#monthlysales-content table');
+      if (!table) {
+        alert('Please generate a report first');
+        return;
+      }
+
+      let csv = `Monthly Sales Report - ${year}\n\n`;
+      const rows = table.querySelectorAll('tr');
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        csv += Array.from(cells).map(cell => `"${cell.innerText}"`).join(',') + '\n';
+      });
+
+      downloadCSV(csv, `MonthlySales_${year}.csv`);
+    }
+
+    function downloadTopSelling() {
+      const limit = document.getElementById('ts-limit').value || 10;
+      const table = document.querySelector('#topselling-content table');
+      if (!table) {
+        alert('Please generate a report first');
+        return;
+      }
+
+      let csv = `Top Selling Products (Top ${limit})\n\n`;
+      const rows = table.querySelectorAll('tr');
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        csv += Array.from(cells).map(cell => `"${cell.innerText}"`).join(',') + '\n';
+      });
+
+      downloadCSV(csv, `TopSelling_${limit}.csv`);
+    }
+
+    function downloadInventory() {
+      const content = document.getElementById('inventory-content').innerText;
+      if (!content || content.includes('Failed')) {
+        alert('Please generate a report first');
+        return;
+      }
+
+      const csv = `Inventory Summary\n\n${content}`;
+      downloadCSV(csv, `InventorySummary_${new Date().toISOString().split('T')[0]}.csv`);
+    }
+
+    function downloadCSV(csvContent, filename) {
+      try {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        saveAs(blob, filename);
+      } catch (error) {
+        console.error('Download error:', error);
+        // Fallback: Use data URL if saveAs fails
+        const link = document.createElement('a');
+        link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+        link.download = filename;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     }
   </script>
 </body>

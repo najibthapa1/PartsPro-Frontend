@@ -347,61 +347,20 @@
       <div class="module-card">
         <h2 class="module-title">Recent Sales</h2>
         <div id="recent-sales">
-          <div class="module-row">
-            <div class="module-row-item">
-              <p class="module-row-name">Brake Pads × 2, Oil Filter × 1</p>
-              <p class="module-row-meta">Rajesh Kumar · BA 1 KA 1234 · 10% discount applied</p>
-            </div>
-            <div class="module-value">Rs.3,200</div>
-          </div>
-          <div class="module-row">
-            <div class="module-row-item">
-              <p class="module-row-name">Air Filter × 1, Spark Plug × 4</p>
-              <p class="module-row-meta">Sita Sharma · BA 2 JA 5678</p>
-            </div>
-            <div class="module-value">Rs.1,850</div>
-          </div>
-          <div class="module-row">
-            <div class="module-row-item">
-              <p class="module-row-name">Clutch Plate × 1, Engine Oil × 2L</p>
-              <p class="module-row-meta">Anil Thapa · BA 3 PA 9012</p>
-            </div>
-            <div class="module-value">Rs.4,500</div>
-          </div>
+          <p style="color:#64748B;text-align:center;padding:20px"> </p>
         </div>
       </div>
 
       <div class="module-card">
-        <h2 class="module-title">Customer Lookup</h2>
+        <h2 class="module-title">Quick Customer Stats</h2>
         <div id="customer-lookup">
-          <div class="module-row">
-            <div class="module-row-item">
-              <p class="module-row-name">Rajesh Kumar</p>
-              <p class="module-row-meta">BA 1 KA 1234 · rajesh@email.com · 5 purchases</p>
-            </div>
-            <span style="color:#10B981">✓</span>
-          </div>
-          <div class="module-row">
-            <div class="module-row-item">
-              <p class="module-row-name">Sita Sharma</p>
-              <p class="module-row-meta">BA 2 JA 5678 · sita@email.com · 3 purchases</p>
-            </div>
-            <span style="color:#10B981">✓</span>
-          </div>
-          <div class="module-row">
-            <div class="module-row-item">
-              <p class="module-row-name">Anil Thapa</p>
-              <p class="module-row-meta">BA 3 PA 9012 · anil@email.com · 8 purchases</p>
-            </div>
-            <span style="color:#10B981">✓</span>
-          </div>
+          <p style="color:#64748B;text-align:center;padding:20px"> </p>
         </div>
       </div>
 
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="../shared/axios-config.js"></script>
   <script src="../shared/auth-guard.js"></script>
@@ -426,13 +385,71 @@
 
     async function loadStaffMetrics() {
       try {
-        document.getElementById('kpi-sales').textContent = 'Rs.0';
+        // Get all sales
+        const salesRes = await api.getAllSales();
+        const allSales = salesRes.data || [];
+        const totalSales = allSales.reduce((sum, s) => sum + (s.finalAmount || 0), 0);
+        document.getElementById('kpi-sales').textContent = '₹' + Math.round(totalSales).toLocaleString();
+        
+        // Invoices today (mock - filtering by today's date)
+        const today = new Date().toDateString();
+        const todayInvoices = allSales.filter(s => new Date(s.createdAt).toDateString() === today).length;
+        document.getElementById('kpi-invoices').textContent = todayInvoices;
+
+        // Get customers for count
+        const customersRes = await api.getCustomers(1, 100);
+        const customerCount = customersRes.data?.length || 0;
+        document.getElementById('kpi-customers').textContent = customerCount;
+
+        // Loyalty discounts applied today
+        const loyaltyCount = allSales.filter(s => s.loyaltyDiscountApplied && new Date(s.createdAt).toDateString() === today).length;
+        document.getElementById('kpi-discounts').textContent = loyaltyCount;
+
+        // Load recent sales
+        renderRecentSales(allSales.slice(0, 5));
+
+        // Load customers
+        renderCustomerLookup(customersRes.data || []);
+
+      } catch (e) {
+        console.error('Error loading metrics:', e);
+        document.getElementById('kpi-sales').textContent = '₹0';
         document.getElementById('kpi-invoices').textContent = '0';
         document.getElementById('kpi-customers').textContent = '0';
         document.getElementById('kpi-discounts').textContent = '0';
-      } catch (e) {
-        console.error('Error loading metrics:', e);
       }
+    }
+
+    function renderRecentSales(sales) {
+      const list = document.getElementById('recent-sales');
+      if (sales.length === 0) {
+        list.innerHTML = '<p style="color:#64748B;text-align:center;padding:20px">No recent sales</p>';
+        return;
+      }
+      list.innerHTML = sales.map(s => `
+        <div class="module-row">
+          <div class="module-row-item">
+            <p class="module-row-name">Sale #${s.id}</p>
+            <p class="module-row-meta">Customer #${s.customerId} · ${new Date(s.createdAt).toLocaleDateString('en-GB')} ${s.loyaltyDiscountApplied ? '· 10% discount applied' : ''}</p>
+          </div>
+          <div class="module-value">₹${s.finalAmount?.toLocaleString()}</div>
+        </div>`).join('');
+    }
+
+    function renderCustomerLookup(customers) {
+      const list = document.getElementById('customer-lookup');
+      if (customers.length === 0) {
+        list.innerHTML = '<p style="color:#64748B;text-align:center;padding:20px">No customers yet</p>';
+        return;
+      }
+      list.innerHTML = customers.slice(0, 5).map(c => `
+        <div class="module-row">
+          <div class="module-row-item">
+            <p class="module-row-name">${c.fullName || 'Customer'}</p>
+            <p class="module-row-meta">${c.phone || 'N/A'} · ${c.email || 'N/A'} · ${c.saleCount || 0} purchases</p>
+          </div>
+          <span style="color:#10B981">✓</span>
+        </div>`).join('');
     }
   </script>
 </body>

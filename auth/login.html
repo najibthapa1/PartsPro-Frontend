@@ -163,7 +163,7 @@
             </div>
           </div>
 
-          <button id="login-btn" class="btn btn-amber w-100 mb-3">Sign In</button>
+          <button id="login-btn" type="button" class="btn btn-amber w-100 mb-3">Sign In</button>
 
           <div style="text-align:center;font-size:0.875rem;color:#64748B">
             Don't have an account? <a href="register.html" class="text-link">Create one</a>
@@ -174,7 +174,6 @@
 
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="../shared/axios-config.js"></script>
 <script src="../shared/auth-handler.js"></script>
@@ -190,10 +189,26 @@
     passwordToggle.textContent = type === 'password' ? '○' : '●';
   });
 
-  document.getElementById('login-btn').addEventListener('click', async () => {
+  // Show unhandled promise errors in UI
+  window.addEventListener('unhandledrejection', function (ev) {
+    const reason = ev.reason;
+    const message = reason?.response?.data?.message || reason?.message || String(reason);
+    const el = document.getElementById('error-msg');
+    if (el) { el.textContent = message; el.classList.remove('d-none'); }
+  });
+
+  document.getElementById('login-btn').addEventListener('click', async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const btn = document.getElementById('login-btn');
+
+    // Ensure AuthHandler available
+    if (typeof AuthHandler === 'undefined') {
+      const el = document.getElementById('error-msg');
+      if (el) { el.textContent = 'Authentication module unavailable. Refresh the page.'; el.classList.remove('d-none'); }
+      return;
+    }
 
     // Validate inputs
     if (!email || !password) {
@@ -220,12 +235,34 @@
     try {
       await AuthHandler.login(email, password);
     } catch (err) {
-      const message = err.response?.data?.message || 'Invalid email or password';
+      // Normalize error messages for user-friendly output
+      let message = 'Request failed. Please try again.';
+      if (err?.response?.data?.message) {
+        message = err.response.data.message;
+      } else if (err?.response?.status === 401) {
+        message = 'Invalid email or password.';
+      } else if (err?.message && /network/i.test(err.message)) {
+        message = 'Unable to reach server. Check your network connection.';
+      }
       AuthHandler.showError(message, 'error-msg');
       btn.textContent = 'Sign In';
       btn.disabled = false;
     }
   });
+
+  // Prevent Enter from submitting/reloading the page — trigger login instead
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') {
+      const active = document.activeElement;
+      if (active && (active.id === 'email' || active.id === 'password')) {
+        ev.preventDefault();
+        document.getElementById('login-btn').click();
+      }
+    }
+  });
+
+  // Prevent any accidental form submission on this page
+  document.querySelectorAll('form').forEach(f => f.addEventListener('submit', e => e.preventDefault()));
 </script>
 </body>
 </html>

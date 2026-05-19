@@ -511,36 +511,7 @@
             <a href="history.html" class="module-link">Full History →</a>
           </div>
           <div id="purchase-history">
-            <div class="module-row-item">
-              <div>
-                <p class="module-row-name">Brake Pads × 2, Oil Filter × 1</p>
-                <p class="module-row-meta">INV-001 · 15 Apr 2026</p>
-              </div>
-              <div style="text-align:right">
-                <div class="purchase-amount">Rs.3,200</div>
-                <span class="badge-completed">PAID</span>
-              </div>
-            </div>
-            <div class="module-row-item">
-              <div>
-                <p class="module-row-name">Air Filter × 1, Spark Plug × 4</p>
-                <p class="module-row-meta">INV-002 · 10 Apr 2026 · 10% discount applied</p>
-              </div>
-              <div style="text-align:right">
-                <div class="purchase-amount">Rs.4,860</div>
-                <span class="badge-completed">PAID</span>
-              </div>
-            </div>
-            <div class="module-row-item">
-              <div>
-                <p class="module-row-name">Clutch Plate × 1</p>
-                <p class="module-row-meta">INV-003 · 2 Apr 2026</p>
-              </div>
-              <div style="text-align:right">
-                <div class="purchase-amount">Rs.1,800</div>
-                <span class="badge-pending">PENDING</span>
-              </div>
-            </div>
+            <p style="color:#64748B;text-align:center;padding:20px"> </p>
           </div>
         </div>
 
@@ -554,27 +525,7 @@
             <a href="appointments.html" class="module-link">Book New →</a>
           </div>
           <div id="appointments-list">
-            <div class="module-row-item">
-              <div>
-                <p class="module-row-name">General Service</p>
-                <p class="module-row-meta">BA 1 KA 1234 · Mon 28 Apr 2026, 10:00 AM</p>
-              </div>
-              <span class="badge-confirmed">CONFIRMED</span>
-            </div>
-            <div class="module-row-item">
-              <div>
-                <p class="module-row-name">Brake Inspection</p>
-                <p class="module-row-meta">BA 1 KA 1234 · Fri 18 Apr 2026</p>
-              </div>
-              <span class="badge-completed">DONE</span>
-            </div>
-            <div class="module-row-item">
-              <div>
-                <p class="module-row-name">Oil Change</p>
-                <p class="module-row-meta">BA 1 KA 1234 · Wed 2 Apr 2026</p>
-              </div>
-              <span class="badge-completed">DONE</span>
-            </div>
+            <p style="color:#64748B;text-align:center;padding:20px"> </p>
           </div>
           <a href="appointments.html" class="btn-add-vehicle">
             + Book New Appointment
@@ -586,16 +537,9 @@
       <!-- MY VEHICLES -->
       <div>
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin-bottom:12px">My Vehicles</div>
-        <div class="vehicle-card">
+          <div class="vehicle-card">
           <div class="vehicle-list" id="vehicle-list">
-            <div class="vehicle-item">
-              <div class="vehicle-icon">🚗</div>
-              <div class="vehicle-info">
-                <p class="vehicle-name">Toyota Corolla 2020</p>
-                <span class="vehicle-plate">BA 1 KA 1234</span>
-                <p class="vehicle-meta">Registered · Last service: 18 Apr 2026</p>
-              </div>
-            </div>
+            <p style="color:#64748B;text-align:center;padding:20px"> </p>
           </div>
           <a href="profile.html#vehicles" class="btn-add-vehicle">
             <span>+</span> Add Another Vehicle
@@ -606,7 +550,6 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="../shared/axios-config.js"></script>
   <script src="../shared/auth-guard.js"></script>
@@ -637,48 +580,152 @@
     });
 
     async function loadCustomerData() {
+      const candidates = resolveCustomerIdCandidates();
+      console.log('[Dashboard] Customer ID candidates:', candidates);
+      if (candidates.length === 0) {
+        console.warn('[Dashboard] No customer ID candidates found');
+        return;
+      }
+
+      try {
+        let customerId = null;
+        let profile = null;
+
+        // Try multiple IDs until profile endpoint accepts one
+        for (const id of candidates) {
+          try {
+            console.log('[Dashboard] Trying customer ID:', id);
+            const profileRes = await api.getCustomerProfile(id);
+            profile = profileRes.data;
+            customerId = id;
+            console.log('[Dashboard] Profile loaded for ID:', customerId, 'Data:', profile);
+            break;
+          } catch (err) {
+            console.warn('[Dashboard] Failed to load profile for ID:', id, 'Error:', err.message);
+          }
+        }
+
+        if (!profile || !customerId) {
+          throw new Error('Unable to resolve customer profile id');
+        }
+
+        localStorage.setItem('customerId', String(customerId));
+        
+        document.getElementById('kpi-purchases').textContent = profile.saleCount || 0;
+        if (profile.loyaltyPoints > 0) {
+          document.getElementById('loyalty-saved').textContent = '₹' + Math.round(profile.loyaltyPoints * 50).toLocaleString();
+        }
+
+        // Get customer sales
+        try {
+          console.log('[Dashboard] Loading sales for customer:', customerId);
+          const salesRes = await api.getCustomerSales(customerId);
+          const sales = salesRes.data || [];
+          console.log('[Dashboard] Sales loaded:', sales.length, 'items');
+          renderPurchaseHistory(sales.slice(0, 4));
+        } catch (err) {
+          console.warn('[Dashboard] Failed to load sales:', err?.response?.status, err.message);
+          try { document.getElementById('purchase-history').innerHTML = ''; } catch(_) {}
+        }
+
+        // Get customer vehicles
+        try {
+          console.log('[Dashboard] Loading vehicles for customer:', customerId);
+          const vehiclesRes = await api.getCustomerVehicles(customerId);
+          const vehicles = vehiclesRes.data || [];
+          console.log('[Dashboard] Vehicles loaded:', vehicles.length, 'items', 'Data:', vehicles);
+          document.getElementById('kpi-vehicles').textContent = vehicles.length;
+          renderVehicles(vehicles);
+        } catch (err) {
+          console.warn('[Dashboard] Failed to load vehicles:', err?.response?.status, err.message);
+          try { document.getElementById('vehicle-list').innerHTML = ''; } catch(_) {}
+        }
+
+      } catch (e) {
+        // Handle client errors (bad request) gracefully
+        if (e?.response?.status === 400) {
+          console.warn('Bad request when loading customer data (400).');
+        } else {
+          console.error('Error loading customer data:', e);
+        }
+        // If backend unavailable or error occurs, leave sections blank per UX request
+        try { document.getElementById('purchase-history').innerHTML = ''; } catch(_) {}
+        try { document.getElementById('appointments-list').innerHTML = ''; } catch(_) {}
+        try { document.getElementById('vehicle-list').innerHTML = ''; } catch(_) {}
+        try { document.getElementById('kpi-purchases').textContent = '0'; } catch(_) {}
+        try { document.getElementById('kpi-vehicles').textContent = '0'; } catch(_) {}
+      }
+    }
+
+    function resolveCustomerIdCandidates() {
       const token = localStorage.getItem('authToken');
-      if (!token) return;
+      const tokenCustomerId = getCustomerIdFromToken(token);
+      const fromCache = localStorage.getItem('customerId');
+      const fromQuery = new URLSearchParams(window.location.search).get('customerId');
+      console.log('[Dashboard] ID sources - cache:', fromCache, '| token:', tokenCustomerId, '| query:', fromQuery);
+      return [fromCache, tokenCustomerId, fromQuery]
+        .map(v => (v || '').trim())
+        .filter(Boolean)
+        .filter((v, i, arr) => arr.indexOf(v) === i);
+    }
 
+    function getCustomerIdFromToken(token) {
       try {
-        const purchasesRes = await axiosInstance.get('/customers/me/purchases');
-        const purchases = purchasesRes.data || [];
-        document.getElementById('kpi-purchases').textContent = purchases.length;
-
-        const saved = purchases.reduce((sum, p) => sum + (p.discountAmount || 0), 0);
-        if (saved > 0) {
-          document.getElementById('loyalty-saved').textContent = 'Rs.' + saved.toLocaleString();
-        }
-
-        if (purchases.length > 0) {
-          document.getElementById('purchase-history').innerHTML = purchases.slice(0, 4).map(p => `
-            <div class="module-row-item">
-              <div>
-                <p class="module-row-name">${p.items?.map(i => i.partName + ' × ' + i.quantity).join(', ') || 'Items'}</p>
-                <p class="module-row-meta">INV-${p.id} · ${new Date(p.createdAt).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}
-                ${p.loyaltyDiscountApplied ? ' · 10% discount applied' : ''}</p>
-              </div>
-              <div style="text-align:right">
-                <div class="purchase-amount">Rs.${p.finalAmount?.toLocaleString()}</div>
-                <span class="badge-completed">PAID</span>
-              </div>
-            </div>`).join('');
-        }
-      } catch (e) {
-        // Endpoint not built yet — silently skip, keep placeholder data
-        console.info('Purchase history endpoint pending (F14)');
+        if (!token) return null;
+        const parts = token.split('.');
+        if (parts.length < 2) return null;
+        const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
+        const json = decodeURIComponent(atob(padded).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+        const payload = JSON.parse(json);
+        console.log('[Dashboard] JWT payload claims:', Object.keys(payload));
+        const result = payload.customerId
+          ?? payload.customerID
+          ?? payload.customer_id
+          ?? payload.CustomerId
+          ?? null;
+        console.log('[Dashboard] Extracted customerId from JWT:', result);
+        return result;
+      } catch (err) {
+        console.error('[Dashboard] Failed to parse JWT:', err.message);
+        return null;
       }
+    }
 
-      try {
-        const apptRes = await axiosInstance.get('/customers/me/services');
-        const appts   = apptRes.data || [];
-        const upcoming = appts.filter(a => new Date(a.appointmentDate) >= new Date());
-        document.getElementById('kpi-appointments').textContent = upcoming.length;
-        document.getElementById('kpi-appt-sub').textContent =
-          upcoming.length === 1 ? '1 upcoming' : `${upcoming.length} upcoming`;
-      } catch (e) {
-        console.info('Appointments endpoint pending (F14)');
+    function renderPurchaseHistory(sales) {
+      const list = document.getElementById('purchase-history');
+      if (sales.length === 0) {
+        list.innerHTML = '<p style="color:#64748B;text-align:center;padding:20px">No purchases yet</p>';
+        return;
       }
+      list.innerHTML = sales.map(s => `
+        <div class="module-row-item">
+          <div>
+            <p class="module-row-name">${s.items?.map(i => (i.partName || 'Part') + ' × ' + i.quantity).join(', ') || 'Items'}</p>
+            <p class="module-row-meta">Sale #${s.id} · ${new Date(s.createdAt).toLocaleDateString('en-GB')}${s.loyaltyDiscountApplied ? ' · 10% discount applied' : ''}</p>
+          </div>
+          <div style="text-align:right">
+            <div class="purchase-amount">₹${s.finalAmount?.toLocaleString()}</div>
+            <span class="badge-completed">COMPLETED</span>
+          </div>
+        </div>`).join('');
+    }
+
+    function renderVehicles(vehicles) {
+      const list = document.getElementById('vehicle-list');
+      if (vehicles.length === 0) {
+        list.innerHTML = '<p style="color:#64748B;text-align:center;padding:20px">No vehicles registered yet. Add one in your profile.</p>';
+        return;
+      }
+      list.innerHTML = vehicles.map(v => `
+        <div class="vehicle-item">
+          <div class="vehicle-icon">🚗</div>
+          <div class="vehicle-info">
+            <p class="vehicle-name">${v.model || 'Vehicle'}</p>
+            <span class="vehicle-plate">${v.plateNumber}</span>
+            <p class="vehicle-meta">Year: ${v.year}${v.notes ? ' · ' + v.notes : ''}</p>
+          </div>
+        </div>`).join('');
     }
   </script>
 </body>
