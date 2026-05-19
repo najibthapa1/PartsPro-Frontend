@@ -287,7 +287,6 @@
       border-bottom: none;
     }
 
-
     .pp-modal-overlay {
       position: fixed;
       inset: 0;
@@ -396,14 +395,13 @@
 
       <div class="page-header">
         <div class="header-left">
-          <h1>🏢 Vendor Management</h1>
+          <h1>Vendor Management</h1>
           <p>Manage suppliers and vendor relationships</p>
         </div>
         <div>
           <a href="#" onclick="openNewVendorForm(); return false;" class="btn btn-primary">+ Add Vendor</a>
         </div>
       </div>
-
 
       <div class="card" style="margin-top: 24px;">
         <h2 class="card-title">Vendor Directory</h2>
@@ -429,8 +427,6 @@
     </div>
   </div>
 
-
-  <!-- Add Vendor Modal -->
   <div id="vendor-modal" class="pp-modal-overlay" onclick="closeVendorModal(event)">
     <div class="pp-modal-card" onclick="event.stopPropagation()">
       <div class="pp-modal-header">
@@ -586,7 +582,7 @@
           : error.response?.status === 404
           ? 'Vendor endpoint not ready yet'
           : error.message || 'Error loading vendors';
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:#FCA5A5;">⚠️ ${errorMsg}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:#FCA5A5;">${errorMsg}</td></tr>`;
       }
     }
   </script>

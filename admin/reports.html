@@ -426,7 +426,6 @@
 </head>
 <body>
 
-  <!-- NAV -->
   <nav class="admin-nav">
     <div class="nav-left">
       <div class="nav-brand-dot"></div>
@@ -452,19 +451,16 @@
     </div>
   </nav>
 
-  <!-- PAGE -->
   <div class="admin-page">
     <div class="admin-container">
 
-      <!-- HEADER -->
       <div class="page-header">
         <div class="header-left">
-          <h1>📊 Reports</h1>
+          <h1>Reports</h1>
           <p>Financial analytics and business insights</p>
         </div>
       </div>
 
-      <!-- TABS -->
       <div class="tab-container">
         <button class="tab-btn active" onclick="switchTab('financial')">Financial Report</button>
         <button class="tab-btn" onclick="switchTab('profitloss')">P&L Statement</button>
@@ -473,7 +469,6 @@
         <button class="tab-btn" onclick="switchTab('inventory')">Inventory</button>
       </div>
 
-      <!-- FINANCIAL REPORT TAB -->
       <div id="financial" class="tab-content active">
         <div class="controls">
           <div class="control-group">
@@ -490,7 +485,6 @@
         <div id="financial-content"></div>
       </div>
 
-      <!-- P&L STATEMENT TAB -->
       <div id="profitloss" class="tab-content">
         <div class="controls">
           <div class="control-group">
@@ -507,7 +501,6 @@
         <div id="profitloss-content"></div>
       </div>
 
-      <!-- MONTHLY SALES TAB -->
       <div id="monthlysales" class="tab-content">
         <div class="controls">
           <div class="control-group">
@@ -520,7 +513,6 @@
         <div id="monthlysales-content"></div>
       </div>
 
-      <!-- TOP SELLING TAB -->
       <div id="topselling" class="tab-content">
         <div class="controls">
           <div class="control-group">
@@ -533,10 +525,9 @@
         <div id="topselling-content"></div>
       </div>
 
-      <!-- INVENTORY TAB -->
       <div id="inventory" class="tab-content">
         <div class="controls">
-          <button class="btn-action" onclick="generateInventorySummary()">📦 Refresh Inventory</button>
+          <button class="btn-action" onclick="generateInventorySummary()">Refresh Inventory</button>
           <button class="btn-action" style="background: #10B981;" onclick="downloadInventory()" title="Download as CSV">⬇ Download</button>
         </div>
         <div id="inventory-content"></div>
@@ -824,7 +815,7 @@
     function showError(containerId, message) {
       const html = `
         <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#FCA5A5;padding:16px;border-radius:8px;margin-top:16px;">
-          ❌ ${message}
+          ${message}
         </div>
       `;
       document.getElementById(containerId).innerHTML = html;

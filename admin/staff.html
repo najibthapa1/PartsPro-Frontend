@@ -287,7 +287,6 @@
       border-bottom: none;
     }
 
-
     .pp-modal-overlay {
       position: fixed;
       inset: 0;
@@ -396,14 +395,13 @@
 
       <div class="page-header">
         <div class="header-left">
-          <h1>👥 Staff Management</h1>
+          <h1>Staff Management</h1>
           <p>Manage team members and their roles</p>
         </div>
         <div>
           <a href="#" onclick="openNewStaffForm(); return false;" class="btn btn-primary">+ Add Staff Member</a>
         </div>
       </div>
-
 
       <div class="card" style="margin-top: 24px;">
         <h2 class="card-title">Current Staff Members</h2>
@@ -429,8 +427,6 @@
     </div>
   </div>
 
-
-  <!-- Add Staff Modal -->
   <div id="staff-modal" class="pp-modal-overlay" onclick="closeStaffModal(event)">
     <div class="pp-modal-card" onclick="event.stopPropagation()">
       <div class="pp-modal-header">
@@ -585,7 +581,7 @@
           : error.response?.status === 404
           ? 'Staff endpoint not ready yet'
           : error.message || 'Error loading staff members';
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:#FCA5A5;">⚠️ ${errorMsg}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:#FCA5A5;">${errorMsg}</td></tr>`;
       }
     }
   </script>

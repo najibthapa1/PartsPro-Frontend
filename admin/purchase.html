@@ -331,7 +331,7 @@
 
       <div class="page-header">
         <div class="header-left">
-          <h1>📦 Purchase Management</h1>
+          <h1>Purchase Management</h1>
           <p>Manage vendor purchases and inventory stock</p>
         </div>
         <div>
@@ -450,7 +450,6 @@
       document.getElementById('order-date').valueAsDate = new Date();
     }
 
-
   async function loadVendors() {
     try {
       const res = await api.getVendors(1, 1000);
@@ -507,7 +506,6 @@
         purchaseItems.splice(index, 1);
         renderItemsTable();
       }
-      
 
       function resetForm() {
         document.getElementById('purchase-form').reset();

@@ -312,6 +312,8 @@
       <a href="customer.html" class="nav-link">Customers</a>
       <a href="search.html" class="nav-link active">Search</a>
       <a href="invoices.html" class="nav-link">Invoices</a>
+      <a href="customer-insights.html" class="nav-link">Insights</a>
+
     </div>
     <div class="nav-right">
       <div class="nav-avatar" id="nav-avatar">ST</div>
@@ -327,7 +329,7 @@
     <div class="staff-container">
 
       <div class="page-header">
-        <h1>🔍 Search Customers</h1>
+        <h1>Search Customers</h1>
         <p>Find customers by name, phone, ID, or vehicle plate number</p>
       </div>
 
@@ -343,19 +345,18 @@
         </div>
         <div class="search-hint">
           Search across:
-          <span>👤 Full name</span>
-          <span>📞 Phone number</span>
+          <span>Full name</span>
+          <span>Phone number</span>
           <span>🪪 Customer ID</span>
-          <span>🚗 Vehicle plate</span>
+          <span>Vehicle plate</span>
         </div>
       </div>
 
       <div id="error-banner" class="error-banner"></div>
 
       <div id="results-area">
-        <!-- Initial prompt state -->
+        
         <div class="state-box">
-          <div class="state-icon">🔍</div>
           <p class="state-title">Start searching</p>
           <p class="state-desc">Enter a name, phone number, customer ID, or vehicle plate number above</p>
         </div>
@@ -364,7 +365,6 @@
     </div>
   </div>
 
-  <!-- Detail Drawer -->
   <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
   <div class="drawer" id="drawer">
     <div class="drawer-header">
@@ -372,7 +372,7 @@
       <button class="drawer-close" onclick="closeDrawer()">✕</button>
     </div>
     <div class="drawer-body" id="drawer-body">
-      <!-- Populated dynamically -->
+      
     </div>
   </div>
 
@@ -419,7 +419,7 @@
       } catch (e) {
         const msg = e.response?.data?.title || e.response?.data?.message || 'Search failed. Please try again.';
         showError(msg);
-        showEmptyState('⚠️', 'Search error', msg);
+        showEmptyState('', 'Search error', msg);
       } finally {
         btn.disabled = false;
         btn.textContent = 'Search';
@@ -432,7 +432,7 @@
       if (results.length === 0) {
         area.innerHTML = `
           <div class="state-box">
-            <div class="state-icon">😶</div>
+            <div class="state-icon"></div>
             <p class="state-title">No customers found</p>
             <p class="state-desc">No results for "<strong>${escHtml(query)}</strong>". Try a different name, phone, or plate number.</p>
           </div>`;
@@ -457,9 +457,9 @@
           <div class="customer-info">
             <p class="customer-name">${escHtml(c.fullName)}</p>
             <div class="customer-meta">
-              <span>📞 ${escHtml(c.phone || 'N/A')}</span>
-              <span>✉️ ${escHtml(c.email || 'N/A')}</span>
-              <span>💳 Credit: ₹${(c.totalCreditOwed || 0).toLocaleString()}</span>
+              <span>${escHtml(c.phone || 'N/A')}</span>
+              <span>${escHtml(c.email || 'N/A')}</span>
+              <span>Credit: ₹${(c.totalCreditOwed || 0).toLocaleString()}</span>
             </div>
             ${plates ? `<div class="customer-vehicles" style="margin-top:8px">${plates}</div>` : ''}
           </div>
@@ -592,7 +592,7 @@
 
     function showError(msg) {
       const el = document.getElementById('error-banner');
-      el.textContent = '⚠️ ' + msg;
+      el.textContent = '' + msg;
       el.style.display = 'block';
     }
 

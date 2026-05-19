@@ -473,7 +473,7 @@
 
       <div class="page-header">
         <div class="header-left">
-          <h1>🔧 Parts Management</h1>
+          <h1>Parts Management</h1>
           <p>Manage inventory parts and components</p>
         </div>
         <div>
@@ -515,7 +515,6 @@
     </div>
   </div>
 
-  <!-- Add/Edit Modal -->
   <div id="part-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -747,7 +746,7 @@
               <span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">
                 ${isActive ? '✓ Active' : '✕ Inactive'}
               </span>
-              ${stock < 10 || stock <= reorderLevel ? '<span class="badge badge-low">⚠ Low Stock</span>' : ''}
+              ${stock < 10 || stock <= reorderLevel ? '<span class="badge badge-low">Low Stock</span>' : ''}
             </td>
             <td>
               <button class="btn btn-edit" onclick="editPart(${id})">Edit</button>

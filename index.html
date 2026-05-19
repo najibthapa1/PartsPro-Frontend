@@ -148,7 +148,7 @@
 
     /* Wrench background icon */
     .hero::before::after {
-      content: '🔧';
+      content: '';
       position: absolute;
       bottom: 10%;
       right: 5%;
@@ -171,7 +171,7 @@
 
     /* Wrench background decoration */
     .hero-content::before {
-      content: '🔧';
+      content: '';
       position: absolute;
       bottom: 5%;
       right: 5%;
@@ -484,10 +484,14 @@
 </head>
 <body>
 
-  <!-- NAVIGATION -->
   <nav>
     <a href="index.html" class="nav-logo">
-      <div class="nav-logo-icon">⚙</div>
+      <div class="nav-logo-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </div>
       <div>Parts<span>Pro</span></div>
     </a>
     <div class="nav-links">
@@ -496,17 +500,15 @@
     </div>
   </nav>
 
-  <!-- HERO SECTION -->
   <section class="hero">
-    <!-- Rotated edge text -->
+    
     <div class="hero-edge-left">T R U S T</div>
     <div class="hero-edge-right">F O R  E V E R Y  N E E D</div>
 
     <div class="hero-content">
-      <!-- Top label -->
+      
       <div class="hero-label">EXPERT PARTS MANAGEMENT</div>
 
-      <!-- Center headline -->
       <div class="hero-center">
         <div style="font-size: 4.5rem; font-weight: 900; color: #F59E0B; margin-bottom: 1.5rem; letter-spacing: 0.08em; text-transform: uppercase; text-shadow: 0 0 40px rgba(245, 158, 11, 0.2);">
           PartsPro
@@ -517,7 +519,6 @@
         </div>
       </div>
 
-      <!-- Bottom section -->
       <div class="hero-bottom">
         <div class="hero-left">
           <p>Complete vehicle parts management for automotive retailers. From inventory to invoicing, we streamline every operation.</p>
@@ -543,17 +544,15 @@
     </div>
   </section>
 
-  <!-- FEATURES SECTION -->
   <section class="features">
     <div class="features-container">
-      <!-- Left column -->
+      
       <div class="features-left">
         <h2>Engineered for Performance</h2>
         <p class="features-lede">Purpose-built for automotive retailers who demand precision, speed, and reliability in every transaction.</p>
 
         <div class="feature-rows">
           <div class="feature-row">
-            <div class="feature-icon-tile">⚙</div>
             <div class="feature-content">
               <h3>Inventory Management</h3>
               <p>Real-time stock tracking with automatic low-stock alerts at 10 units.</p>
@@ -561,7 +560,6 @@
           </div>
 
           <div class="feature-row">
-            <div class="feature-icon-tile">📋</div>
             <div class="feature-content">
               <h3>Financial Reporting</h3>
               <p>Daily, monthly, and yearly breakdowns with full audit trails.</p>
@@ -569,7 +567,6 @@
           </div>
 
           <div class="feature-row">
-            <div class="feature-icon-tile">🔍</div>
             <div class="feature-content">
               <h3>Smart Search</h3>
               <p>Find customers instantly by name, phone, ID, or vehicle plate.</p>
@@ -578,7 +575,6 @@
         </div>
       </div>
 
-      <!-- Right column -->
       <div class="features-right">
         <div class="feature-image">
           <img src="https://images.unsplash.com/photo-1619505372149-07875c35b313?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZWNoYW5pYyUyMHdvcmtpbmclMjBjYXJ8ZW58MXx8fHwxNzc1MjA0Njk3fDA&ixlib=rb-4.1.0&q=80&w=1080" alt="Mechanic working on car">

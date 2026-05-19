@@ -318,12 +318,11 @@
     <div class="admin-container">
 
       <div class="page-header">
-        <h1>📊 Admin Dashboard</h1>
+        <h1>Admin Dashboard</h1>
         <p>System operational overview and key metrics</p>
       </div>
 
       <div class="alert-banner" id="alert-banner">
-        <div class="alert-icon">⚠️</div>
         <div class="alert-content">
           <p class="alert-title">Low Stock Alert</p>
           <p class="alert-desc"><span id="alert-count">0</span> parts are running low and need replenishment</p>
@@ -334,8 +333,7 @@
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-label">Total Sales</span>
-            <span class="kpi-icon">💰</span>
-          </div>
+            </div>
           <div class="kpi-value" id="kpi-sales">Rs.0</div>
           <div class="kpi-helper">This month</div>
         </div>
@@ -343,8 +341,7 @@
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-label">Orders Pending</span>
-            <span class="kpi-icon">📦</span>
-          </div>
+            </div>
           <div class="kpi-value" id="kpi-orders">0</div>
           <div class="kpi-helper">Awaiting fulfillment</div>
         </div>
@@ -352,8 +349,7 @@
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-label">Inventory Items</span>
-            <span class="kpi-icon">📊</span>
-          </div>
+            </div>
           <div class="kpi-value" id="kpi-inventory">0</div>
           <div class="kpi-helper">Total SKUs</div>
         </div>
@@ -361,8 +357,7 @@
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-label">Active Users</span>
-            <span class="kpi-icon">👥</span>
-          </div>
+            </div>
           <div class="kpi-value" id="kpi-users">0</div>
           <div class="kpi-helper">Registered customers</div>
         </div>
@@ -376,7 +371,7 @@
       </div>
 
       <div class="module-card">
-        <h2 class="module-title">Feature 15 — Notifications</h2>
+        <h2 class="module-title">Notifications</h2>
         <div id="notification-summary">
           <p style="color:#64748B;text-align:center;padding:20px">Loading notification status...</p>
         </div>
@@ -512,8 +507,7 @@
             <div class="kpi-card">
               <div class="kpi-header">
                 <span class="kpi-label">Low Stock Alerts</span>
-                <span class="kpi-icon">⚠️</span>
-              </div>
+                </div>
               <div class="kpi-value" style="color:${lowStockParts.length ? '#F59E0B' : '#10B981'}">${lowStockParts.length}</div>
               <div class="kpi-helper">Parts below stock threshold</div>
             </div>
@@ -521,8 +515,7 @@
             <div class="kpi-card">
               <div class="kpi-header">
                 <span class="kpi-label">Admin Email Alert</span>
-                <span class="kpi-icon">📧</span>
-              </div>
+                </div>
               <div class="kpi-value" style="font-size:20px;color:#10B981;">Automated</div>
               <div class="kpi-helper">Handled by backend NotificationService</div>
             </div>
@@ -530,15 +523,14 @@
             <div class="kpi-card">
               <div class="kpi-header">
                 <span class="kpi-label">Credit Reminder</span>
-                <span class="kpi-icon">⏰</span>
-              </div>
+                </div>
               <div class="kpi-value" style="font-size:20px;color:#60A5FA;">Automated</div>
               <div class="kpi-helper">Overdue credit emails are sent by backend service</div>
             </div>
           </div>
 
           <div style="margin-top:16px;color:#94A3B8;font-size:12px;line-height:1.6;">
-            Feature 15 is integrated on the dashboard as a live low-stock monitor. The actual email notification process remains automatic in the backend.
+            Integrated on the dashboard as a live low-stock monitor. The actual email notification process remains automatic in the backend.
           </div>
         `;
       } catch (error) {

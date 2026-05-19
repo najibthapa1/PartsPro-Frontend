@@ -17,6 +17,7 @@ class RoleGuard {
       '/staff/customer.html',
       '/staff/search.html',
       '/staff/invoices.html',
+      '/staff/customer-insights.html',
     ],
     Customer: [
       '/customer/dashboard.html',
