@@ -132,7 +132,7 @@
       padding: 20px;
     }
     .modal-overlay.open { display: flex; }
-    .modal {
+    .invoice-modal {
       background: #1F2937;
       border: 1px solid #4B5563;
       border-radius: 10px;
@@ -284,10 +284,10 @@
 
   <!-- Invoice Detail Modal -->
   <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
-    <div class="modal" id="modal" onclick="event.stopPropagation()">
+    <div class="invoice-modal" id="invoice-modal" onclick="event.stopPropagation()">
       <div class="modal-header">
         <h2 id="modal-title">Invoice Details</h2>
-        <button class="modal-close" onclick="closeModal()">✕</button>
+        <button type="button" class="modal-close" onclick="window.closeInvoiceModal()">✕</button>
       </div>
       <div class="modal-body" id="modal-body"></div>
     </div>
@@ -328,7 +328,8 @@
       try {
         // GET /api/sale - Get all sales
         const res = await api.getAllSales();
-        allInvoices = res.data || [];
+        allInvoices = Array.isArray(res.data) ? res.data : [];
+        console.log('Loaded invoices:', allInvoices);
         renderTable(allInvoices);
       } catch (e) {
         document.getElementById('invoices-tbody').innerHTML =
@@ -336,38 +337,73 @@
       }
     }
 
+    function getNumber(...values) {
+      for (const value of values) {
+        if (value !== undefined && value !== null && value !== '') {
+          const num = Number(value);
+          if (!Number.isNaN(num)) return num;
+        }
+      }
+      return 0;
+    }
+
+    function getText(...values) {
+      for (const value of values) {
+        if (value !== undefined && value !== null && String(value).trim() !== '') {
+          return String(value);
+        }
+      }
+      return '';
+    }
+
+    function getItems(inv) {
+      return inv?.items ?? inv?.Items ?? inv?.saleItems ?? inv?.SaleItems ?? [];
+    }
+
+    function money(value) {
+      return `Rs. ${getNumber(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
     function renderTable(invoices) {
       const tbody = document.getElementById('invoices-tbody');
-      if (invoices.length === 0) {
+      if (!Array.isArray(invoices) || invoices.length === 0) {
         tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:#6B7280">No invoices found for the selected filters.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = invoices.map(inv => {
-        const itemCount = inv.items?.length ?? 0;
-        const hasDiscount = inv.loyaltyDiscountApplied;
+        const id = getNumber(inv.id, inv.Id, inv.saleId, inv.SaleId);
+        const customerId = getNumber(inv.customerId, inv.CustomerId);
+        const customerName = getText(inv.customerName, inv.CustomerName, inv.fullName, inv.FullName);
+        const items = getItems(inv);
+        const itemCount = items.length;
+        const totalAmount = getNumber(inv.totalAmount, inv.TotalAmount);
+        const discountAmount = getNumber(inv.discountAmount, inv.DiscountAmount);
+        const finalAmount = getNumber(inv.finalAmount, inv.FinalAmount, totalAmount - discountAmount);
+        const hasDiscount = Boolean(inv.loyaltyDiscountApplied ?? inv.LoyaltyDiscountApplied ?? discountAmount > 0);
+        const createdAt = inv.createdAt ?? inv.CreatedAt ?? inv.saleDate ?? inv.SaleDate;
 
         return `
           <tr>
-            <td><span class="inv-id">#${inv.id}</span></td>
+            <td><span class="inv-id">#${id}</span></td>
             <td>
-              <div class="inv-customer">Customer #${inv.customerId}</div>
+              <div class="inv-customer">${escHtml(customerName || `Customer #${customerId}`)}</div>
             </td>
             <td>${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
-            <td class="inv-amount">Rs. ${inv.totalAmount?.toLocaleString()}</td>
+            <td class="inv-amount">${money(totalAmount)}</td>
             <td>
               ${hasDiscount
-                ? `<span class="inv-discount">-Rs. ${inv.discountAmount?.toLocaleString()}</span> <span class="badge-loyalty">10% off</span>`
+                ? `<span class="inv-discount">-${money(discountAmount)}</span> <span class="badge-loyalty">10% off</span>`
                 : '<span style="color:#4B5563">—</span>'}
             </td>
-            <td class="inv-amount" style="color:var(--pp-amber)">Rs. ${inv.finalAmount?.toLocaleString()}</td>
-            <td class="inv-date">${formatDate(inv.createdAt)}</td>
+            <td class="inv-amount" style="color:var(--pp-amber)">${money(finalAmount)}</td>
+            <td class="inv-date">${formatDate(createdAt)}</td>
             <td>
-              <button class="btn-icon btn-email" onclick="sendInvoiceEmail(${inv.id})" title="Send invoice via email" style="background:#10B981;color:white;padding:6px 12px;border:none;border-radius:4px;cursor:pointer;font-size:12px">📧 Email</button>
+              <button type="button" class="btn-icon btn-email" onclick="window.sendInvoiceEmail(${id})" title="Send invoice via email" style="background:#10B981;color:white;padding:6px 12px;border:none;border-radius:4px;cursor:pointer;font-size:12px">📧 Email</button>
             </td>
             <td>
               <div class="action-group">
-                <button class="btn-icon btn-view" onclick="openModal(${inv.id})">View</button>
+                <button type="button" class="btn-icon btn-view" onclick="window.openInvoiceModal(${id})">View</button>
               </div>
             </td>
           </tr>`;
@@ -382,15 +418,19 @@
       let filtered = [...allInvoices];
 
       if (customerQ) {
-        filtered = filtered.filter(i => String(i.customerId).includes(customerQ));
+        filtered = filtered.filter(i => {
+          const customerId = String(i.customerId ?? i.CustomerId ?? '');
+          const customerName = getText(i.customerName, i.CustomerName, i.fullName, i.FullName).toLowerCase();
+          return customerId.includes(customerQ) || customerName.includes(customerQ);
+        });
       }
       if (from) {
-        filtered = filtered.filter(i => new Date(i.createdAt) >= new Date(from));
+        filtered = filtered.filter(i => new Date(i.createdAt ?? i.CreatedAt ?? i.saleDate ?? i.SaleDate) >= new Date(from));
       }
       if (to) {
         const toDate = new Date(to);
         toDate.setHours(23,59,59);
-        filtered = filtered.filter(i => new Date(i.createdAt) <= toDate);
+        filtered = filtered.filter(i => new Date(i.createdAt ?? i.CreatedAt ?? i.saleDate ?? i.SaleDate) <= toDate);
       }
       renderTable(filtered);
     }
@@ -403,10 +443,20 @@
     }
 
     async function openModal(saleId) {
+      const overlay = document.getElementById('modal-overlay');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+
+      if (!overlay || !title || !body) {
+        console.error('Invoice modal elements were not found in the page.');
+        return;
+      }
+
       currentInvoiceId = saleId;
-      document.getElementById('modal-overlay').classList.add('open');
-      document.getElementById('modal-title').textContent = `Invoice #${saleId}`;
-      document.getElementById('modal-body').innerHTML = `<div class="spinner" style="margin:24px auto"></div>`;
+      overlay.classList.add('open');
+      overlay.style.display = 'flex';
+      title.textContent = `Invoice #${saleId}`;
+      body.innerHTML = `<div class="spinner" style="margin:24px auto"></div>`;
 
       try {
         // GET /api/sale/{id} - Get sale details
@@ -415,49 +465,75 @@
         renderModal(res.data);
       } catch(e) {
         console.error('Modal error:', e); // DEBUG
-        document.getElementById('modal-body').innerHTML = `<p style="color:#FCA5A5">Failed to load invoice details: ${e.message}</p>`;
+        document.getElementById('modal-body').innerHTML = `<p style="color:#FCA5A5">Failed to load invoice details: ${e.response?.data?.message || e.response?.data?.title || e.message}</p>`;
       }
     }
 
     function renderModal(inv) {
-      const rows = (inv.items || []).map(item => `
-        <tr>
-          <td>${item.partId}</td>
-          <td>${item.partName || 'N/A'}</td>
-          <td style="text-align:center">${item.quantity}</td>
-          <td>Rs. ${item.unitPrice?.toLocaleString()}</td>
-          <td style="color:var(--pp-amber);font-weight:600">Rs. ${(item.quantity * item.unitPrice)?.toLocaleString()}</td>
-        </tr>`).join('');
+      if (!inv) {
+        document.getElementById('modal-body').innerHTML = '<p style="color:#FCA5A5">Invoice data not found.</p>';
+        return;
+      }
+
+      const customerId = getNumber(inv.customerId, inv.CustomerId);
+      const customerName = getText(inv.customerName, inv.CustomerName, inv.fullName, inv.FullName, 'N/A');
+      const createdAt = inv.createdAt ?? inv.CreatedAt ?? inv.saleDate ?? inv.SaleDate;
+      const totalAmount = getNumber(inv.totalAmount, inv.TotalAmount);
+      const discountAmount = getNumber(inv.discountAmount, inv.DiscountAmount);
+      const finalAmount = getNumber(inv.finalAmount, inv.FinalAmount, totalAmount - discountAmount);
+      const loyaltyDiscountApplied = Boolean(inv.loyaltyDiscountApplied ?? inv.LoyaltyDiscountApplied ?? discountAmount > 0);
+      const items = getItems(inv);
+
+      const rows = items.map(item => {
+        const partId = getNumber(item.partId, item.PartId);
+        const partName = getText(item.partName, item.PartName, item.name, item.Name, 'N/A');
+        const quantity = getNumber(item.quantity, item.Quantity);
+        const unitPrice = getNumber(item.unitPrice, item.UnitPrice, item.price, item.Price);
+        const lineTotal = getNumber(item.lineTotal, item.LineTotal, quantity * unitPrice);
+
+        return `
+          <tr>
+            <td>${partId || 'N/A'}</td>
+            <td>${escHtml(partName)}</td>
+            <td style="text-align:center">${quantity}</td>
+            <td>${money(unitPrice)}</td>
+            <td style="color:var(--pp-amber);font-weight:600">${money(lineTotal)}</td>
+          </tr>`;
+      }).join('');
 
       const modalContent = `
-        <div class="detail-row"><span class="detail-label">Customer ID</span><span class="detail-value">${inv.customerId}</span></div>
-        <div class="detail-row"><span class="detail-label">Customer Name</span><span class="detail-value">${inv.customerName || 'N/A'}</span></div>
-        <div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">${formatDate(inv.createdAt)}</span></div>
+        <div class="detail-row"><span class="detail-label">Customer ID</span><span class="detail-value">${customerId || 'N/A'}</span></div>
+        <div class="detail-row"><span class="detail-label">Customer Name</span><span class="detail-value">${escHtml(customerName)}</span></div>
+        <div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">${formatDate(createdAt)}</span></div>
 
         <div class="inv-summary-grid" style="margin-top:16px">
-          <div class="inv-summary-box"><div class="inv-summary-val">Rs. ${inv.totalAmount?.toLocaleString()}</div><div class="inv-summary-lbl">Subtotal</div></div>
-          <div class="inv-summary-box"><div class="inv-summary-val" style="color:${inv.discountAmount > 0 ? '#10B981' : '#6B7280'}">-Rs. ${(inv.discountAmount || 0).toLocaleString()}</div><div class="inv-summary-lbl">Discount ${inv.loyaltyDiscountApplied ? '(Loyalty 10%)' : ''}</div></div>
-          <div class="inv-summary-box"><div class="inv-summary-val">Rs. ${inv.finalAmount?.toLocaleString()}</div><div class="inv-summary-lbl">Final Total</div></div>
+          <div class="inv-summary-box"><div class="inv-summary-val">${money(totalAmount)}</div><div class="inv-summary-lbl">Subtotal</div></div>
+          <div class="inv-summary-box"><div class="inv-summary-val" style="color:${discountAmount > 0 ? '#10B981' : '#6B7280'}">-${money(discountAmount)}</div><div class="inv-summary-lbl">Discount ${loyaltyDiscountApplied ? '(Loyalty 10%)' : ''}</div></div>
+          <div class="inv-summary-box"><div class="inv-summary-val">${money(finalAmount)}</div><div class="inv-summary-lbl">Final Total</div></div>
         </div>
 
-        <div class="section-title">Line Items (${(inv.items || []).length})</div>
+        <div class="section-title">Line Items (${items.length})</div>
         <table class="items-table">
           <thead><tr><th>Part ID</th><th>Part Name</th><th style="text-align:center">Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
-          <tbody>${rows || '<tr><td colspan="5" style="color:#6B7280;text-align:center">No items</td></tr>'}</tbody>
+          <tbody>${rows || '<tr><td colspan="5" style="color:#6B7280;text-align:center">No items found for this invoice.</td></tr>'}</tbody>
         </table>
 
         <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end">
-          <button class="btn-icon btn-email" onclick="sendCurrentInvoiceEmail()" title="Send this invoice via email" style="background:#10B981;color:white;padding:8px 14px;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-weight:500">📧 Send Email</button>
-          <button class="btn-icon btn-view" onclick="closeModal()">Close</button>
+          <button type="button" class="btn-icon btn-email" onclick="window.sendCurrentInvoiceEmail()" title="Send this invoice via email" style="background:#10B981;color:white;padding:8px 14px;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-weight:500">📧 Send Email</button>
+          <button type="button" class="btn-icon btn-view" onclick="window.closeInvoiceModal()">Close</button>
         </div>`;
       
       document.getElementById('modal-body').innerHTML = modalContent;
-      console.log('Modal rendered with', (inv.items || []).length, 'items'); // DEBUG
+      console.log('Modal rendered with', items.length, 'items');
     }
 
     function closeModal(e) {
-      if (!e || e.target === document.getElementById('modal-overlay')) {
-        document.getElementById('modal-overlay').classList.remove('open');
+      const overlay = document.getElementById('modal-overlay');
+      if (!overlay) return;
+
+      if (!e || e.target === overlay) {
+        overlay.classList.remove('open');
+        overlay.style.display = 'none';
         currentInvoiceId = null;
       }
     }
@@ -469,7 +545,8 @@
         await api.sendSaleInvoiceEmail(saleId);
         showToast('success', `Invoice #${saleId} email sent successfully!`);
       } catch (e) {
-        showToast('error', `Failed to send email: ${e.response?.data?.message || e.message}`);
+        console.error('Send invoice email error:', e.response?.data || e.message);
+        showToast('error', `Failed to send email: ${e.response?.data?.message || e.response?.data?.title || e.response?.data || e.message}`);
       }
     }
 
@@ -497,6 +574,12 @@
       if (!str) return '';
       return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
+
+    // Make functions explicit on window so inline table buttons always work.
+    window.openInvoiceModal = openModal;
+    window.closeInvoiceModal = closeModal;
+    window.sendInvoiceEmail = sendInvoiceEmail;
+    window.sendCurrentInvoiceEmail = sendCurrentInvoiceEmail;
   </script>
 </body>
 </html>

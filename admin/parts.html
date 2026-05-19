@@ -602,6 +602,8 @@
     let editingPartId = null;
     let allParts = [];
 
+    const PART_UI_CACHE_KEY = 'partsProPartUiFields';
+
     document.addEventListener('DOMContentLoaded', () => {
       const name = localStorage.getItem('userFullName') || 'Admin';
       const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -621,14 +623,81 @@
       loadParts();
     });
 
+    function getValue(obj, ...keys) {
+      for (const key of keys) {
+        if (obj && obj[key] !== undefined && obj[key] !== null) return obj[key];
+      }
+      return undefined;
+    }
+
+    function asArray(payload) {
+      if (Array.isArray(payload)) return payload;
+      return payload?.items || payload?.data || payload?.results || payload?.value || [];
+    }
+
+    function numberValue(value, fallback = 0) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function loadPartUiCache() {
+      try {
+        return JSON.parse(localStorage.getItem(PART_UI_CACHE_KEY) || '{}');
+      } catch {
+        return {};
+      }
+    }
+
+    function savePartUiCache(cache) {
+      localStorage.setItem(PART_UI_CACHE_KEY, JSON.stringify(cache));
+    }
+
+    function partCacheKey(part) {
+      return String(getValue(part, 'id', 'Id') || getValue(part, 'partNumber', 'PartNumber') || '').trim();
+    }
+
+    function mergePartWithUiCache(part) {
+      const cache = loadPartUiCache();
+      const idKey = String(getValue(part, 'id', 'Id') || '').trim();
+      const numberKey = String(getValue(part, 'partNumber', 'PartNumber') || '').trim();
+      const cached = cache[idKey] || cache[numberKey] || {};
+
+      return {
+        ...part,
+        description: getValue(part, 'description', 'Description') ?? cached.description ?? '',
+        cost: getValue(part, 'cost', 'Cost', 'costPrice', 'CostPrice') ?? cached.cost ?? 0,
+        reorderLevel: getValue(part, 'reorderLevel', 'ReorderLevel') ?? cached.reorderLevel ?? 10,
+        reorderQuantity: getValue(part, 'reorderQuantity', 'ReorderQuantity') ?? cached.reorderQuantity ?? 50,
+        isActive: getValue(part, 'isActive', 'IsActive') ?? cached.isActive ?? true
+      };
+    }
+
+    function rememberPartUiFields(partIdOrNumber, fields) {
+      const key = String(partIdOrNumber || '').trim();
+      if (!key) return;
+
+      const cache = loadPartUiCache();
+      cache[key] = {
+        ...(cache[key] || {}),
+        description: fields.description || '',
+        cost: numberValue(fields.cost),
+        reorderLevel: numberValue(fields.reorderLevel, 10),
+        reorderQuantity: numberValue(fields.reorderQuantity, 50),
+        isActive: fields.isActive !== false
+      };
+      savePartUiCache(cache);
+    }
+
     async function loadVendors() {
       try {
         const response = await api.getVendors(1, 1000);
         const vendorSelect = document.getElementById('vendor-id');
-        response.data.forEach(vendor => {
+        vendorSelect.innerHTML = '<option value="">Select Vendor</option>';
+
+        asArray(response.data).forEach(vendor => {
           const option = document.createElement('option');
-          option.value = vendor.id;
-          option.textContent = vendor.name;
+          option.value = getValue(vendor, 'id', 'Id');
+          option.textContent = getValue(vendor, 'name', 'Name') || 'Unnamed Vendor';
           vendorSelect.appendChild(option);
         });
       } catch (error) {
@@ -639,8 +708,7 @@
     async function loadParts() {
       try {
         const response = await api.getParts(1, 1000);
-        allParts = response.data || [];
-        console.log('Loaded parts:', allParts); // DEBUG - check isActive values
+        allParts = asArray(response.data).map(mergePartWithUiCache);
         renderPartsTable(allParts);
       } catch (error) {
         console.error('Error loading parts:', error);
@@ -656,33 +724,45 @@
         return;
       }
 
-      tbody.innerHTML = parts.map(part => `
-        <tr>
-          <td><strong>${part.partNumber}</strong></td>
-          <td>${part.name}</td>
-          <td>${part.category || 'N/A'}</td>
-          <td>Rs.${(part.price || 0).toFixed(2)}</td>
-          <td>Rs.${(part.cost || 0).toFixed(2)}</td>
-          <td>${part.stock}</td>
-          <td>
-            <span class="badge ${part.isActive !== false ? 'badge-active' : 'badge-inactive'}">
-              ${part.isActive !== false ? '✓ Active' : '✕ Inactive'}
-            </span>
-            ${part.stock <= part.reorderLevel ? '<span class="badge badge-low">⚠ Low Stock</span>' : ''}
-          </td>
-          <td>
-            <button class="btn btn-edit" onclick="editPart(${part.id})">Edit</button>
-            <button class="btn btn-danger" onclick="deletePart(${part.id})" style="padding:6px 12px;font-size:12px;">Delete</button>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = parts.map(part => {
+        const id = getValue(part, 'id', 'Id');
+        const partNumber = getValue(part, 'partNumber', 'PartNumber') || '';
+        const name = getValue(part, 'name', 'Name') || '';
+        const category = getValue(part, 'category', 'Category') || 'N/A';
+        const price = numberValue(getValue(part, 'price', 'Price'));
+        const cost = numberValue(getValue(part, 'cost', 'Cost', 'costPrice', 'CostPrice'));
+        const stock = numberValue(getValue(part, 'stock', 'Stock'));
+        const reorderLevel = numberValue(getValue(part, 'reorderLevel', 'ReorderLevel'), 10);
+        const isActive = getValue(part, 'isActive', 'IsActive') !== false;
+
+        return `
+          <tr>
+            <td><strong>${partNumber}</strong></td>
+            <td>${name}</td>
+            <td>${category}</td>
+            <td>Rs.${price.toFixed(2)}</td>
+            <td>Rs.${cost.toFixed(2)}</td>
+            <td>${stock}</td>
+            <td>
+              <span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">
+                ${isActive ? '✓ Active' : '✕ Inactive'}
+              </span>
+              ${stock < 10 || stock <= reorderLevel ? '<span class="badge badge-low">⚠ Low Stock</span>' : ''}
+            </td>
+            <td>
+              <button class="btn btn-edit" onclick="editPart(${id})">Edit</button>
+              <button class="btn btn-danger" onclick="deletePart(${id})" style="padding:6px 12px;font-size:12px;">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function searchParts() {
-      const query = document.getElementById('search-input').value.toLowerCase();
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
       const filtered = allParts.filter(part =>
-        part.name.toLowerCase().includes(query) ||
-        part.partNumber.toLowerCase().includes(query)
+        String(getValue(part, 'name', 'Name') || '').toLowerCase().includes(query) ||
+        String(getValue(part, 'partNumber', 'PartNumber') || '').toLowerCase().includes(query)
       );
       renderPartsTable(filtered);
     }
@@ -691,27 +771,31 @@
       editingPartId = null;
       document.getElementById('modal-title').textContent = 'Add New Part';
       document.getElementById('part-form').reset();
+      document.getElementById('stock').value = '0';
+      document.getElementById('cost').value = '0';
+      document.getElementById('reorder-level').value = '10';
+      document.getElementById('reorder-qty').value = '50';
       document.getElementById('is-active').checked = true;
       document.getElementById('part-modal').classList.add('active');
     }
 
     async function editPart(id) {
-      const part = allParts.find(p => p.id === id);
+      const part = allParts.find(p => String(getValue(p, 'id', 'Id')) === String(id));
       if (!part) return;
 
       editingPartId = id;
       document.getElementById('modal-title').textContent = 'Edit Part';
-      document.getElementById('part-number').value = part.partNumber;
-      document.getElementById('part-name').value = part.name;
-      document.getElementById('category').value = part.category || '';
-      document.getElementById('vendor-id').value = part.vendorId;
-      document.getElementById('description').value = part.description || '';
-      document.getElementById('price').value = part.price;
-      document.getElementById('cost').value = part.cost;
-      document.getElementById('stock').value = part.stock;
-      document.getElementById('reorder-level').value = part.reorderLevel;
-      document.getElementById('reorder-qty').value = part.reorderQuantity;
-      document.getElementById('is-active').checked = part.isActive;
+      document.getElementById('part-number').value = getValue(part, 'partNumber', 'PartNumber') || '';
+      document.getElementById('part-name').value = getValue(part, 'name', 'Name') || '';
+      document.getElementById('category').value = getValue(part, 'category', 'Category') || '';
+      document.getElementById('vendor-id').value = getValue(part, 'vendorId', 'VendorId') || '';
+      document.getElementById('description').value = getValue(part, 'description', 'Description') || '';
+      document.getElementById('price').value = numberValue(getValue(part, 'price', 'Price'));
+      document.getElementById('cost').value = numberValue(getValue(part, 'cost', 'Cost', 'costPrice', 'CostPrice'));
+      document.getElementById('stock').value = numberValue(getValue(part, 'stock', 'Stock'));
+      document.getElementById('reorder-level').value = numberValue(getValue(part, 'reorderLevel', 'ReorderLevel'), 10);
+      document.getElementById('reorder-qty').value = numberValue(getValue(part, 'reorderQuantity', 'ReorderQuantity'), 50);
+      document.getElementById('is-active').checked = getValue(part, 'isActive', 'IsActive') !== false;
 
       document.getElementById('part-modal').classList.add('active');
     }
@@ -723,36 +807,63 @@
 
     async function savePart() {
       try {
-        const partData = {
-          partNumber: document.getElementById('part-number').value,
-          name: document.getElementById('part-name').value,
-          category: document.getElementById('category').value,
-          vendorId: parseInt(document.getElementById('vendor-id').value),
+        const uiFields = {
           description: document.getElementById('description').value,
-          price: parseFloat(document.getElementById('price').value),
-          cost: parseFloat(document.getElementById('cost').value),
-          stock: parseInt(document.getElementById('stock').value),
-          reorderLevel: parseInt(document.getElementById('reorder-level').value) || 10,
-          reorderQuantity: parseInt(document.getElementById('reorder-qty').value) || 50,
+          cost: parseFloat(document.getElementById('cost').value) || 0,
+          reorderLevel: parseInt(document.getElementById('reorder-level').value, 10) || 10,
+          reorderQuantity: parseInt(document.getElementById('reorder-qty').value, 10) || 50,
           isActive: document.getElementById('is-active').checked
         };
 
-        console.log('Sending part data:', partData); // DEBUG
+        // Backend now accepts and stores costPrice properly.
+        const backendPartData = {
+          partNumber: document.getElementById('part-number').value.trim(),
+          name: document.getElementById('part-name').value.trim(),
+          category: document.getElementById('category').value.trim(),
+          vendorId: parseInt(document.getElementById('vendor-id').value, 10),
+          price: parseFloat(document.getElementById('price').value),
+          costPrice: parseFloat(document.getElementById('cost').value),
+          stock: parseInt(document.getElementById('stock').value, 10)
+        };
+
+        if (!backendPartData.partNumber || !backendPartData.name || !backendPartData.category || !backendPartData.vendorId) {
+          showAlert('Please fill all required fields.', 'error');
+          return;
+        }
+
+        if (!backendPartData.price || backendPartData.price <= 0) {
+          showAlert('Selling price must be greater than 0.', 'error');
+          return;
+        }
+
+        if (!backendPartData.costPrice || backendPartData.costPrice <= 0) {
+          showAlert('Cost price must be greater than 0.', 'error');
+          return;
+        }
+
+        let savedIdOrKey = editingPartId || backendPartData.partNumber;
 
         if (editingPartId) {
-          // Update existing part
-          await api.updatePart(editingPartId, partData);
+          await api.updatePart(editingPartId, backendPartData);
+          savedIdOrKey = editingPartId;
           showAlert('Part updated successfully!', 'success');
         } else {
-          // Create new part
-          await api.createPart(partData);
+          const response = await api.createPart(backendPartData);
+          savedIdOrKey = getValue(response.data, 'id', 'Id') || backendPartData.partNumber;
           showAlert('Part created successfully!', 'success');
         }
+
+        rememberPartUiFields(savedIdOrKey, uiFields);
+        rememberPartUiFields(backendPartData.partNumber, uiFields);
 
         closePartModal();
         loadParts();
       } catch (error) {
-        const msg = error.response?.data?.message || 'Error saving part';
+        console.error('Error saving part:', error);
+        const data = error.response?.data;
+        const msg = typeof data === 'string'
+          ? data
+          : data?.message || data?.title || 'Error saving part';
         showAlert(msg, 'error');
       }
     }
@@ -763,9 +874,14 @@
       try {
         await api.deletePart(id);
         showAlert('Part deleted successfully!', 'success');
+
+        const cache = loadPartUiCache();
+        delete cache[String(id)];
+        savePartUiCache(cache);
+
         loadParts();
       } catch (error) {
-        const msg = error.response?.data?.message || 'Error deleting part';
+        const msg = error.response?.data?.message || error.response?.data?.title || 'Error deleting part';
         showAlert(msg, 'error');
       }
     }

@@ -264,6 +264,8 @@
       <a href="customer.html" class="nav-link">Customers</a>
       <a href="search.html" class="nav-link">Search</a>
       <a href="invoices.html" class="nav-link">Invoices</a>
+      <a href="customer-insights.html" class="nav-link">Insights</a>
+
     </div>
 
     <div class="nav-right">
@@ -383,13 +385,39 @@
       loadStaffMetrics();
     });
 
+    function getValue(obj, ...keys) {
+      for (const key of keys) {
+        if (obj && obj[key] !== undefined && obj[key] !== null && obj[key] !== '') return obj[key];
+      }
+      return undefined;
+    }
+
+    function asArray(payload) {
+      if (Array.isArray(payload)) return payload;
+      return payload?.items || payload?.data || payload?.results || payload?.value || [];
+    }
+
+    function formatMoney(value) {
+      const amount = Number(value) || 0;
+      return 'Rs.' + Math.round(amount).toLocaleString();
+    }
+
+    function buildCustomerMap(customers) {
+      const map = {};
+      customers.forEach(c => {
+        const id = getValue(c, 'id', 'Id', 'customerId', 'CustomerId');
+        if (id !== undefined) map[String(id)] = c;
+      });
+      return map;
+    }
+
     async function loadStaffMetrics() {
       try {
         // Get all sales
         const salesRes = await api.getAllSales();
         const allSales = salesRes.data || [];
         const totalSales = allSales.reduce((sum, s) => sum + (s.finalAmount || 0), 0);
-        document.getElementById('kpi-sales').textContent = '₹' + Math.round(totalSales).toLocaleString();
+        document.getElementById('kpi-sales').textContent = 'Rs.' + Math.round(totalSales).toLocaleString();
         
         // Invoices today (mock - filtering by today's date)
         const today = new Date().toDateString();
@@ -398,7 +426,8 @@
 
         // Get customers for count
         const customersRes = await api.getCustomers(1, 100);
-        const customerCount = customersRes.data?.length || 0;
+        const customers = asArray(customersRes.data);
+        const customerCount = customers.length;
         document.getElementById('kpi-customers').textContent = customerCount;
 
         // Loyalty discounts applied today
@@ -406,34 +435,50 @@
         document.getElementById('kpi-discounts').textContent = loyaltyCount;
 
         // Load recent sales
-        renderRecentSales(allSales.slice(0, 5));
+        renderRecentSales(allSales.slice(0, 5), customers);
 
         // Load customers
-        renderCustomerLookup(customersRes.data || []);
+        renderCustomerLookup(customers);
 
       } catch (e) {
         console.error('Error loading metrics:', e);
-        document.getElementById('kpi-sales').textContent = '₹0';
+        document.getElementById('kpi-sales').textContent = 'Rs.0';
         document.getElementById('kpi-invoices').textContent = '0';
         document.getElementById('kpi-customers').textContent = '0';
         document.getElementById('kpi-discounts').textContent = '0';
       }
     }
 
-    function renderRecentSales(sales) {
+    function renderRecentSales(sales, customers = []) {
       const list = document.getElementById('recent-sales');
       if (sales.length === 0) {
         list.innerHTML = '<p style="color:#64748B;text-align:center;padding:20px">No recent sales</p>';
         return;
       }
-      list.innerHTML = sales.map(s => `
-        <div class="module-row">
-          <div class="module-row-item">
-            <p class="module-row-name">Sale #${s.id}</p>
-            <p class="module-row-meta">Customer #${s.customerId} · ${new Date(s.createdAt).toLocaleDateString('en-GB')} ${s.loyaltyDiscountApplied ? '· 10% discount applied' : ''}</p>
-          </div>
-          <div class="module-value">₹${s.finalAmount?.toLocaleString()}</div>
-        </div>`).join('');
+
+      const customerMap = buildCustomerMap(customers);
+
+      list.innerHTML = sales.map(s => {
+        const customerId = getValue(s, 'customerId', 'CustomerId');
+        const linkedCustomer = customerMap[String(customerId)] || {};
+        const customerName =
+          getValue(s, 'customerName', 'CustomerName') ||
+          getValue(linkedCustomer, 'fullName', 'FullName', 'name', 'Name') ||
+          'Customer';
+
+        const createdAt = getValue(s, 'createdAt', 'CreatedAt');
+        const finalAmount = getValue(s, 'finalAmount', 'FinalAmount', 'totalAmount', 'TotalAmount');
+        const loyaltyApplied = getValue(s, 'loyaltyDiscountApplied', 'LoyaltyDiscountApplied') === true;
+
+        return `
+          <div class="module-row">
+            <div class="module-row-item">
+              <p class="module-row-name">${customerName}</p>
+              <p class="module-row-meta">${createdAt ? new Date(createdAt).toLocaleDateString('en-GB') : 'N/A'} ${loyaltyApplied ? '· 10% discount applied' : ''}</p>
+            </div>
+            <div class="module-value">${formatMoney(finalAmount)}</div>
+          </div>`;
+      }).join('');
     }
 
     function renderCustomerLookup(customers) {
@@ -442,14 +487,25 @@
         list.innerHTML = '<p style="color:#64748B;text-align:center;padding:20px">No customers yet</p>';
         return;
       }
-      list.innerHTML = customers.slice(0, 5).map(c => `
-        <div class="module-row">
-          <div class="module-row-item">
-            <p class="module-row-name">${c.fullName || 'Customer'}</p>
-            <p class="module-row-meta">${c.phone || 'N/A'} · ${c.email || 'N/A'} · ${c.saleCount || 0} purchases</p>
-          </div>
-          <span style="color:#10B981">✓</span>
-        </div>`).join('');
+
+      list.innerHTML = customers.slice(0, 5).map(c => {
+        const fullName = getValue(c, 'fullName', 'FullName', 'name', 'Name') || 'Customer';
+        const phone =
+          getValue(c, 'phoneNumber', 'PhoneNumber', 'phone', 'Phone', 'mobile', 'Mobile', 'contactNumber', 'ContactNumber') ||
+          getValue(c.user, 'phoneNumber', 'PhoneNumber', 'phone', 'Phone') ||
+          'N/A';
+        const email = getValue(c, 'email', 'Email') || getValue(c.user, 'email', 'Email') || 'N/A';
+        const saleCount = getValue(c, 'saleCount', 'SaleCount', 'purchaseCount', 'PurchaseCount') || 0;
+
+        return `
+          <div class="module-row">
+            <div class="module-row-item">
+              <p class="module-row-name">${fullName}</p>
+              <p class="module-row-meta">${phone} · ${email} · ${saleCount} purchases</p>
+            </div>
+            <span style="color:#10B981">✓</span>
+          </div>`;
+      }).join('');
     }
   </script>
 </body>

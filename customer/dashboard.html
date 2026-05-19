@@ -612,9 +612,11 @@
         localStorage.setItem('customerId', String(customerId));
         
         document.getElementById('kpi-purchases').textContent = profile.saleCount || 0;
-        if (profile.loyaltyPoints > 0) {
-          document.getElementById('loyalty-saved').textContent = '₹' + Math.round(profile.loyaltyPoints * 50).toLocaleString();
-        }
+
+        // Important: do NOT calculate loyalty savings from profile.loyaltyPoints.
+        // Loyalty discount is only applied to actual sales above Rs.5,000, so the
+        // dashboard must calculate saved amount from real sale.discountAmount values.
+        document.getElementById('loyalty-saved').textContent = 'Rs.0';
 
         // Get customer sales
         try {
@@ -622,9 +624,28 @@
           const salesRes = await api.getCustomerSales(customerId);
           const sales = salesRes.data || [];
           console.log('[Dashboard] Sales loaded:', sales.length, 'items');
+
+          const totalSaved = sales.reduce((sum, sale) => {
+            const totalAmount = Number(sale.totalAmount ?? sale.TotalAmount ?? 0);
+            const discountAmount = Number(sale.discountAmount ?? sale.DiscountAmount ?? 0);
+            const loyaltyApplied = Boolean(sale.loyaltyDiscountApplied ?? sale.LoyaltyDiscountApplied);
+
+            // A Rs.3,000 sale must not add loyalty savings. Only count real
+            // backend discount amounts from sales that qualify for loyalty.
+            if (totalAmount > 5000 && loyaltyApplied && discountAmount > 0) {
+              return sum + discountAmount;
+            }
+
+            return sum;
+          }, 0);
+
+          document.getElementById('loyalty-saved').textContent =
+            'Rs.' + Math.round(totalSaved).toLocaleString();
+
           renderPurchaseHistory(sales.slice(0, 4));
         } catch (err) {
           console.warn('[Dashboard] Failed to load sales:', err?.response?.status, err.message);
+          document.getElementById('loyalty-saved').textContent = 'Rs.0';
           try { document.getElementById('purchase-history').innerHTML = ''; } catch(_) {}
         }
 

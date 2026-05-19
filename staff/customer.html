@@ -3,364 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PartsPro — Register Customer</title>
+  <title>PartsPro — Customers</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
   <style>
-    :root {
-      --pp-amber: #F59E0B;
-      --pp-charcoal: #1F2937;
-      --pp-charcoal2: #374151;
-    }
-
-    * { box-sizing: border-box; }
-    body {
-      background: var(--pp-charcoal);
-      color: #F3F4F6;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-
-    .staff-nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 64px;
-      background: rgba(31, 41, 55, 0.8);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid #4B5563;
-      display: flex;
-      align-items: center;
-      padding: 0 32px;
-      z-index: 1000;
-    }
-
-    .nav-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 0 0 auto;
-      margin-right: auto;
-    }
-
-    .nav-brand-dot {
-      width: 8px; height: 8px;
-      background: var(--pp-amber);
-      border-radius: 1px;
-    }
-
-    .nav-brand-text {
-      font-size: 14px;
-      font-weight: 600;
-      color: #F3F4F6;
-      letter-spacing: -0.5px;
-      text-decoration: none;
-    }
-
-    .nav-center {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-      flex: 1;
-      justify-content: center;
-    }
-
-    .nav-link {
-      font-size: 13px;
-      font-weight: 500;
-      color: #6B7280;
-      text-decoration: none;
-      padding-bottom: 2px;
-      border-bottom: 2px solid transparent;
-      transition: all 0.3s;
-    }
-
-    .nav-link:hover { color: #F3F4F6; }
-    .nav-link.active {
-      color: #F3F4F6;
-      border-bottom-color: var(--pp-amber);
-    }
-
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex: 0 0 auto;
-      margin-left: auto;
-    }
-
-    .nav-avatar {
-      width: 32px; height: 32px;
-      background: #374151;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--pp-amber);
-    }
-
-    .nav-user-info { display: flex; flex-direction: column; font-size: 11px; }
-    .nav-user-name { color: #F3F4F6; font-weight: 600; }
-    .nav-user-role { color: #6B7280; }
-
-    .nav-logout {
-      background: none; border: none;
-      color: #6B7280; cursor: pointer;
-      font-size: 16px; padding: 4px;
-      transition: color 0.3s;
-    }
-    .nav-logout:hover { color: #FF6B6B; }
-
-    .staff-page {
-      margin-top: 64px;
-      padding: 32px;
-      min-height: calc(100vh - 64px);
-    }
-
-    .staff-container {
-      max-width: 900px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 32px;
-      animation: fadeIn 0.3s ease-in;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 24px;
-    }
-
-    .header-left h1 {
-      font-size: 32px;
-      font-weight: 700;
-      color: #F3F4F6;
-      letter-spacing: -1px;
-      margin: 0 0 4px 0;
-    }
-
-    .header-left p {
-      font-size: 14px;
-      color: #6B7280;
-      margin: 0;
-    }
-
-    .card {
-      background: #374151;
-      border: 1px solid #4B5563;
-      border-radius: 8px;
-      padding: 24px;
-    }
-
-    .card-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #F3F4F6;
-      margin: 0 0 20px 0;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #4B5563;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: #6B7280;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    input, select, textarea {
-      background: #1F2937;
-      border: 1px solid #4B5563;
-      color: #F3F4F6;
-      padding: 10px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      width: 100%;
-      outline: none;
-      transition: all 0.3s;
-      font-family: inherit;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--pp-amber);
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-    }
-
-    input::placeholder {
-      color: #6B7280;
-    }
-
-    .btn {
-      padding: 10px 16px;
-      font-size: 13px;
-      font-weight: 600;
-      border-radius: 6px;
-      border: 1px solid;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-    }
-
-    .btn-primary {
-      background: var(--pp-amber);
-      border-color: var(--pp-amber);
-      color: #1F2937;
-    }
-
-    .btn-primary:hover {
-      background: #D97706;
-      border-color: #D97706;
-    }
-
-    .btn-secondary {
-      background: transparent;
-      border-color: #4B5563;
-      color: #F3F4F6;
-    }
-
-    .btn-secondary:hover {
-      border-color: #F3F4F6;
-      background: rgba(243, 244, 246, 0.05);
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 16px;
-    }
-
-    @media (max-width: 1024px) {
-      .form-grid { grid-template-columns: repeat(2, 1fr); }
-      .nav-center { display: none; }
-    }
-
-    @media (max-width: 768px) {
-      .staff-page { padding: 16px; }
-      .staff-nav { padding: 0 16px; }
-      .form-grid { grid-template-columns: 1fr; }
-      .page-header { flex-direction: column; align-items: flex-start; }
-    }
+    :root { --pp-amber:#F59E0B; --pp-charcoal:#1F2937; --pp-charcoal2:#374151; }
+    *{box-sizing:border-box} body{background:var(--pp-charcoal);color:#F3F4F6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0;padding:0}
+    .staff-nav{position:fixed;top:0;left:0;right:0;height:64px;background:rgba(31,41,55,.8);backdrop-filter:blur(12px);border-bottom:1px solid #4B5563;display:flex;align-items:center;padding:0 32px;z-index:1000}
+    .nav-left{display:flex;align-items:center;gap:8px;flex:0 0 auto;margin-right:auto}.nav-brand-dot{width:8px;height:8px;background:var(--pp-amber);border-radius:1px}.nav-brand-text{font-size:14px;font-weight:600;color:#F3F4F6;letter-spacing:-.5px;text-decoration:none}.nav-center{display:flex;align-items:center;gap:32px;flex:1;justify-content:center}.nav-link{font-size:13px;font-weight:500;color:#6B7280;text-decoration:none;padding-bottom:2px;border-bottom:2px solid transparent;transition:all .3s}.nav-link:hover{color:#F3F4F6}.nav-link.active{color:#F3F4F6;border-bottom-color:var(--pp-amber)}.nav-right{display:flex;align-items:center;gap:16px;flex:0 0 auto;margin-left:auto}.nav-avatar{width:32px;height:32px;background:#374151;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--pp-amber)}.nav-user-info{display:flex;flex-direction:column;font-size:11px}.nav-user-name{color:#F3F4F6;font-weight:600}.nav-user-role{color:#6B7280}.nav-logout{background:none;border:none;color:#6B7280;cursor:pointer;font-size:16px;padding:4px;transition:color .3s}.nav-logout:hover{color:#FF6B6B}
+    .staff-page{margin-top:64px;padding:32px;min-height:calc(100vh - 64px)}.staff-container{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:32px;animation:fadeIn .3s ease-in}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .page-header{display:flex;justify-content:space-between;align-items:flex-end;gap:24px}.header-left h1{font-size:32px;font-weight:700;color:#F3F4F6;letter-spacing:-1px;margin:0 0 4px}.header-left p{font-size:14px;color:#6B7280;margin:0}
+    .card{background:#374151;border:1px solid #4B5563;border-radius:8px;padding:24px}.card-title{font-size:16px;font-weight:600;color:#F3F4F6;margin:0 0 20px;padding-bottom:12px;border-bottom:1px solid #4B5563}.form-group{margin-bottom:16px}label{display:block;font-size:12px;font-weight:600;color:#9CA3AF;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}input,select,textarea{background:#1F2937;border:1px solid #4B5563;color:#F3F4F6;padding:10px 12px;border-radius:6px;font-size:13px;width:100%;outline:none;transition:all .3s;font-family:inherit}input:focus,select:focus,textarea:focus{border-color:var(--pp-amber);box-shadow:0 0 0 3px rgba(245,158,11,.1)}input::placeholder{color:#6B7280}.btn{padding:10px 16px;font-size:13px;font-weight:600;border-radius:6px;border:1px solid;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:8px;text-decoration:none}.btn-primary{background:var(--pp-amber);border-color:var(--pp-amber);color:#1F2937}.btn-primary:hover{background:#D97706;border-color:#D97706}.btn-secondary{background:transparent;border-color:#4B5563;color:#F3F4F6}.btn-secondary:hover{border-color:#F3F4F6;background:rgba(243,244,246,.05)}.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.search-bar{display:flex;gap:12px;margin-bottom:20px}.search-bar input{flex:1}
+    table{width:100%;border-collapse:collapse;background:#374151;border:1px solid #4B5563;border-radius:8px;overflow:hidden;margin-top:12px}thead{background:#4B5563}th{padding:12px 16px;text-align:left;font-size:11px;font-weight:600;color:#FFF;text-transform:uppercase;letter-spacing:.05em}td{padding:12px 16px;border-bottom:1px solid #4B5563;font-size:13px;color:#FFF}tbody tr:hover{background:#4B5563}tbody tr:last-child td{border-bottom:none}.badge{display:inline-block;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600}.badge-active{background:#10B98130;color:#10B981}.alert{padding:12px 16px;border-radius:6px;margin-bottom:20px;font-size:13px}.alert-success{background:#10B98130;color:#10B981;border:1px solid #10B98160}.alert-error{background:#EF444430;color:#FCA5A5;border:1px solid #EF444460}
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;align-items:center;justify-content:center;padding:20px}.modal.active{display:flex}.modal-content{background:#374151;border:1px solid #4B5563;border-radius:8px;width:100%;max-width:760px;max-height:90vh;overflow-y:auto;padding:24px}.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #4B5563}.modal-header h2{margin:0;color:#F3F4F6;font-size:18px}.modal-close{background:none;border:none;color:#9CA3AF;font-size:24px;cursor:pointer;padding:0}.modal-close:hover{color:#F3F4F6}
+    @media(max-width:1024px){.form-grid{grid-template-columns:repeat(2,1fr)}.nav-center{display:none}}@media(max-width:768px){.staff-page{padding:16px}.staff-nav{padding:0 16px}.form-grid{grid-template-columns:1fr}.page-header{flex-direction:column;align-items:flex-start}.search-bar{flex-direction:column}}
   </style>
 </head>
 <body>
-
   <nav class="staff-nav">
-    <div class="nav-left">
-      <div class="nav-brand-dot"></div>
-      <a href="../index.html" class="nav-brand-text">Parts Pro</a>
-    </div>
-
-    <div class="nav-center">
-      <a href="dashboard.html" class="nav-link">Dashboard</a>
-      <a href="sales.html" class="nav-link">New Sale</a>
-      <a href="customer.html" class="nav-link active">Customers</a>
-      <a href="search.html" class="nav-link">Search</a>
-      <a href="invoices.html" class="nav-link">Invoices</a>
-    </div>
-
-    <div class="nav-right">
-      <div class="nav-avatar" id="nav-avatar">ST</div>
-      <div class="nav-user-info">
-        <div class="nav-user-name" id="nav-user-name">Staff</div>
-        <div class="nav-user-role">Staff Member</div>
-      </div>
-      <button class="nav-logout" id="logout-btn" title="Logout">⤴</button>
-    </div>
+    <div class="nav-left"><div class="nav-brand-dot"></div><a href="../index.html" class="nav-brand-text">Parts Pro</a></div>
+    <div class="nav-center"><a href="dashboard.html" class="nav-link">Dashboard</a><a href="sales.html" class="nav-link">New Sale</a><a href="customer.html" class="nav-link active">Customers</a><a href="search.html" class="nav-link">Search</a><a href="invoices.html" class="nav-link">Invoices</a></div>
+    <div class="nav-right"><div class="nav-avatar" id="nav-avatar">ST</div><div class="nav-user-info"><div class="nav-user-name" id="nav-user-name">Staff</div><div class="nav-user-role">Staff Member</div></div><button class="nav-logout" id="logout-btn" title="Logout">⤴</button></div>
   </nav>
 
-  <div class="staff-page">
-    <div class="staff-container">
+  <div class="staff-page"><div class="staff-container">
+    <div class="page-header">
+      <div class="header-left"><h1>👥 Customers</h1><p>View customers and register new customers with vehicle details</p></div>
+      <button type="button" class="btn btn-primary" onclick="openRegisterCustomerModal()">+ Register Customer</button>
+    </div>
+    <div id="alertContainer"></div>
+    <div class="card">
+      <h2 class="card-title">Customer Directory</h2>
+      <div class="search-bar"><input type="text" id="search-input" placeholder="Search by name, email, phone, address, or ID..." oninput="searchCustomers()"><button type="button" class="btn btn-secondary" onclick="clearSearch()">Clear</button></div>
+      <table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Vehicles</th><th>Sales</th><th>Status</th></tr></thead><tbody id="customer-table"><tr><td colspan="8" style="text-align:center;padding:24px;color:#9CA3AF;">Loading customers...</td></tr></tbody></table>
+    </div>
+  </div></div>
 
-      <div class="page-header">
-        <div class="header-left">
-          <h1>👤 Register Customer</h1>
-          <p>Add a new customer with their vehicle details</p>
+  <div id="customer-modal" class="modal" onclick="handleModalBackdrop(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header"><h2>Register Customer</h2><button class="modal-close" onclick="closeRegisterCustomerModal()">✕</button></div>
+      <form id="customer-form">
+        <div class="form-grid"><div class="form-group"><label for="full-name">Full Name *</label><input type="text" id="full-name" required></div><div class="form-group"><label for="email">Email *</label><input type="email" id="email" required></div></div>
+        <div class="form-grid"><div class="form-group"><label for="password">Password *</label><input type="password" id="password" placeholder="Enter customer password" minlength="6" required></div><div class="form-group"><label for="address">Address *</label><input type="text" id="address" required></div></div>
+        <div class="form-grid"><div class="form-group"><label for="phone">Phone Number *</label><input type="tel" id="phone" placeholder="+977 98..." required></div><div class="form-group"><label for="plate-number">Vehicle Plate Number *</label><input type="text" id="plate-number" placeholder="e.g., BA 1 KA 1234" required></div></div>
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid #4B5563;"><h3 style="font-size:14px;font-weight:600;color:#F3F4F6;margin:0 0 16px;">Vehicle Information</h3>
+          <div class="form-grid"><div class="form-group"><label for="vehicle-year">Year of Manufacture *</label><input type="number" id="vehicle-year" min="1990" max="2100" required></div><div class="form-group"><label for="vehicle-brand">Brand / Make *</label><input type="text" id="vehicle-brand" placeholder="e.g., Toyota" required></div></div>
+          <div class="form-grid"><div class="form-group"><label for="vehicle-model">Model *</label><input type="text" id="vehicle-model" placeholder="e.g., Corolla" required></div></div>
         </div>
-      </div>
-
-      <div class="card">
-        <h2 class="card-title">Customer Information</h2>
-        <form id="customer-form">
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="full-name">Full Name *</label>
-              <input type="text" id="full-name" required>
-            </div>
-            <div class="form-group">
-              <label for="email">Email *</label>
-              <input type="email" id="email" required>
-            </div>
-          </div>
-
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="phone">Password *</label>
-              <input type="tel" id="password" placeholder="......" required>
-            </div>
-            <div class="form-group">
-              <label for="address">Address *</label>
-              <input type="text" id="address" required>
-            </div>
-          </div>
-
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="phone">Phone Number *</label>
-              <input type="tel" id="phone" placeholder="+977 98..." required>
-            </div>
-          </div>
-
-          <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid #4B5563;">
-            <h3 style="font-size:14px;font-weight:600;color:#F3F4F6;margin:0 0 16px 0">Vehicle Information</h3>
-            
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="plate-number">Vehicle Plate Number *</label>
-                <input type="text" id="plate-number" placeholder="e.g., BA 1 KA 1234" required>
-              </div>
-              <div class="form-group">
-                <label for="vehicle-year">Year of Manufacture *</label>
-                <input type="number" id="vehicle-year" min="1990" max="2100" required>
-              </div>
-            </div>
-
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="vehicle-brand">Brand / Make *</label>
-                <input type="text" id="vehicle-brand" placeholder="e.g., Toyota" required>
-              </div>
-              <div class="form-group">
-                <label for="vehicle-model">Model *</label>
-                <input type="text" id="vehicle-model" placeholder="e.g., Corolla" required>
-              </div>
-            </div>
-          </div>
-
-          <div style="display:flex;gap:12px;margin-top:28px;justify-content:flex-end;">
-            <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
-            <button type="submit" class="btn btn-primary" onclick="registerCustomer()"> Register Customer</button>
-          </div>
-        </form>
-      </div>
-
+        <div style="display:flex;gap:12px;margin-top:28px;justify-content:flex-end;"><button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button><button type="button" class="btn btn-secondary" onclick="closeRegisterCustomerModal()">Cancel</button><button type="submit" class="btn btn-primary">Register Customer</button></div>
+      </form>
     </div>
   </div>
 
@@ -372,61 +62,116 @@
 
   <script>
     RoleGuard.requireRole('Staff');
+    let allCustomers = [];
 
     document.addEventListener('DOMContentLoaded', () => {
       const name = localStorage.getItem('userFullName') || 'Staff';
       const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
       document.getElementById('nav-avatar').textContent = initials;
       document.getElementById('nav-user-name').textContent = name;
-
-      document.getElementById('logout-btn').addEventListener('click', () => {
-        AuthHandler.logout();
-      });
-
-      document.getElementById('customer-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        registerCustomer();
-      });
+      document.getElementById('logout-btn').addEventListener('click', () => AuthHandler.logout());
+      document.getElementById('customer-form').addEventListener('submit', (e) => { e.preventDefault(); registerCustomer(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeRegisterCustomerModal(); });
+      loadCustomers();
     });
 
-    function resetForm() {
-      document.getElementById('customer-form').reset();
+    function valueOf(obj, ...keys) { for (const key of keys) { if (obj && obj[key] !== undefined && obj[key] !== null && obj[key] !== '') return obj[key]; } return undefined; }
+    function asArray(payload) { if (Array.isArray(payload)) return payload; return payload?.items || payload?.data || payload?.results || payload?.value || []; }
+    function escapeHtml(value) { return String(value ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+    function getCustomerPhone(customer) {
+      return valueOf(customer, 'phoneNumber', 'PhoneNumber', 'phone', 'Phone', 'mobile', 'Mobile', 'contactNumber', 'ContactNumber', 'userPhone', 'UserPhone')
+        ?? valueOf(customer.user, 'phoneNumber', 'PhoneNumber', 'phone', 'Phone')
+        ?? 'N/A';
     }
 
-    async function registerCustomer() {
-      const token = localStorage.getItem('authToken');
+    function openRegisterCustomerModal() { resetForm(); document.getElementById('customer-modal').classList.add('active'); }
+    function closeRegisterCustomerModal() { document.getElementById('customer-modal').classList.remove('active'); }
+    function handleModalBackdrop(event) { if (event.target.id === 'customer-modal') closeRegisterCustomerModal(); }
+    function resetForm() { document.getElementById('customer-form').reset(); }
 
-      const rawPhone  = document.getElementById('phone').value.trim();
+    async function loadCustomers() {
+      try {
+        let response;
+        if (window.api && typeof api.getCustomers === 'function') response = await api.getCustomers(1, 1000);
+        else response = await axios.get('http://localhost:5260/api/customer', { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } });
+        allCustomers = asArray(response.data);
+        renderCustomers(allCustomers);
+      } catch (error) {
+        console.error('Error loading customers:', error);
+        document.getElementById('customer-table').innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:#FCA5A5;">⚠️ ${error.response?.data?.title || error.message || 'Failed to load customers'}</td></tr>`;
+      }
+    }
+
+    function renderCustomers(customers) {
+      const tbody = document.getElementById('customer-table');
+      if (!customers.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:#9CA3AF;">No customers found</td></tr>'; return; }
+      tbody.innerHTML = customers.map(customer => {
+        const id = valueOf(customer, 'id', 'Id', 'customerId', 'CustomerId') ?? 'N/A';
+        const fullName = valueOf(customer, 'fullName', 'FullName', 'name', 'Name') ?? 'N/A';
+        const email = valueOf(customer, 'email', 'Email') ?? 'N/A';
+        const phone = getCustomerPhone(customer);
+        const address = valueOf(customer, 'address', 'Address') ?? 'N/A';
+        const vehicleCount = valueOf(customer, 'vehicleCount', 'VehicleCount') ?? (Array.isArray(customer.vehicles) ? customer.vehicles.length : 0);
+        const saleCount = valueOf(customer, 'saleCount', 'SaleCount') ?? (Array.isArray(customer.sales) ? customer.sales.length : 0);
+        const isActive = valueOf(customer, 'isActive', 'IsActive') !== false;
+        return `<tr><td>#${escapeHtml(id)}</td><td>${escapeHtml(fullName)}</td><td>${escapeHtml(email)}</td><td>${escapeHtml(phone)}</td><td>${escapeHtml(address)}</td><td>${escapeHtml(vehicleCount)}</td><td>${escapeHtml(saleCount)}</td><td><span class="badge badge-active">${isActive ? '✓ Active' : 'Inactive'}</span></td></tr>`;
+      }).join('');
+    }
+
+    function searchCustomers() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      if (!query) { renderCustomers(allCustomers); return; }
+      const filtered = allCustomers.filter(c => {
+        const combined = [valueOf(c,'id','Id','customerId','CustomerId'), valueOf(c,'fullName','FullName','name','Name'), valueOf(c,'email','Email'), getCustomerPhone(c), valueOf(c,'address','Address')].join(' ').toLowerCase();
+        return combined.includes(query);
+      });
+      renderCustomers(filtered);
+    }
+
+    function clearSearch() { document.getElementById('search-input').value = ''; renderCustomers(allCustomers); }
+
+    async function registerCustomer() {
+      const rawPhone = document.getElementById('phone').value.trim();
       const cleanPhone = rawPhone.replace(/\D/g, '').slice(-10);
+      const password = document.getElementById('password').value.trim();
 
       const payload = {
-        fullName:     document.getElementById('full-name').value.trim(),
-        email:        document.getElementById('email').value.trim(),
-        password:     document.getElementById('password').value.trim(),
-        phone:        cleanPhone,
-        address:      document.getElementById('address').value.trim(),
-        plateNumber:  document.getElementById('plate-number').value.trim().toUpperCase(),
-        vehicleYear:  parseInt(document.getElementById('vehicle-year').value),
-        vehicleModel: document.getElementById('vehicle-brand').value.trim()
-                      + ' ' + document.getElementById('vehicle-model').value.trim()
+        fullName: document.getElementById('full-name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password,
+        phone: cleanPhone,
+        address: document.getElementById('address').value.trim(),
+        plateNumber: document.getElementById('plate-number').value.trim().toUpperCase(),
+        vehicleYear: parseInt(document.getElementById('vehicle-year').value, 10),
+        vehicleMake: document.getElementById('vehicle-brand').value.trim(),
+        vehicleModel: document.getElementById('vehicle-model').value.trim()
       };
 
-      if (!payload.fullName || !payload.email || !payload.address) {
-        alert('Please fill in all required fields'); return;
-      }
-      if (cleanPhone.length !== 10) {
-        alert('Phone number must be 10 digits'); return;
-      }
+      if (!payload.fullName || !payload.email || !payload.password || !payload.address || !payload.plateNumber || !payload.vehicleModel) { showAlert('Please fill in all required fields', 'error'); return; }
+      if (payload.password.length < 6) { showAlert('Password must be at least 6 characters', 'error'); return; }
+      if (cleanPhone.length !== 10) { showAlert('Phone number must be 10 digits', 'error'); return; }
 
       try {
-        await axios.post('http://localhost:5260/api/auth/register-customer-by-staff', payload, {
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
-        });
-        alert(`Customer "${payload.fullName}" registered successfully!\nTemporary password: PartsPro@123`);
+        await axios.post('http://localhost:5260/api/auth/register-customer-by-staff', payload, { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}`, 'Content-Type': 'application/json' } });
+        showAlert(`Customer "${payload.fullName}" registered successfully!`, 'success');
+        closeRegisterCustomerModal();
         resetForm();
+        loadCustomers();
       } catch (e) {
-        alert('Error: ' + (e.response?.data?.title || e.message));
+        const data = e.response?.data;
+        const message = typeof data === 'string' ? data : data?.message || data?.title || e.message;
+        showAlert('Error: ' + message, 'error');
       }
+    }
+
+    function showAlert(message, type) {
+      const alertContainer = document.getElementById('alertContainer');
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type}`;
+      alert.textContent = message;
+      alertContainer.appendChild(alert);
+      setTimeout(() => alert.remove(), 4000);
     }
   </script>
 </body>

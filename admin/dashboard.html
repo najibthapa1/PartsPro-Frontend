@@ -376,6 +376,13 @@
       </div>
 
       <div class="module-card">
+        <h2 class="module-title">Feature 15 — Notifications</h2>
+        <div id="notification-summary">
+          <p style="color:#64748B;text-align:center;padding:20px">Loading notification status...</p>
+        </div>
+      </div>
+
+      <div class="module-card">
         <h2 class="module-title">System Information</h2>
         <div id="system-logs">
           <div class="module-row">
@@ -411,6 +418,7 @@
       });
 
       loadDashboardMetrics();
+      loadFeature15Notifications();
     });
 
     async function loadDashboardMetrics() {
@@ -419,7 +427,7 @@
         const salesRes = await api.getAllSales();
         const allSales = salesRes.data || [];
         const totalSales = allSales.reduce((sum, s) => sum + (s.finalAmount || 0), 0);
-        document.getElementById('kpi-sales').textContent = '₹' + Math.round(totalSales).toLocaleString();
+        document.getElementById('kpi-sales').textContent = 'Rs.' + Math.round(totalSales).toLocaleString();
 
         // Get all parts for inventory count
         const partsRes = await api.getParts(1, 100);
@@ -442,6 +450,103 @@
         document.getElementById('kpi-users').textContent = '0';
       }
     }
+
+    function normalizeArrayResponse(data) {
+      if (Array.isArray(data)) return data;
+      return data?.items || data?.data || data?.results || data?.value || [];
+    }
+
+    function getField(obj, ...keys) {
+      for (const key of keys) {
+        if (obj && obj[key] !== undefined && obj[key] !== null) return obj[key];
+      }
+      return null;
+    }
+
+    async function loadFeature15Notifications() {
+      const summary = document.getElementById('notification-summary');
+      const actionList = document.getElementById('action-list');
+      const alertBanner = document.getElementById('alert-banner');
+      const alertCount = document.getElementById('alert-count');
+
+      try {
+        const partsRes = await api.getParts(1, 1000);
+        const parts = normalizeArrayResponse(partsRes.data);
+
+        const lowStockParts = parts.filter(part => {
+          const stock = Number(getField(part, 'stock', 'Stock', 'currentStock', 'CurrentStock') || 0);
+          const reorderLevel = Number(getField(part, 'reorderLevel', 'ReorderLevel') || 10);
+          return stock < 10 || stock <= reorderLevel;
+        });
+
+        if (alertCount) alertCount.textContent = lowStockParts.length;
+        if (alertBanner) alertBanner.classList.toggle('show', lowStockParts.length > 0);
+
+        const rows = lowStockParts.map(part => {
+          const partNumber = getField(part, 'partNumber', 'PartNumber') || 'N/A';
+          const name = getField(part, 'name', 'Name', 'partName', 'PartName') || 'N/A';
+          const stock = Number(getField(part, 'stock', 'Stock', 'currentStock', 'CurrentStock') || 0);
+          const reorderLevel = Number(getField(part, 'reorderLevel', 'ReorderLevel') || 10);
+          const statusColor = stock === 0 ? '#EF4444' : '#F59E0B';
+          const statusText = stock === 0 ? 'OUT OF STOCK' : 'LOW STOCK';
+
+          return `
+            <div class="module-row">
+              <div class="module-row-item">
+                <p class="module-row-name">${name}</p>
+                <p class="module-row-meta">${partNumber} · Stock: ${stock} · Reorder at: ${reorderLevel}</p>
+              </div>
+              <div style="color:${statusColor};font-weight:700;font-size:12px;">${statusText}</div>
+            </div>
+          `;
+        }).join('');
+
+        if (actionList) {
+          actionList.innerHTML = lowStockParts.length
+            ? rows
+            : '<p style="color:#64748B;text-align:center;padding:20px">No urgent stock actions required.</p>';
+        }
+
+        summary.innerHTML = `
+          <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Low Stock Alerts</span>
+                <span class="kpi-icon">⚠️</span>
+              </div>
+              <div class="kpi-value" style="color:${lowStockParts.length ? '#F59E0B' : '#10B981'}">${lowStockParts.length}</div>
+              <div class="kpi-helper">Parts below stock threshold</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Admin Email Alert</span>
+                <span class="kpi-icon">📧</span>
+              </div>
+              <div class="kpi-value" style="font-size:20px;color:#10B981;">Automated</div>
+              <div class="kpi-helper">Handled by backend NotificationService</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Credit Reminder</span>
+                <span class="kpi-icon">⏰</span>
+              </div>
+              <div class="kpi-value" style="font-size:20px;color:#60A5FA;">Automated</div>
+              <div class="kpi-helper">Overdue credit emails are sent by backend service</div>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;color:#94A3B8;font-size:12px;line-height:1.6;">
+            Feature 15 is integrated on the dashboard as a live low-stock monitor. The actual email notification process remains automatic in the backend.
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error loading notification summary:', error);
+        summary.innerHTML = '<p style="color:#FCA5A5;text-align:center;padding:20px">Failed to load notification summary.</p>';
+      }
+    }
+
   </script>
 </body>
 </html>

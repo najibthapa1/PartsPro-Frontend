@@ -571,9 +571,11 @@
     function switchTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      
+
       document.getElementById(tabName).classList.add('active');
-      event.target.classList.add('active');
+      const selectedBtn = Array.from(document.querySelectorAll('.tab-btn'))
+        .find(btn => btn.getAttribute('onclick')?.includes(`'${tabName}'`));
+      if (selectedBtn) selectedBtn.classList.add('active');
     }
 
     function initializeDateInputs() {
@@ -587,6 +589,38 @@
       document.getElementById('ms-year').value = new Date().getFullYear();
     }
 
+    function getValue(obj, ...keys) {
+      for (const key of keys) {
+        if (obj && obj[key] !== undefined && obj[key] !== null) return obj[key];
+      }
+      return undefined;
+    }
+
+    function asArray(payload) {
+      if (Array.isArray(payload)) return payload;
+      return payload?.items || payload?.data || payload?.results || payload?.value || [];
+    }
+
+    function numberValue(value, fallback = 0) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function money(value) {
+      return 'Rs.' + numberValue(value).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+
+    function percent(value) {
+      return numberValue(value).toFixed(2) + '%';
+    }
+
+    function backendError(e, fallback) {
+      console.error(fallback, e);
+      const data = e.response?.data;
+      if (typeof data === 'string') return data;
+      return data?.title || data?.message || data?.error || e.message || fallback;
+    }
+
     async function generateFinancialReport() {
       const startDate = document.getElementById('fin-start').value;
       const endDate = document.getElementById('fin-end').value;
@@ -597,58 +631,82 @@
       }
 
       try {
-        const response = await api.get('/report/financial', { params: { startDate, endDate } });
-        displayFinancialReport(response.data, 'financial-content', startDate, endDate);
+        const response = await api.getFinancialReport(startDate, endDate);
+        displayFinancialReport(response.data, 'financial-content', startDate, endDate, 'Financial Summary');
       } catch (e) {
-        showError('financial-content', 'Failed to generate report');
+        showError('financial-content', backendError(e, 'Failed to generate financial report'));
       }
     }
 
-    function displayFinancialReport(data, containerId = 'financial-content', startDate = '', endDate = '') {
+    function displayFinancialReport(data, containerId = 'financial-content', startDate = '', endDate = '', title = 'Financial Summary') {
+      data = data || {};
+
+      const totalSalesRevenue = getValue(data, 'totalSalesRevenue', 'TotalSalesRevenue');
+      const totalSalesCount = getValue(data, 'totalSalesCount', 'TotalSalesCount');
+      const totalPurchaseCost = getValue(data, 'totalPurchaseCost', 'TotalPurchaseCost');
+      const totalPurchasesCount = getValue(data, 'totalPurchasesCount', 'TotalPurchasesCount');
+      const grossProfit = getValue(data, 'grossProfit', 'GrossProfit');
+      const grossProfitMargin = getValue(data, 'grossProfitMargin', 'GrossProfitMargin');
+      const netProfit = getValue(data, 'netProfit', 'NetProfit');
+      const averageSaleAmount = getValue(data, 'averageSaleAmount', 'AverageSaleAmount', 'averageOrderValue', 'AverageOrderValue');
+      const totalInventoryValue = getValue(data, 'totalInventoryValue', 'TotalInventoryValue');
+      const activeCustomers = getValue(data, 'activeCustomers', 'ActiveCustomers');
+      const totalCustomers = getValue(data, 'totalCustomers', 'TotalCustomers');
+      const totalSalesDiscounts = getValue(data, 'totalSalesDiscounts', 'TotalSalesDiscounts');
+      const costOfGoodsSold = getValue(data, 'costOfGoodsSold', 'CostOfGoodsSold');
+
       const html = `
         <div class="kpi-grid">
           <div class="kpi-card">
             <div class="kpi-label">Total Sales Revenue</div>
-            <div class="kpi-value">Rs.${data.totalSalesRevenue?.toLocaleString() || '0'}</div>
-            <div class="kpi-helper">${data.totalSalesCount || 0} transactions</div>
+            <div class="kpi-value">${money(totalSalesRevenue)}</div>
+            <div class="kpi-helper">${numberValue(totalSalesCount)} transactions</div>
           </div>
 
           <div class="kpi-card">
-            <div class="kpi-label">Total Purchase Cost</div>
-            <div class="kpi-value">Rs.${data.totalPurchaseCost?.toLocaleString() || '0'}</div>
-            <div class="kpi-helper">${data.totalPurchasesCount || 0} purchases</div>
+            <div class="kpi-label">Purchase Invoice Total</div>
+            <div class="kpi-value">${money(totalPurchaseCost)}</div>
+            <div class="kpi-helper">${numberValue(totalPurchasesCount)} purchases</div>
           </div>
 
           <div class="kpi-card">
             <div class="kpi-label">Gross Profit</div>
-            <div class="kpi-value">Rs.${data.grossProfit?.toLocaleString() || '0'}</div>
-            <div class="kpi-helper">${data.grossProfitMargin?.toFixed(2) || '0'}% margin</div>
+            <div class="kpi-value">${money(grossProfit)}</div>
+            <div class="kpi-helper">${percent(grossProfitMargin)} margin</div>
           </div>
 
           <div class="kpi-card">
             <div class="kpi-label">Net Profit</div>
-            <div class="kpi-value">Rs.${data.netProfit?.toLocaleString() || '0'}</div>
+            <div class="kpi-value">${money(netProfit)}</div>
             <div class="kpi-helper">After adjustments</div>
           </div>
         </div>
 
         <div class="summary-box">
-          <h3>Financial Summary</h3>
+          <h3>${title}</h3>
           <div class="summary-row">
             <span class="summary-label">Report Period</span>
             <span class="summary-value">${startDate} to ${endDate}</span>
           </div>
           <div class="summary-row">
+            <span class="summary-label">Cost of Goods Sold</span>
+            <span class="summary-value">${money(costOfGoodsSold)}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Total Sales Discounts</span>
+            <span class="summary-value">${money(totalSalesDiscounts)}</span>
+          </div>
+          <div class="summary-row">
             <span class="summary-label">Average Sale Amount</span>
-            <span class="summary-value">Rs.${data.averageSaleAmount?.toLocaleString() || '0'}</span>
+            <span class="summary-value">${money(averageSaleAmount)}</span>
           </div>
           <div class="summary-row">
             <span class="summary-label">Total Inventory Value</span>
-            <span class="summary-value">Rs.${data.totalInventoryValue?.toLocaleString() || '0'}</span>
+            <span class="summary-value">${money(totalInventoryValue)}</span>
           </div>
           <div class="summary-row">
             <span class="summary-label">Active Customers</span>
-            <span class="summary-value">${data.activeCustomers || 0} of ${data.totalCustomers || 0}</span>
+            <span class="summary-value">${numberValue(activeCustomers)} of ${numberValue(totalCustomers)}</span>
           </div>
         </div>
       `;
@@ -656,96 +714,110 @@
     }
 
     async function generateProfitLoss() {
-      const token     = localStorage.getItem('authToken');
       const startDate = document.getElementById('pl-start').value;
-      const endDate   = document.getElementById('pl-end').value;
-      if (!startDate || !endDate) { showError('profitloss-content', 'Please select both dates'); return; }
+      const endDate = document.getElementById('pl-end').value;
+
+      if (!startDate || !endDate) {
+        showError('profitloss-content', 'Please select both dates');
+        return;
+      }
+
       try {
-        const res = await axios.get('http://localhost:5260/api/report/profit-loss',
-          { params: { startDate, endDate }, headers: { Authorization: `Bearer ${token}` } }
-        );
-        displayFinancialReport(res.data, 'profitloss-content', startDate, endDate);
+        const response = await api.getProfitLossReport(startDate, endDate);
+        displayFinancialReport(response.data, 'profitloss-content', startDate, endDate, 'Profit & Loss Statement');
       } catch (e) {
-        showError('profitloss-content', e.response?.data?.title || e.message);
+        showError('profitloss-content', backendError(e, 'Failed to generate profit and loss report'));
       }
     }
 
     async function generateMonthlySales() {
-      const token = localStorage.getItem('authToken');
-      const year  = document.getElementById('ms-year').value;
+      const year = document.getElementById('ms-year').value;
+
+      if (!year) {
+        showError('monthlysales-content', 'Please select a year');
+        return;
+      }
+
       try {
-        const res = await axios.get('http://localhost:5260/api/report/sales/monthly',
-          { params: { year }, headers: { Authorization: `Bearer ${token}` } }
-        );
-        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        const rows = (res.data || []).map(m => `
-          <tr>
-            <td>${months[m.month - 1]} ${m.year}</td>
-            <td>${m.salesCount}</td>
-            <td>Rs.${m.totalRevenue.toLocaleString()}</td>
-            <td>Rs.${m.averageOrderValue.toFixed(2)}</td>
-          </tr>`).join('');
-        document.getElementById('monthlysales-content').innerHTML = `
-          <table style="margin-top:16px">
-            <thead><tr><th>Month</th><th>Orders</th><th>Revenue</th><th>Avg Order</th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table>`;
+        const response = await api.getMonthlySalesReport(year);
+        const rows = asArray(response.data).map(m => {
+          const monthNo = numberValue(getValue(m, 'month', 'Month'));
+          const yearVal = getValue(m, 'year', 'Year') || year;
+          const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          return `
+            <tr>
+              <td>${months[monthNo - 1] || 'Month ' + monthNo} ${yearVal}</td>
+              <td>${numberValue(getValue(m, 'salesCount', 'SalesCount'))}</td>
+              <td>${money(getValue(m, 'totalRevenue', 'TotalRevenue'))}</td>
+              <td>${money(getValue(m, 'averageOrderValue', 'AverageOrderValue'))}</td>
+            </tr>`;
+        }).join('');
+
+        document.getElementById('monthlysales-content').innerHTML = rows
+          ? `<table style="margin-top:16px">
+              <thead><tr><th>Month</th><th>Orders</th><th>Revenue</th><th>Avg Order</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>`
+          : `<div class="empty-state" style="margin-top:16px;">No monthly sales data found for ${year}.</div>`;
       } catch (e) {
-        showError('monthlysales-content', e.response?.data?.title || e.message);
+        showError('monthlysales-content', backendError(e, 'Failed to generate monthly sales report'));
       }
     }
 
     async function generateTopSelling() {
-      const token = localStorage.getItem('authToken');
       const limit = document.getElementById('ts-limit').value || 10;
+
       try {
-        const res = await axios.get('http://localhost:5260/api/report/products/top-selling',
-          { params: { limit }, headers: { Authorization: `Bearer ${token}` } }
-        );
-        const rows = (res.data || []).map((p, i) => `
+        const response = await api.getTopSellingProducts(limit);
+        const rows = asArray(response.data).map((p, i) => `
           <tr>
             <td>${i + 1}</td>
-            <td>${p.partName}</td>
-            <td>${p.partNumber}</td>
-            <td>${p.totalQuantitySold}</td>
-            <td>Rs.${p.totalRevenue.toLocaleString()}</td>
+            <td>${getValue(p, 'partName', 'PartName') || 'N/A'}</td>
+            <td>${getValue(p, 'partNumber', 'PartNumber') || 'N/A'}</td>
+            <td>${numberValue(getValue(p, 'totalQuantitySold', 'TotalQuantitySold'))}</td>
+            <td>${money(getValue(p, 'totalRevenue', 'TotalRevenue'))}</td>
           </tr>`).join('');
-        document.getElementById('topselling-content').innerHTML = `
-          <table style="margin-top:16px">
-            <thead><tr><th>#</th><th>Part Name</th><th>Part No.</th><th>Qty Sold</th><th>Revenue</th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table>`;
+
+        document.getElementById('topselling-content').innerHTML = rows
+          ? `<table style="margin-top:16px">
+              <thead><tr><th>#</th><th>Part Name</th><th>Part No.</th><th>Qty Sold</th><th>Revenue</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>`
+          : `<div class="empty-state" style="margin-top:16px;">No top-selling data found.</div>`;
       } catch (e) {
-        showError('topselling-content', e.response?.data?.title || e.message);
+        showError('topselling-content', backendError(e, 'Failed to generate top-selling report'));
       }
     }
 
     async function generateInventorySummary() {
-      const token = localStorage.getItem('authToken');
       try {
-        const res = await axios.get('http://localhost:5260/api/report/inventory/summary',
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        const d = res.data;
-        const lowRows = (d.lowStockParts || []).map(p => `
-          <tr>
-            <td>${p.partName}</td>
-            <td style="color:${p.currentStock === 0 ? '#EF4444' : '#F59E0B'}">${p.currentStock}</td>
-            <td>${p.reorderLevel}</td>
-          </tr>`).join('');
+        const response = await api.getInventorySummary();
+        const d = response.data || {};
+        const lowStockParts = asArray(getValue(d, 'lowStockParts', 'LowStockParts'));
+
+        const lowRows = lowStockParts.map(p => {
+          const stock = numberValue(getValue(p, 'currentStock', 'CurrentStock'));
+          return `
+            <tr>
+              <td>${getValue(p, 'partName', 'PartName') || 'N/A'}</td>
+              <td style="color:${stock === 0 ? '#EF4444' : '#F59E0B'}">${stock}</td>
+              <td>${numberValue(getValue(p, 'reorderLevel', 'ReorderLevel'))}</td>
+            </tr>`;
+        }).join('');
+
         document.getElementById('inventory-content').innerHTML = `
           <div class="kpi-grid" style="margin-top:16px">
-            <div class="kpi-card"><div class="kpi-label">Total Parts</div><div class="kpi-value">${d.totalPartsInStock}</div></div>
-            <div class="kpi-card"><div class="kpi-label">Inventory Value</div><div class="kpi-value">Rs.${d.totalInventoryValue.toLocaleString()}</div></div>
-            <div class="kpi-card"><div class="kpi-label">Low Stock</div><div class="kpi-value" style="color:#F59E0B">${d.lowStockCount}</div></div>
-            <div class="kpi-card"><div class="kpi-label">Out of Stock</div><div class="kpi-value" style="color:#EF4444">${d.outOfStockCount}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Total Parts</div><div class="kpi-value">${numberValue(getValue(d, 'totalPartsInStock', 'TotalPartsInStock'))}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Inventory Value</div><div class="kpi-value">${money(getValue(d, 'totalInventoryValue', 'TotalInventoryValue'))}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Low Stock</div><div class="kpi-value" style="color:#F59E0B">${numberValue(getValue(d, 'lowStockCount', 'LowStockCount'))}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Out of Stock</div><div class="kpi-value" style="color:#EF4444">${numberValue(getValue(d, 'outOfStockCount', 'OutOfStockCount'))}</div></div>
           </div>
           ${lowRows ? `<table style="margin-top:16px">
             <thead><tr><th>Part Name</th><th>Current Stock</th><th>Reorder At</th></tr></thead>
             <tbody>${lowRows}</tbody>
-          </table>` : ''}`;
+          </table>` : '<div class="empty-state" style="margin-top:16px;">No low-stock parts found.</div>'}`;
       } catch (e) {
-        showError('inventory-content', e.response?.data?.title || e.message);
+        showError('inventory-content', backendError(e, 'Failed to generate inventory summary'));
       }
     }
 
@@ -773,7 +845,10 @@
         return;
       }
 
-      const csv = `Financial Report\nPeriod: ${startDate} to ${endDate}\n\n${content}`;
+      const csv = `Financial Report
+Period: ${startDate} to ${endDate}
+
+${content}`;
       downloadCSV(csv, `FinancialReport_${startDate}_to_${endDate}.csv`);
     }
 
@@ -791,7 +866,10 @@
         return;
       }
 
-      const csv = `Profit & Loss Statement\nPeriod: ${startDate} to ${endDate}\n\n${content}`;
+      const csv = `Profit & Loss Statement
+Period: ${startDate} to ${endDate}
+
+${content}`;
       downloadCSV(csv, `ProfitLoss_${startDate}_to_${endDate}.csv`);
     }
 
@@ -808,7 +886,9 @@
         return;
       }
 
-      let csv = `Monthly Sales Report - ${year}\n\n`;
+      let csv = `Monthly Sales Report - ${year}
+
+`;
       const rows = table.querySelectorAll('tr');
       rows.forEach(row => {
         const cells = row.querySelectorAll('th, td');
@@ -826,7 +906,9 @@
         return;
       }
 
-      let csv = `Top Selling Products (Top ${limit})\n\n`;
+      let csv = `Top Selling Products (Top ${limit})
+
+`;
       const rows = table.querySelectorAll('tr');
       rows.forEach(row => {
         const cells = row.querySelectorAll('th, td');
@@ -843,7 +925,9 @@
         return;
       }
 
-      const csv = `Inventory Summary\n\n${content}`;
+      const csv = `Inventory Summary
+
+${content}`;
       downloadCSV(csv, `InventorySummary_${new Date().toISOString().split('T')[0]}.csv`);
     }
 
@@ -853,7 +937,6 @@
         saveAs(blob, filename);
       } catch (error) {
         console.error('Download error:', error);
-        // Fallback: Use data URL if saveAs fails
         const link = document.createElement('a');
         link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
         link.download = filename;

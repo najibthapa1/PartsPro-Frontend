@@ -393,13 +393,18 @@
           </div>
 
           <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #4B5563; text-align: right;">
-            <div style="display:grid;grid-template-columns:repeat(2,fit-content(100px));gap:12px;justify-content:flex-end;margin-bottom:20px;">
+            <div style="display:grid;grid-template-columns:repeat(2,fit-content(180px));gap:12px;justify-content:flex-end;margin-bottom:20px;">
               <div style="text-align:right;font-size:13px;color:#6B7280;">Subtotal:</div>
-              <div style="font-size:13px;font-weight:600;color:#F3F4F6;font-family:'Monaco',monospace;">Rs.0</div>
-              <div style="text-align:right;font-size:13px;color:#6B7280;">Discount (%):</div>
-              <input type="number" min="0" max="100" value="0" style="width:100px;padding:6px 8px;font-size:12px;">
+              <div id="subtotal-display" style="font-size:13px;font-weight:600;color:#F3F4F6;font-family:'Monaco',monospace;">Rs.0.00</div>
+
+              <div style="text-align:right;font-size:13px;color:#6B7280;">Loyalty Discount:</div>
+              <div id="discount-display" style="font-size:13px;font-weight:600;color:#10B981;font-family:'Monaco',monospace;">Rs.0.00</div>
+
               <div style="text-align:right;font-size:14px;font-weight:600;color:#F3F4F6;">Net Total:</div>
-              <div style="font-size:18px;font-weight:700;color:var(--pp-amber);font-family:'Monaco',monospace;">Rs.0</div>
+              <div id="net-total-display" style="font-size:18px;font-weight:700;color:var(--pp-amber);font-family:'Monaco',monospace;">Rs.0.00</div>
+
+              <div></div>
+              <div id="discount-note" style="font-size:11px;color:#6B7280;text-align:right;max-width:220px;">10% discount applies automatically above Rs.5,000.</div>
             </div>
 
             <div style="display:flex;gap:12px;justify-content:flex-end;">
@@ -448,20 +453,48 @@
         const res = await axios.get('http://localhost:5260/api/customer', {
           headers: { Authorization: `Bearer ${token}` }
         });
+
         const select = document.getElementById('customer-select');
         select.innerHTML = '<option value="">Choose a customer...</option>';
+
         (res.data || []).forEach(c => {
-          select.innerHTML += `<option value="${c.id}">${c.fullName} (ID: ${c.id})</option>`;
+          const id = c.id ?? c.Id ?? c.customerId ?? c.CustomerId;
+          const fullName = c.fullName ?? c.FullName ?? c.name ?? c.Name ?? c.customerName ?? c.CustomerName ?? 'Unknown Customer';
+          const vehicleNumber = c.vehicleNumber ?? c.VehicleNumber ?? c.vehicles?.[0]?.vehicleNumber ?? c.Vehicles?.[0]?.VehicleNumber;
+          const label = vehicleNumber ? `${fullName} (${vehicleNumber})` : `${fullName} (ID: ${id})`;
+
+          if (id) {
+            select.innerHTML += `<option value="${id}">${label}</option>`;
+          }
         });
       } catch (e) {
-        console.warn('Could not load customers — CustomerController not built yet');
+        console.warn('Could not load customers:', e.response?.data || e.message);
       }
+    }
+
+    function getNumber(...values) {
+      for (const value of values) {
+        if (value !== undefined && value !== null && value !== '') {
+          const num = Number(value);
+          if (!Number.isNaN(num)) return num;
+        }
+      }
+      return 0;
+    }
+
+    function getText(...values) {
+      for (const value of values) {
+        if (value !== undefined && value !== null && String(value).trim() !== '') {
+          return String(value);
+        }
+      }
+      return '';
     }
 
     async function addItem() {
       const token = localStorage.getItem('authToken');
       const query = document.getElementById('part-search').value.trim();
-      const qty   = parseInt(document.getElementById('quantity').value);
+      const qty = parseInt(document.getElementById('quantity').value, 10);
 
       if (!query) { alert('Enter a part name or number'); return; }
       if (!qty || qty < 1) { alert('Enter a valid quantity'); return; }
@@ -470,43 +503,99 @@
         const res = await axios.get(`http://localhost:5260/api/part/search?q=${encodeURIComponent(query)}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        const parts = res.data || [];
-        if (parts.length === 0) { alert('No parts found matching: ' + query); return; }
-        const part = parts[0];
 
-        const existing = saleItems.find(i => i.partId === part.id);
-        if (existing) { existing.quantity += qty; }
-        else { saleItems.push({ partId: part.id, partName: part.name, unitPrice: part.price, quantity: qty }); }
+        const parts = Array.isArray(res.data) ? res.data : [];
+        if (parts.length === 0) { alert('No parts found matching: ' + query); return; }
+
+        const part = parts[0];
+        console.log('Selected part:', part);
+
+        const partId = getNumber(part.id, part.Id, part.partId, part.PartId);
+        const partName = getText(part.name, part.Name, part.partName, part.PartName, part.partNumber, part.PartNumber, 'Unknown Part');
+
+        // Backend usually returns price as selling price. Extra fallbacks prevent Rs.0/NaN when JSON naming differs.
+        const unitPrice = getNumber(
+          part.price,
+          part.Price,
+          part.sellingPrice,
+          part.SellingPrice,
+          part.unitPrice,
+          part.UnitPrice,
+          part.salePrice,
+          part.SalePrice
+        );
+
+        const availableStock = getNumber(part.stockQuantity, part.StockQuantity, part.quantity, part.Quantity, part.availableQuantity, part.AvailableQuantity);
+
+        if (!partId) {
+          alert('This part record does not have a valid Part ID. Please check the backend response.');
+          return;
+        }
+
+        if (!unitPrice || unitPrice <= 0) {
+          alert('This part does not have a valid selling price. Please check the part record in inventory.');
+          return;
+        }
+
+        if (availableStock > 0 && qty > availableStock) {
+          alert(`Only ${availableStock} item(s) are available in stock.`);
+          return;
+        }
+
+        const existing = saleItems.find(i => i.partId === partId);
+        if (existing) {
+          existing.quantity += qty;
+        } else {
+          saleItems.push({ partId, partName, unitPrice, quantity: qty });
+        }
 
         renderSaleTable();
         document.getElementById('part-search').value = '';
         document.getElementById('quantity').value = '1';
       } catch (e) {
-        alert('Error searching parts: ' + (e.response?.data?.title || e.message));
+        console.error('Error searching parts:', e);
+        alert('Error searching parts: ' + (e.response?.data?.message || e.response?.data?.title || e.message));
       }
+    }
+
+    function updateTotals(subtotal = 0) {
+      const discount = subtotal > 5000 ? subtotal * 0.10 : 0;
+      const final = subtotal - discount;
+
+      document.getElementById('subtotal-display').textContent = `Rs.${subtotal.toFixed(2)}`;
+      document.getElementById('discount-display').textContent = `Rs.${discount.toFixed(2)}`;
+      document.getElementById('net-total-display').textContent = `Rs.${final.toFixed(2)}`;
+      document.getElementById('discount-note').textContent = subtotal > 5000
+        ? '10% loyalty discount applied automatically.'
+        : '10% discount applies automatically above Rs.5,000.';
     }
 
     function renderSaleTable() {
       const tbody = document.getElementById('items-table');
+
       if (saleItems.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:#6B7280;">No items added yet</td></tr>';
+        updateTotals(0);
         return;
       }
-      let total = 0;
+
+      let subtotal = 0;
       tbody.innerHTML = saleItems.map((item, i) => {
-        const lineTotal = item.unitPrice * item.quantity;
-        total += lineTotal;
+        const unitPrice = Number(item.unitPrice) || 0;
+        const quantity = Number(item.quantity) || 0;
+        const lineTotal = unitPrice * quantity;
+        subtotal += lineTotal;
+
         return `<tr>
           <td>${item.partName}</td>
-          <td>Rs.${item.unitPrice.toFixed(2)}</td>
-          <td>${item.quantity}</td>
+          <td>Rs.${unitPrice.toFixed(2)}</td>
+          <td>${quantity}</td>
           <td>Rs.${lineTotal.toFixed(2)}</td>
-          <td><button onclick="removeSaleItem(${i})" style="background:none;border:none;color:#EF4444;cursor:pointer">✕</button></td>
+          <td><button type="button" onclick="removeSaleItem(${i})" style="background:none;border:none;color:#EF4444;cursor:pointer">✕</button></td>
         </tr>`;
       }).join('');
-      const discount = total > 5000 ? total * 0.10 : 0;
-      const final = total - discount;
-      // update totals display — find the subtotal / net total divs in the HTML
+
+      updateTotals(subtotal);
     }
 
     function removeSaleItem(index) {
@@ -529,7 +618,7 @@
 
       const payload = {
         customerId,
-        items: saleItems.map(i => ({ partId: i.partId, quantity: i.quantity }))
+        items: saleItems.map(i => ({ partId: Number(i.partId), quantity: Number(i.quantity) }))
       };
 
       try {
@@ -543,7 +632,8 @@
         alert(msg);
         resetForm();
       } catch (e) {
-        alert('Error: ' + (e.response?.data?.title || e.message));
+        console.error('Create sale error:', e.response?.data || e.message);
+        alert('Error: ' + (e.response?.data?.message || e.response?.data?.title || JSON.stringify(e.response?.data || '') || e.message));
       }
     }
   </script>
