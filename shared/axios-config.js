@@ -35,8 +35,8 @@ const api = {
   login: (email, password) => axiosInstance.post('/auth/login', { email, password }),
   register: (email, password, fullName, phone, address, plateNumber, vehicleModel, vehicleYear) =>
     axiosInstance.post('/auth/register', { email, password, fullName, phone, address, plateNumber, vehicleModel, vehicleYear }),
-  registerStaff: (email, password, fullName, department) =>
-    axiosInstance.post('/auth/register-staff', { email, password, fullName, department }),
+  registerStaff: (email, password, fullName, department,phone,address) =>
+    axiosInstance.post('/auth/register-staff', { email, password, fullName, department, phone, address }),
   registerCustomerByStaff: (email, password, fullName, phone, address, plateNumber, vehicleModel, vehicleYear) =>
     axiosInstance.post('/auth/register-customer-by-staff', { email, password, fullName, phone, address, plateNumber, vehicleModel, vehicleYear }),
 
