@@ -533,35 +533,42 @@
     }
 
     async function registerStaff() {
-      const password = document.getElementById('password').value;
-      const confirm  = document.getElementById('confirm-password').value;
-
-      if (password !== confirm) { alert('Passwords do not match'); return; }
-
-      const fullName   = document.getElementById('full-name').value.trim();
-      const email      = document.getElementById('email').value.trim();
-      const phone      = document.getElementById('phone').value.trim();
-      const address    = document.getElementById('address').value.trim();
+      const fullName = document.getElementById('full-name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.replace(/\D/g, '').slice(-10);
+      const address = document.getElementById('address').value.trim();
       const department = document.getElementById('role').value;
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm-password').value;
 
-      if (!fullName || !email || !phone || !address || !department) {
-        alert('Please fill in all required fields'); return;
+      if (!fullName || !email || !phone || !address || !department || !password) {
+        alert('Please fill in all required fields');
+        return;
       }
 
-      if (!/^\d{10}$/.test(phone)) {
-        alert('Phone number must be exactly 10 digits'); return;
+      if (phone.length !== 10) {
+        alert('Phone number must be exactly 10 digits');
+        return;
+      }
+
+      if (password !== confirm) {
+        alert('Passwords do not match');
+        return;
       }
 
       try {
         await api.registerStaff(email, password, fullName, phone, address, department);
         alert('Staff member registered successfully!');
-        resetForm();
         closeStaffModal();
+        resetForm();
         loadStaffList();
       } catch (e) {
-        const msg = e.response?.data?.errors
-          ? Object.values(e.response.data.errors).flat().join('\n')
-          : (e.response?.data?.title || e.message);
+        const data = e.response?.data;
+        const msg =
+          typeof data === 'string'
+            ? data
+            : data?.title || data?.message || JSON.stringify(data) || e.message;
+
         alert('Error: ' + msg);
       }
     }

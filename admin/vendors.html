@@ -530,26 +530,40 @@
       try {
         const name = document.getElementById('vendor-name').value.trim();
         const contactPerson = document.getElementById('contact-person').value.trim();
-        const phone = document.getElementById('phone').value.trim();
         const email = document.getElementById('email').value.trim();
-        const city = document.getElementById('city').value.trim();
-        const taxId = document.getElementById('tax-id').value.trim();
-        const rawAddress = document.getElementById('address').value.trim();
-        const addressParts = [rawAddress, city ? `City: ${city}` : '', taxId ? `Tax/VAT: ${taxId}` : ''].filter(Boolean);
-        const address = addressParts.join(' | ');
+        const phone = document.getElementById('phone').value.replace(/\D/g, '').slice(-10);
+        const address = document.getElementById('address').value.trim();
 
-        if (!name || !contactPerson || !phone || !email) {
+        if (!name || !contactPerson || !email || !phone || !address) {
           alert('Please fill in all required fields');
           return;
         }
 
-        await api.createVendor({ name, contactPerson, phone, email, address });
+        if (phone.length !== 10) {
+          alert('Phone number must be exactly 10 digits');
+          return;
+        }
+
+        await api.createVendor({
+          name,
+          contactPerson,
+          phone,
+          email,
+          address
+        });
+
         alert('Vendor created successfully!');
-        resetForm();
         closeVendorModal();
+        resetForm();
         loadVendorList();
       } catch (e) {
-        alert('Error: ' + (e.response?.data?.title || e.message));
+        const data = e.response?.data;
+        const msg =
+          typeof data === 'string'
+            ? data
+            : data?.title || data?.message || JSON.stringify(data) || e.message;
+
+        alert('Error: ' + msg);
       }
     }
 
